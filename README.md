@@ -77,4 +77,6 @@ tech stack will be applied:
 - [Command Cheat Sheet](doc/CHEATSHEET.md)
 - API Design
     - [API Design Guidance: File Upload](https://tyk.io/api-design-guidance-file-upload/)
-
+- Frontend
+    - [How to add login Authentication to React Applications](https://www.digitalocean.com/community/tutorials/how-to-add-login-authentication-to-react-applications)
+    - [React Login Authentication using useContext and useReducer](https://soshace.com/react-user-login-authentication-using-usecontext-and-usereducer/)

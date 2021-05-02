@@ -6,26 +6,34 @@ const DeveloperPage = React.lazy(() => import("../components/developer/Developer
 const DashboardPage = React.lazy(() => import("../components/dashboard/Dashboard"));
 const LoginPage = React.lazy(() => import("../components/login/Login"));
 
-const routes: RouteProps[] = [
+export interface AppRouteProps extends RouteProps {
+    isPrivate: boolean;
+}
+
+const routes: AppRouteProps[] = [
     {
         exact: true,
         component: HomePage,
-        path: "/"
+        path: "/",
+        isPrivate: false
     },
     {
         exact: true,
         component: DeveloperPage,
-        path: "/developer"
+        path: "/developer",
+        isPrivate: false
     },
     {
         exact: true,
         component: LoginPage,
-        path: "/login"
+        path: "/login",
+        isPrivate: false
     },
     {
         exact: true,
         component: DashboardPage,
-        path: "/dashboard"
+        path: "/dashboard",
+        isPrivate: true
     }
 ];
 
