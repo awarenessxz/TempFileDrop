@@ -1,0 +1,15 @@
+version: '3.7'
+
+services:
+  mongodb:
+    image: mongo:latest
+    container_name: 'mongo_server'
+    environment:
+      MONGO_INITDB_DATABASE: webDB
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: 1234
+    ports:
+    - 27017:27017
+    volumes:
+    - ./mongo:/docker-entrypoint-initdb.d # scripts will not run if /data/db is not empty
+    - ./mongodata:/data/db # for persistent storage

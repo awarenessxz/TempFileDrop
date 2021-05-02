@@ -28,4 +28,22 @@ tech stack will be applied:
 
 ## Usage
 
+### Start MinIO Service
+
+### Start TempFileDrop.io Service
+
+1. Start up the Database
+    ```bash 
+    cd database
+    cd mongodata && sudo rm -rf * && cd ..     # OPTIONAL
+    docker-compose up -d
+    ```
+2. Start the Web Server
+3. Start the Web Application
+    ```bash
+    cd webapp
+    yarn install
+    yarn start
+    ```
+
 ## References
