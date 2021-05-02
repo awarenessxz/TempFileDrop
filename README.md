@@ -11,7 +11,10 @@ tech stack will be applied:
 **Table of Content**
 - [Architecture Design](#architecture-design)
 - [Usage](#usage)
+    - [Start MinIO Service](#start-minio-service)
+    - [Start TempFileDrop.io Service](#start-tempfiledropio-service)
 - [References](#references)
+    - [Command Cheat Sheet](doc/CHEATSHEET.md)
 
 ## Architecture Design
 
@@ -47,3 +50,4 @@ tech stack will be applied:
     ```
 
 ## References
+- [Command Cheat Sheet](doc/CHEATSHEET.md)
