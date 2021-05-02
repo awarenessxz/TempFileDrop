@@ -31,3 +31,9 @@ docker ps - a                   # check list of containers instance
 docker rm <CONTAINER_NAME/ID>   # delete container instance
 docker rmi <IMAGE_NAME/ID>      # delete image
 ```
+
+## Curl
+
+```bash
+curl -X POST -d '{"username": "user1", "password": "password" }' -H "Content-Type: application/json" http://localhost:7001/login
+```

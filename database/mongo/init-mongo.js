@@ -20,6 +20,6 @@ db.createCollection("uploads");
 db.createCollection("users");
 
 db.users.insert([
-    { username: "user1", password: "password" },
-    { username: "user2", password: "password" }
+    { username: "user1", password: "password", creationDate: new Date(Date.now()) },
+    { username: "user2", password: "password", creationDate: new Date(Date.now()) }
 ])

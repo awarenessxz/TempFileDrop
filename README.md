@@ -63,6 +63,9 @@ tech stack will be applied:
     docker-compose up -d
     ```
 2. Start the Web Server
+    ```bash
+    ./gradlew webserver:bootRun
+    ```
 3. Start the Web Application
     ```bash
     cd webapp
