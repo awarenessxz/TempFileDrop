@@ -20,18 +20,19 @@ class FileStorageController(
     }
 
     @PostMapping("/upload")
-    fun uploadFile(@RequestParam("file") file: MultipartFile): ResponseEntity<FileStorageResponse> {
+    fun uploadFile(@RequestParam("files") files: List<MultipartFile>): ResponseEntity<FileStorageResponse> {
         var message = ""
-        try {
-            service.saveToFolder(file)
-            message = "Uploaded the file successfully: " + file.originalFilename
+        val filesStored = files.joinToString(", " ) { it.originalFilename.toString() }
+        return try {
+            service.saveToFolder(files)
+            message = "Uploaded Successfully: $filesStored"
             val response = FileStorageResponse(message)
-            return ResponseEntity(response, HttpStatus.OK)
+            ResponseEntity(response, HttpStatus.OK)
         } catch (e: Exception) {
             logger.error(e.message)
-            message = "Could not upload the file " + file.originalFilename + "!"
+            message = "Could not upload the files! - $filesStored"
             val response = FileStorageResponse(message)
-            return ResponseEntity(response, HttpStatus.INTERNAL_SERVER_ERROR)
+            ResponseEntity(response, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 

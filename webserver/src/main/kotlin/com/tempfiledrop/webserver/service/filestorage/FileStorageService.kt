@@ -7,7 +7,7 @@ import java.util.stream.Stream
 
 interface FileStorageService {
     fun initLocalStorage()
-    fun saveToFolder(file: MultipartFile)
+    fun saveToFolder(files: List<MultipartFile>, userFolder: String = "anonymous")
     fun loadFromFolder(filename: String): Resource
     fun deleteAllFilesInFolder()
     fun loadAllFilesFromFolder(): Stream<Path>

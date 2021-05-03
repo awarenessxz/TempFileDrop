@@ -40,7 +40,7 @@ tech stack will be applied:
     - How much load can it handles
 3. File Upload Mechanism
     - **Option A - Direct File Upload**
-        - use HTTP `Content-Type` header on request to set the proper content.
+        - use HTTP `Content-Type` header on request to set the proper content
             ```
             PUT /profile/image HTTP/1.1
             Content-Type: image/jpeg
@@ -48,13 +48,14 @@ tech stack will be applied:
             
             raw image content...
             ```
-        - This is a straightforward method that is recommended in most cases.
+        - This is a straightforward method that is recommended in most cases
     - **Option B - Multipart HTTP request [SELECTED]**
         - useful to support `uploading of multiple files at once` as well as supporting `different metadata` (eg combination 
-        of images and JSON) in the same request.
+        of images and JSON) in the same request
+        - We will be using a variation of this **Mixed Multipart** which is a Multipart request with json
     - **Option C - Two-step: Metadata + Upload**
-        - Submit meta-data first using `POST` method and return a `201 Created` with the location of where to upload the content.
-        - Submit a `PUT` request to upload content.
+        - Submit meta-data first using `POST` method and return a `201 Created` with the location of where to upload the content
+        - Submit a `PUT` request to upload content
 4. Possible File Upload Vulnerabilities
     - **Server Side Request Forgery Vulnerability**
 5. Possible File Upload Defence
@@ -99,5 +100,6 @@ tech stack will be applied:
     - [Spring Boot Multipart File Upload to Folder](https://bezkoder.com/spring-boot-file-upload/)
     - [Spring Boot Uploading and Downloading file from MinIO object store](https://blogs.ashrithgn.com/spring-boot-uploading-and-downloading-file-from-minio-object-store/)
     - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload)
-    
-    
+    - Multipart request with Json
+        - [RequestBody and Multipart on Spring Boot](https://blogs.perficient.com/2020/07/27/requestbody-and-multipart-on-spring-boot/)
+        

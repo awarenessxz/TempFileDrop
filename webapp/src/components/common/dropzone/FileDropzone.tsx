@@ -27,7 +27,7 @@ const FileDropzone = ({
         // craft payload & fetch
         const formData = new FormData();
         acceptedFiles.forEach(file => {
-            formData.append("file", file);
+            formData.append("files", file);
         });
         axios.post("/files/upload", formData, {})
             .then(res => {

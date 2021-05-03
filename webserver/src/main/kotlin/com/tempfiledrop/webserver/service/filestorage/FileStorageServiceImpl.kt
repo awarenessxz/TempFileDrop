@@ -21,19 +21,30 @@ class FileStorageServiceImpl: FileStorageService {
     }
 
     private val root: Path = Paths.get("uploads")
+    private val anonymousPath: Path = Paths.get("uploads/anonymous")
 
     override fun initLocalStorage() {
         try {
             logger.info("INITIALIZING FOLDER.....")
             Files.createDirectory(root)
+            Files.createDirectory(anonymousPath)
         } catch (e: IOException) {
             throw RuntimeException("Could not initialize folder for upload!")
         }
     }
 
-    override fun saveToFolder(file: MultipartFile) {
+    override fun saveToFolder(files: List<MultipartFile>, userFolder: String) {
         try {
-            Files.copy(file.inputStream, root.resolve(file.originalFilename))
+            // check if directory exists
+            val directory = root.resolve(userFolder)
+            if (!Files.exists(directory)) {
+                Files.createDirectory(directory) // make directory if not exists
+            }
+
+            // check if file exists, if exists, append
+            files.forEach { file ->
+                Files.copy(file.inputStream, root.resolve(userFolder).resolve(file.originalFilename!!))
+            }
         } catch (e: Exception) {
             throw RuntimeException("Could not store the file. Error: " + e.message)
         }
