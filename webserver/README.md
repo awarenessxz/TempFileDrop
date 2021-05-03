@@ -4,4 +4,7 @@ Web server for TempFileDrop.io built using Spring Boot Framework.
 
 ## Usage
 
-`./gradlew bootRun`
+```bash
+cd <ROOT>
+./gradlew webserver:bootRun
+```

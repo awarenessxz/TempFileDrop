@@ -6,10 +6,8 @@ server:
   port: 7001
 
 spring:
-  profiles:
-    active: dev
-  application:
-    name: webserver
+  profiles.active: dev
+  application.name: webserver
 
 ---
 
@@ -17,8 +15,16 @@ spring:
 # Mongo DB Configuration
 ###############################################################################################
 
-spring:
-  data:
-    mongodb:
-      uri: mongodb://service_user:service_pass@localhost:27017/webDB
-      authentication-database: webDB
+spring.data.mongodb:
+  uri: mongodb://service_user:service_pass@localhost:27017/webDB
+  authentication-database: webDB
+
+---
+
+###############################################################################################
+# Servlet Configuration for Multipart File
+###############################################################################################
+
+spring.servlet.multipart:
+  max-file-size: 500KB      # Max file size for each request
+  max-request-size: 500KB   # Max request size for a multipart/form-data
