@@ -15,14 +15,18 @@ class UserInfoController(
     }
 
     @GetMapping("/exists/{username}")
-    fun checkUserExists(@PathVariable("username") username: String): ResponseEntity<Boolean> {
+    fun checkUserExists(@PathVariable("username") username: String): ResponseEntity<UserInfoResponse> {
         val user = service.getUserInfoByUsername(username)
-        return ResponseEntity(user != null, HttpStatus.OK)
+        val userExists = user != null
+        val response = UserInfoResponse(userExists, username)
+        return ResponseEntity(response, HttpStatus.OK)
     }
 
     @PostMapping("/login")
-    fun userLogin(@RequestBody userInfoReq: UserInfoRequest): ResponseEntity<Boolean> {
+    fun userLogin(@RequestBody userInfoReq: UserInfoRequest): ResponseEntity<UserInfoResponse> {
         val user = service.attemptToLogin(userInfoReq.username, userInfoReq.password)
-        return ResponseEntity(user != null, HttpStatus.OK)
+        val userExists = user != null
+        val response = UserInfoResponse(userExists, userInfoReq.username)
+        return ResponseEntity(response, HttpStatus.OK)
     }
 }
