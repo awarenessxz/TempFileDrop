@@ -18,6 +18,7 @@ tech stack will be applied:
 
 **Developement Plan**
 1. Add logic to store uploads into Database
+1. Group into a single folder (for the same uploads)
 1. Add frontend logic to show dashboard 
 1. Set up MinIO Cluster
 1. Set up MinIO Service
