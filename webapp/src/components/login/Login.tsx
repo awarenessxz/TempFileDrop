@@ -29,7 +29,7 @@ const Login = () => {
     };
 
     if (loading) {
-        return <Spinner />;
+        return <Spinner isFullPage spinnerHeight={400} spinnerWidth={400} spinnerType="Puff" spinnerColor="#64a19d" backgroundColor="#000" />;
     }
 
     return (

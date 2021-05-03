@@ -80,6 +80,13 @@ tech stack will be applied:
 - Frontend
     - [How to add login Authentication to React Applications](https://www.digitalocean.com/community/tutorials/how-to-add-login-authentication-to-react-applications)
     - [React Login Authentication using useContext and useReducer](https://soshace.com/react-user-login-authentication-using-usecontext-and-usereducer/)
+    - [React File Upload/Download Example with Spring Rest Api](https://bezkoder.com/react-file-upload-spring-boot/)
+    - [React-Dropzone.js](https://react-dropzone.js.org/)
+        - [Tutorial Example 1](https://www.digitalocean.com/community/tutorials/react-react-dropzone)
+        - [Tutorial Example 2](https://www.newline.co/@dmitryrogozhny/how-to-drag-and-drop-files-in-react-applications-with-react-dropzone--c6732c93)
 - Backend
     - [Spring Boot Multipart File Upload to Folder](https://bezkoder.com/spring-boot-file-upload/)
+    - [Spring Boot Uploading and Downloading file from MinIO object store](https://blogs.ashrithgn.com/spring-boot-uploading-and-downloading-file-from-minio-object-store/)
+    - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload)
+    
     

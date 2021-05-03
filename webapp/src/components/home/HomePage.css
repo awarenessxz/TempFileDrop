@@ -32,6 +32,17 @@
     margin: 2rem auto;
 }
 
+.masthead button:focus {
+    color: #000;
+    background-color: #FFCAB1;
+    border-color: #FFCAB1;
+}
+
+.masthead button:active {
+    background-color: #64a19d !important;
+    color: #fff !important;
+}
+
 .masthead button:hover {
     background-color: #64a19d;
     color: #fff;

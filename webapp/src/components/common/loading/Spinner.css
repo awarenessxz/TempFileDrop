@@ -3,13 +3,29 @@
     left: 0;
     height: 100%;
     width: 100%;
-    background-color: rgba(255, 255, 255, 0.5);
+    opacity: 0.5;
     position: absolute;
 }
 
-.spinner-container {
+.spinner-inner-container {
     position: fixed; /* or absolute */
     top: 50%;
     left: 50%;
     transform: translate(-50%, -50%);
+}
+
+.spinner-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    -webkit-transform: translateY( -50% );
+    transform: translateY( -50% );
+    text-align: center;
+    height: 100%;
+    width: 100%;
+    z-index: 999999;
 }
