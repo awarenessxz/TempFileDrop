@@ -17,15 +17,26 @@ tech stack will be applied:
 - [References](#references)
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
 
-**Developement Plan**
-1. Add logic to store uploads into Database
-1. Group into a single folder (for the same uploads)
-1. Add frontend logic to show dashboard 
-1. Set up MinIO Service
-1. Switch webserver to store in MinIO instead of file storage
-1. Add advanced upload options
-1. Add developer API page
-1. Create a logo
+**Development Plan**
+1. Dashboard
+    - Send JSON + Multipart to Backend (webserver)
+    - Forward request to Storage Service
+        - Set up Storage Service
+            - Store inside Bucket (TempFileDrop.io) -- categorize further by username
+            - Ensure filenames are unique (Random UUID)
+            - Group uploads into a single folder
+        - Return webserver a link to download
+    - Webserver stores <user -- objects> mapping (For Dashboard)
+    - Returns link to Frontend
+    - Show dashboard
+2. Implement Security
+    - Spring Security
+    - TLS (HTTPS) 
+    - IAM for MinIO Cluster
+3. Others
+    - Register - Ensure users are unique
+    - Developer Swagger Page
+    - Create logo
 
 ## Architecture Design
 
@@ -105,9 +116,10 @@ tech stack will be applied:
         - [Tutorial Example 2](https://www.newline.co/@dmitryrogozhny/how-to-drag-and-drop-files-in-react-applications-with-react-dropzone--c6732c93)
         - [CSS Tricks: Drag and drop for file uploading](https://css-tricks.com/drag-and-drop-file-uploading/)
 - Backend
-    - [Spring Boot Multipart File Upload to Folder](https://bezkoder.com/spring-boot-file-upload/)
-    - [Spring Boot Uploading and Downloading file from MinIO object store](https://blogs.ashrithgn.com/spring-boot-uploading-and-downloading-file-from-minio-object-store/)
-    - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload)
+    - Multipart Upload
+        - [Spring Boot Multipart File Upload to Folder](https://bezkoder.com/spring-boot-file-upload/)
+        - [Spring Boot Uploading and Downloading file from MinIO object store](https://blogs.ashrithgn.com/spring-boot-uploading-and-downloading-file-from-minio-object-store/)
+        - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload)
     - Multipart request with Json
         - [RequestBody and Multipart on Spring Boot](https://blogs.perficient.com/2020/07/27/requestbody-and-multipart-on-spring-boot/)
     - MinIO
