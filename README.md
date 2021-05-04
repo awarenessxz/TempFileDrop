@@ -7,6 +7,7 @@ tech stack will be applied:
 - **Nginx** - Web server to serve website
 - **MinIO** - object storage server
 - **Spring Boot** - API web services
+- **Docker** - Containerization
 
 **Table of Content**
 - [Architecture Design](#architecture-design)
@@ -20,7 +21,6 @@ tech stack will be applied:
 1. Add logic to store uploads into Database
 1. Group into a single folder (for the same uploads)
 1. Add frontend logic to show dashboard 
-1. Set up MinIO Cluster
 1. Set up MinIO Service
 1. Switch webserver to store in MinIO instead of file storage
 1. Add advanced upload options
@@ -66,6 +66,13 @@ tech stack will be applied:
 
 ### Start MinIO Service
 
+1. Start the MinIO Distributed Cluster
+    ```bash
+    cd minio
+    sudo rm -rf storage
+    docker-compose up -d
+    ```
+
 ### Start TempFileDrop.io Service
 
 1. Start up the Database
@@ -103,4 +110,6 @@ tech stack will be applied:
     - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload)
     - Multipart request with Json
         - [RequestBody and Multipart on Spring Boot](https://blogs.perficient.com/2020/07/27/requestbody-and-multipart-on-spring-boot/)
+    - MinIO
+        - [Deply MinIO on Kubernetes](https://docs.min.io/docs/deploy-minio-on-docker-compose.html)
         
