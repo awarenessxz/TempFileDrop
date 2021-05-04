@@ -9,6 +9,9 @@ spring:
   profiles.active: dev
   application.name: webserver
 
+tempfiledrop:
+  upload-path: uploads
+
 ---
 
 ###############################################################################################

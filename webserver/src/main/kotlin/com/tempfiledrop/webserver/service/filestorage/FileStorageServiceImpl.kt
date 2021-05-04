@@ -1,6 +1,8 @@
 package com.tempfiledrop.webserver.service.filestorage
 
+import com.tempfiledrop.webserver.config.ServerProperties
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
 import org.springframework.stereotype.Service
@@ -15,13 +17,15 @@ import java.nio.file.Paths
 import java.util.stream.Stream
 
 @Service
-class FileStorageServiceImpl: FileStorageService {
+class FileStorageServiceImpl(
+        serverProperties: ServerProperties
+): FileStorageService {
     companion object {
         private val logger = LoggerFactory.getLogger(FileStorageServiceImpl::class.java)
     }
 
-    private val root: Path = Paths.get("uploads")
-    private val anonymousPath: Path = Paths.get("uploads/anonymous")
+    private val root: Path = Paths.get(serverProperties.uploadPath)
+    private val anonymousPath: Path = root.resolve("anonymous")
 
     override fun initLocalStorage() {
         try {

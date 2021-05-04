@@ -1,0 +1,10 @@
+{
+    "properties": [
+        {
+            "name": "tempfiledrop.file-storage-upload-path",
+            "type": "java.lang.String",
+            "description": "Upload File Path File Storage.",
+            "defaultValue": "uploads"
+        }
+    ]
+}
