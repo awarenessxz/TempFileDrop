@@ -18,25 +18,27 @@ tech stack will be applied:
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
 
 **Development Plan**
-1. Dashboard
-    - Send JSON + Multipart to Backend (webserver)
-    - Forward request to Storage Service
-        - Set up Storage Service
-            - Store inside Bucket (TempFileDrop.io) -- categorize further by username
-            - Ensure filenames are unique (Random UUID)
-            - Group uploads into a single folder
+1. Features
+    - Upload
         - Return webserver a link to download
-    - Webserver stores <user -- objects> mapping (For Dashboard)
-    - Returns link to Frontend
-    - Show dashboard
+        - Presigned URL (Temporary uploads)
+        - Advanced Settings (Expiry...)
+        - Ensure filesnames are unique (Random UUID + Timestamp?)
+        - Group uploads in to a single folder 
+    - Dashboard
+        - Webserver stores <user -- objects> mapping (For Dashboard)
+        - Show dashboard
 2. Implement Security
     - Spring Security
     - TLS (HTTPS) 
     - IAM for MinIO Cluster
+    - Better handle Response Code
+    - Bucket Authorization
 3. Others
     - Register - Ensure users are unique
     - Developer Swagger Page
     - Create logo
+    - Make the object service and file service conditional
 
 ## Architecture Design
 
@@ -84,6 +86,11 @@ tech stack will be applied:
     docker-compose up -d
     ```
 
+2. Start the Storage Service
+    ```bash
+    ./gradlew storage-service:bootRun
+    ```
+
 ### Start TempFileDrop.io Service
 
 1. Start up the Database
@@ -122,6 +129,14 @@ tech stack will be applied:
         - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload)
     - Multipart request with Json
         - [RequestBody and Multipart on Spring Boot](https://blogs.perficient.com/2020/07/27/requestbody-and-multipart-on-spring-boot/)
+        - [Multiple files upload with request body using spring boot and test using Postman](https://medium.com/@pankajsingla_24995/multipart-request-with-request-body-using-spring-boot-and-test-using-postman-6ea46b71b75d)
+        - [Stackoverflow - React Multipart file and JSON data](https://stackoverflow.com/questions/59235491/react-ajax-request-with-multipart-file-and-json-data)
+        - [Spring Rest Template Multipart Upload](https://www.baeldung.com/spring-rest-template-multipart-upload)
+        - [Stackoverflow - How do I send a multipart file using spring rest template](https://stackoverflow.com/questions/55138538/how-do-i-send-a-multipartfile-using-spring-resttemplate)
+    - Forwarding request (Service to Service) in Spring
+        - [Stackoverflow - How to send Multipart form data with restTemplate Spring-mvc](https://stackoverflow.com/questions/28408271/how-to-send-multipart-form-data-with-resttemplate-spring-mvc)
     - MinIO
-        - [Deply MinIO on Kubernetes](https://docs.min.io/docs/deploy-minio-on-docker-compose.html)
-        
+        - [Deploy MinIO on Kubernetes](https://docs.min.io/docs/deploy-minio-on-docker-compose.html)
+    - Exception handling
+        - [Spring Template Error Handling](https://www.baeldung.com/spring-rest-template-error-handling)
+        - [Log your rest template without destroying the body](https://objectpartners.com/2018/03/01/log-your-resttemplate-request-and-response-without-destroying-the-body/)

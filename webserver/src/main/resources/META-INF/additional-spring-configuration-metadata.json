@@ -1,10 +1,14 @@
 {
     "properties": [
         {
-            "name": "tempfiledrop.file-storage-upload-path",
+            "name": "tempfiledrop.bucket-name",
             "type": "java.lang.String",
-            "description": "Upload File Path File Storage.",
-            "defaultValue": "uploads"
+            "description": "Name of the Bucket to store in Storage service."
+        },
+        {
+            "name": "tempfiledrop.storage-service-url",
+            "type": "java.lang.String",
+            "description": "Storage Service's url."
         }
     ]
 }

@@ -3,15 +3,20 @@
 ###############################################################################################
 
 server:
-  port: 7001
+  port: 8001
 
 spring:
   profiles.active: dev
-  application.name: webserver
+  application.name: storagesvc
 
-tempfiledrop:
-  bucket-name: tempfiledrop
-  storage-service-url: http://localhost:8001/buckets
+storagesvc:
+  storage-mode: object
+  file-storage:
+    upload-path: uploads
+  object-storage:
+    minio-endpoint: http://localhost:9000
+    minio-access-key: minio
+    minio-access-secret: minio123
 
 ---
 
@@ -32,3 +37,5 @@ spring.data.mongodb:
 spring.servlet.multipart:
   max-file-size: 500KB      # Max file size for each request
   max-request-size: 500KB   # Max request size for a multipart/form-data
+
+---

@@ -1,4 +1,4 @@
-package com.tempfiledrop.webserver.util.exception
+package com.tempfiledrop.storagesvc.exception
 
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -17,23 +17,22 @@ class ApiExceptionHandler: ResponseEntityExceptionHandler() {
     @ExceptionHandler(value = [(Exception::class)])
     fun handleAnyException(ex: Exception, request: WebRequest): ResponseEntity<Any> {
         val errorMsgDescription = if (ex.localizedMessage == null) ex.toString() else ex.localizedMessage
-        val errorMsg = ErrorMessage(Date(), errorMsgDescription)
+        val errorMsg = ErrorResponse(Date(), errorMsgDescription, ErrorCode.SERVER_ERROR)
         return ResponseEntity(errorMsg, HttpHeaders(), HttpStatus.INTERNAL_SERVER_ERROR)
     }
 
     // Max Upload File Size Exceed Exception
     @ExceptionHandler(value = [(MaxUploadSizeExceededException::class)])
     fun handleMaxUploadSizeException(ex: MaxUploadSizeExceededException): ResponseEntity<Any> {
-        val errorMsgDescription = "File too large"
-        val errorMsg = ErrorMessage(Date(), errorMsgDescription, ErrorTypes.MAX_UPLOAD_FILE_SIZE_EXCEED)
-        return ResponseEntity(errorMsg, HttpHeaders(), HttpStatus.EXPECTATION_FAILED)
+        val errorMsg = ErrorResponse(Date(), "Upload Max File Size Exceeded!", ErrorCode.MAX_UPLOAD_FILE_SIZE_EXCEED)
+        return ResponseEntity(errorMsg, HttpHeaders(), HttpStatus.BAD_REQUEST)
     }
 
     // Api Exception Handler
     @ExceptionHandler(value = [(ApiException::class)])
     fun handleApiException(ex: ApiException, request: WebRequest): ResponseEntity<Any> {
         val errorMsgDescription = if (ex.localizedMessage == null) ex.toString() else ex.localizedMessage
-        val errorMsg = ErrorMessage(Date(), errorMsgDescription, ex.errorType)
+        val errorMsg = ErrorResponse(Date(), errorMsgDescription, ex.errorCode)
         return ResponseEntity(errorMsg, HttpHeaders(), ex.status)
     }
 }

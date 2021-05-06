@@ -1,56 +1,67 @@
-package com.tempfiledrop.webserver.service.filestorage
+package com.tempfiledrop.storagesvc.service.filestorage
 
-import com.tempfiledrop.webserver.config.ServerProperties
+import com.tempfiledrop.storagesvc.config.StorageSvcProperties
+import com.tempfiledrop.storagesvc.exception.ApiException
+import com.tempfiledrop.storagesvc.exception.ErrorCode
+import com.tempfiledrop.storagesvc.model.StorageInfo
 import org.slf4j.LoggerFactory
-import org.springframework.beans.factory.annotation.Value
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
+import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.util.FileSystemUtils
 import org.springframework.web.multipart.MultipartFile
-import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder
 import java.io.IOException
 import java.net.MalformedURLException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.stream.Stream
+import kotlin.io.path.ExperimentalPathApi
+import kotlin.io.path.createDirectories
 
 @Service
 class FileStorageServiceImpl(
-        serverProperties: ServerProperties
+        properties: StorageSvcProperties
 ): FileStorageService {
     companion object {
         private val logger = LoggerFactory.getLogger(FileStorageServiceImpl::class.java)
     }
 
-    private val root: Path = Paths.get(serverProperties.uploadPath)
-    private val anonymousPath: Path = root.resolve("anonymous")
+    private val root: Path = Paths.get(properties.fileStorage.uploadPath)
 
     override fun initLocalStorage() {
         try {
             logger.info("INITIALIZING FOLDER.....")
             Files.createDirectory(root)
-            Files.createDirectory(anonymousPath)
         } catch (e: IOException) {
             throw RuntimeException("Could not initialize folder for upload!")
         }
     }
 
-    override fun saveToFolder(files: List<MultipartFile>, userFolder: String) {
+    @ExperimentalPathApi
+    override fun saveToFolder(files: List<MultipartFile>, storageInfo: StorageInfo) {
+        // authorize & validate (is user authorize to write into this folder?)
+
+        // if bucket is not found, throw exception (should never occur)
+        val bucket = root.resolve(storageInfo.bucketName)
+        if (!Files.exists(bucket)) {
+            // throw ApiException("${storageInfo.bucketName} not found!", ErrorCode.BUCKET_NOT_FOUND, HttpStatus.NOT_FOUND)
+            Files.createDirectory(bucket)
+        }
+
         try {
-            // check if directory exists
-            val directory = root.resolve(userFolder)
-            if (!Files.exists(directory)) {
-                Files.createDirectory(directory) // make directory if not exists
+            // if path is not found, create it
+            val bucketStoragePath = bucket.resolve(storageInfo.targetFolderPath)
+            if (!Files.exists(bucketStoragePath)) {
+                bucketStoragePath.createDirectories()
             }
 
-            // check if file exists, if exists, append
-            files.forEach { file ->
-                Files.copy(file.inputStream, root.resolve(userFolder).resolve(file.originalFilename!!))
-            }
+            // copy file into bucket
+            files.forEach { Files.copy(it.inputStream, bucketStoragePath.resolve(it.originalFilename!!)) }
         } catch (e: Exception) {
-            throw RuntimeException("Could not store the file. Error: " + e.message)
+            throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
         }
     }
 
@@ -80,5 +91,4 @@ class FileStorageServiceImpl(
             throw RuntimeException("Could not load the files!")
         }
     }
-
 }

@@ -5,6 +5,7 @@ import Button from "react-bootstrap/cjs/Button";
 import Container from "react-bootstrap/cjs/Container";
 import Table from "react-bootstrap/cjs/Table";
 import Spinner from "../loading/Spinner";
+import { useAuthState } from "../../../utils/auth-context";
 import { FileStorageResponse } from "../../../types/upload-type";
 import "./FileDropzone.css";
 
@@ -15,6 +16,7 @@ interface FileDropzoneProps {
 const FileDropzone = ({
     showUploads = false
 }: FileDropzoneProps) => {
+    const { userInfo } = useAuthState();
     const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone();
     const [errorMsg, setErrorMsg] = useState("");
     const [uploadRes, setUploadRes] = useState<FileStorageResponse|null>(null);
@@ -24,11 +26,19 @@ const FileDropzone = ({
         // reset states
         setLoading(true);
 
-        // craft payload & fetch
+        // craft payload
         const formData = new FormData();
         acceptedFiles.forEach(file => {
             formData.append("files", file);
         });
+        const metadata = {
+            username: userInfo === null ? "" : userInfo.username
+        }
+        formData.append("metadata", new Blob([JSON.stringify(metadata)], {
+            type: "application/json"
+        }));
+
+        // send request
         axios.post("/files/upload", formData, {})
             .then(res => {
                 setLoading(false);
@@ -39,7 +49,7 @@ const FileDropzone = ({
                 }
             })
             .catch(err => {
-                console.log(err);
+                // console.log(err);
                 setLoading(false);
                 setErrorMsg("Server Error! Please try again later...");
             });

@@ -1,5 +1,6 @@
-package com.tempfiledrop.webserver.service.filestorage
+package com.tempfiledrop.storagesvc.service.filestorage
 
+import com.tempfiledrop.storagesvc.model.StorageInfo
 import org.springframework.core.io.Resource
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Path
@@ -7,7 +8,7 @@ import java.util.stream.Stream
 
 interface FileStorageService {
     fun initLocalStorage()
-    fun saveToFolder(files: List<MultipartFile>, userFolder: String = "anonymous")
+    fun saveToFolder(files: List<MultipartFile>, storageInfo: StorageInfo)
     fun loadFromFolder(filename: String): Resource
     fun deleteAllFilesInFolder()
     fun loadAllFilesFromFolder(): Stream<Path>
