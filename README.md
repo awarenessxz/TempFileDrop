@@ -24,7 +24,6 @@ tech stack will be applied:
         - Presigned URL (Temporary uploads)
         - Advanced Settings (Expiry...)
         - Ensure filesnames are unique (Random UUID + Timestamp?)
-        - Group uploads in to a single folder 
     - Dashboard
         - Webserver stores <user -- objects> mapping (For Dashboard)
         - Show dashboard
@@ -39,6 +38,8 @@ tech stack will be applied:
     - Developer Swagger Page
     - Create logo
     - Make the object service and file service conditional
+    - Session / Cache such that user remains login after refreshing...
+    - Run some scheduled job to clean up empty folders
 
 ## Architecture Design
 

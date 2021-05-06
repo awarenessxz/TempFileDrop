@@ -33,7 +33,7 @@ const routes: AppRouteProps[] = [
         exact: true,
         component: DashboardPage,
         path: "/dashboard",
-        isPrivate: true
+        isPrivate: false
     }
 ];
 

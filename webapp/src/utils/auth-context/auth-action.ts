@@ -1,7 +1,7 @@
 import axios from "axios";
 import {Dispatch} from "react";
 import {AuthActionTypes, LOGIN_ERROR, LOGIN_SUCCESS, REQUEST_LOGIN, REQUEST_LOGOUT} from "./auth-types";
-import {UserInfoResponse} from "../../types/user-info-types";
+import {UserInfoResponse} from "../../types/api-types";
 
 export type LoginUserPayload = {
     username: string;

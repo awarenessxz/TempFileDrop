@@ -1,6 +1,6 @@
 package com.tempfiledrop.storagesvc.util
 
-import com.tempfiledrop.storagesvc.model.StorageInfo
+import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
 import org.slf4j.LoggerFactory
 
 object StoragePathUtils {
@@ -12,25 +12,18 @@ object StoragePathUtils {
      * @Return:
      *      StorageInfo
      */
-    fun processStoragePath(path: String, numOfFiles: Int): StorageInfo {
-        // 1. check that it starts with s3://
-        if (path.take(5) != "s3://") {
-            return StorageInfo(false)
-        }
+    fun processStoragePath(bucketName: String, path: String): Pair<Boolean, StorageInfo?> {
+        // 1. split bucket and folder path
+        val splitPath = path.split("/")
 
-        // 2. split bucket and folder path
-        val splitPath = path.substring(5).split("/")
-        val bucketName = splitPath[0]
-        val targetSplitPath = splitPath.drop(1)
-
-        // 3. Validate target path
-        targetSplitPath.forEach {
+        // 2. Validate target path
+        splitPath.forEach {
             if (it.trim().isEmpty()) {
-                return StorageInfo(false)
+                return Pair(false, null)
             }
         }
-        val targetFolderPath = targetSplitPath.joinToString("/")
+        val storagePath = splitPath.joinToString("/")
 
-        return StorageInfo(true, bucketName, targetFolderPath, numOfFiles)
+        return Pair(true, StorageInfo(bucketName, storagePath))
     }
 }

@@ -1,26 +1,40 @@
-import React, { MouseEvent, useState } from "react";
+import React, { MouseEvent, useState, useRef } from "react";
 import axios from "axios";
+import { FaCopy } from "react-icons/fa";
 import { useDropzone } from 'react-dropzone'
 import Button from "react-bootstrap/cjs/Button";
+import Col from "react-bootstrap/cjs/Col";
 import Container from "react-bootstrap/cjs/Container";
+import Form from "react-bootstrap/cjs/Form";
+import Row from "react-bootstrap/cjs/Row";
 import Table from "react-bootstrap/cjs/Table";
 import Spinner from "../loading/Spinner";
 import { useAuthState } from "../../../utils/auth-context";
-import { FileStorageResponse } from "../../../types/upload-type";
+import { FileUploadRequest, FileUploadResponse } from "../../../types/api-types";
 import "./FileDropzone.css";
 
 interface FileDropzoneProps {
     showUploads?: boolean;
+    showConfigs?: boolean;
+    onSuccessfulUploadCallback?: () => void;
 }
 
+const ExpiryPeriod = ["1 Hour", "1 Day", "1 Week"];
+
 const FileDropzone = ({
-    showUploads = false
+    showUploads = false,
+    showConfigs = false,
+    onSuccessfulUploadCallback = () => {}
 }: FileDropzoneProps) => {
     const { userInfo } = useAuthState();
     const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone();
     const [errorMsg, setErrorMsg] = useState("");
-    const [uploadRes, setUploadRes] = useState<FileStorageResponse|null>(null);
+    const [uploadRes, setUploadRes] = useState<FileUploadResponse|null>(null);
     const [loading, setLoading] = useState(false);
+    const [maxDownloads, setMaxDownloads] = useState<number|"">("");
+    const [copiedText, setCopiedText] = useState("Copy to Clipboard");
+    const downloadLinkRef = useRef(null);
+    const selectRef = useRef(null);
 
     const handleUpload = (e: MouseEvent<HTMLButtonElement>) => {
         // reset states
@@ -31,9 +45,13 @@ const FileDropzone = ({
         acceptedFiles.forEach(file => {
             formData.append("files", file);
         });
-        const metadata = {
-            username: userInfo === null ? "" : userInfo.username
-        }
+        // @ts-ignore
+        const expiryPeriod = selectRef.current === null ? 0 : selectRef.current.options.selectedIndex
+        const metadata: FileUploadRequest = {
+            username: userInfo === null ? "" : userInfo.username,
+            maxDownloads: maxDownloads === "" ? 10 : maxDownloads,
+            expiryPeriod
+        };
         formData.append("metadata", new Blob([JSON.stringify(metadata)], {
             type: "application/json"
         }));
@@ -44,6 +62,7 @@ const FileDropzone = ({
                 setLoading(false);
                 if (res.status === 200) {
                     setUploadRes(res.data);
+                    onSuccessfulUploadCallback();
                 } else {
                     setErrorMsg("Upload Failed!");
                 }
@@ -53,6 +72,15 @@ const FileDropzone = ({
                 setLoading(false);
                 setErrorMsg("Server Error! Please try again later...");
             });
+    };
+
+    const copyToClipboard = (e: MouseEvent<HTMLButtonElement>) => {
+        if (downloadLinkRef.current !== null) {
+            // @ts-ignore
+            downloadLinkRef.current.select();
+            document.execCommand('copy');
+            setCopiedText("Copied!");
+        }
     };
 
     return (
@@ -81,10 +109,59 @@ const FileDropzone = ({
                 {uploadRes && (
                     <div className="dropzone-message-box message-success">
                         {uploadRes.message}
+                        <div className="dropzone-share-link">
+                            <input ref={downloadLinkRef} value={uploadRes.downloadLink} onChange={() => {}}/>
+                            <div className="copy-tooltip">
+                                <Button onClick={copyToClipboard} onMouseOut={() => setCopiedText("Copy to Clipboard")}>
+                                    <span className="copy-tooltiptext">{copiedText}</span>
+                                    <FaCopy />
+                                </Button>
+                            </div>
+                        </div>
                     </div>
                 )}
                 {loading && <Spinner spinnerType="ThreeDots" backgroundColor="#92b0b3" spinnerColor="#fff" />}
             </div>
+            {showConfigs && !loading && !uploadRes && (
+                <div className="dropzone-config-box">
+                    <h5>Upload Settings</h5>
+                    <Form>
+                        <Form.Group as={Row} controlId="formHorizontalMaxDownloads">
+                            <Form.Label column sm={4}>
+                                Max Downloads
+                            </Form.Label>
+                            <Col sm={8}>
+                                <Form.Control
+                                    type="text"
+                                    pattern="[0-9]*"
+                                    placeholder="Maximum number of downloads (Default = 10)"
+                                    value={maxDownloads}
+                                    onChange={e => {
+                                        const re = /^[0-9\b]+$/;
+                                        if (e.target.value === '' || re.test(e.target.value)) {
+                                            if (e.target.value === '') {
+                                                setMaxDownloads("");
+                                            } else {
+                                                setMaxDownloads(parseInt(e.target.value));
+                                            }
+                                        }
+                                    }}
+                                />
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="formHorizontalExpiry">
+                            <Form.Label column sm={4}>
+                                Expiry Period
+                            </Form.Label>
+                            <Col sm={8}>
+                                <Form.Control as="select" custom ref={selectRef}>
+                                    {ExpiryPeriod.map((option, idx) => <option key={idx}>{option}</option>)}
+                                </Form.Control>
+                            </Col>
+                        </Form.Group>
+                    </Form>
+                </div>
+            )}
             {showUploads && acceptedFiles.length > 0 && (
                 <div className="dropzone-result-box">
                     <Table responsive size="sm">
@@ -97,7 +174,7 @@ const FileDropzone = ({
                         </thead>
                         <tbody>
                             {acceptedFiles.map((file, idx) => (
-                                <tr>
+                                <tr key={idx}>
                                     <td>{idx+1}</td>
                                     <td>{file.name}</td>
                                     <td>{file.size}</td>

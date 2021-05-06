@@ -55,11 +55,12 @@
 }
 
 /*******************************************
- * ERROR
+ * ERROR / MESSAGE
  *******************************************/
 
 .dropzone-message-box {
     display: flex;
+    flex-direction: column;
     align-items: center;
     justify-content: center;
     position: absolute;
@@ -84,6 +85,73 @@
     color: #155724;
     background-color: #d4edda;
     border-color: #c3e6cb;
+}
+
+.dropzone-message-box .dropzone-share-link {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.dropzone-message-box .dropzone-share-link input {
+    flex: 1 1 auto;
+    color: #383d41;
+    background-color: #e2e3e5;
+    border: 1px solid #d6d8db;
+    padding: 5px;
+    margin: 0 10px;
+}
+
+.copy-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.copy-tooltip .copy-tooltiptext {
+    visibility: hidden;
+    width: 140px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -75px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.copy-tooltip .copy-tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.copy-tooltip:hover .copy-tooltiptext  {
+    visibility: visible;
+    opacity: 1;
+}
+
+/*******************************************
+ * Config
+ *******************************************/
+
+.dropzone-config-box {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+    padding: 10px;
 }
 
 /*******************************************

@@ -3,9 +3,8 @@ package com.tempfiledrop.storagesvc.service.filestorage
 import com.tempfiledrop.storagesvc.config.StorageSvcProperties
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
-import com.tempfiledrop.storagesvc.model.StorageInfo
+import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
 import org.slf4j.LoggerFactory
-import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.core.io.Resource
 import org.springframework.core.io.UrlResource
 import org.springframework.http.HttpStatus
@@ -53,13 +52,17 @@ class FileStorageServiceImpl(
 
         try {
             // if path is not found, create it
-            val bucketStoragePath = bucket.resolve(storageInfo.targetFolderPath)
+            val storagePath = Paths.get(storageInfo.storagePath)
+            val bucketStoragePath = bucket.resolve(storagePath)
             if (!Files.exists(bucketStoragePath)) {
                 bucketStoragePath.createDirectories()
             }
 
             // copy file into bucket
-            files.forEach { Files.copy(it.inputStream, bucketStoragePath.resolve(it.originalFilename!!)) }
+            files.forEach {
+                val filepath = bucketStoragePath.resolve(it.originalFilename!!)
+                Files.copy(it.inputStream, filepath)
+            }
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
         }
@@ -79,8 +82,18 @@ class FileStorageServiceImpl(
         }
     }
 
+    override fun deleteFilesFromFolder(storageInfoList: List<StorageInfo>) {
+        logger.info("Deleting ${storageInfoList.size} files...")
+        storageInfoList.forEach {
+            logger.info("$it")
+            val path = root.resolve(it.getFullStoragePath())
+            logger.info(path.toString())
+            FileSystemUtils.deleteRecursively(path)
+        }
+    }
+
     override fun deleteAllFilesInFolder() {
-        logger.info("DELETING ALL FILES IN FOLDER.....")
+        logger.info("DELETING ALL FILES IN UPLOADS FOLDER.....")
         FileSystemUtils.deleteRecursively(root.toFile())
     }
 

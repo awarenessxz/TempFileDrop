@@ -2,13 +2,15 @@ package com.tempfiledrop.storagesvc.service.objectstorage
 
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
-import com.tempfiledrop.storagesvc.model.StorageInfo
+import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
 import io.minio.*
+import io.minio.messages.DeleteObject
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Paths
+
 
 @Service
 class ObjectStorageServiceImpl(
@@ -30,9 +32,9 @@ class ObjectStorageServiceImpl(
             }
 
             // upload to bucket
+            val targetFolderPath = Paths.get(storageInfo.storagePath)
             files.forEach {
-                val targetFilePath = Paths.get(storageInfo.targetFolderPath).resolve(it.originalFilename)
-                logger.info(targetFilePath.toString())
+                val targetFilePath = targetFolderPath.resolve(it.originalFilename!!)
                 minioClient.putObject(PutObjectArgs.builder()
                         .bucket(storageInfo.bucketName)
                         .contentType(it.contentType)
@@ -43,6 +45,20 @@ class ObjectStorageServiceImpl(
             }
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
+        }
+    }
+
+    override fun minioDeleteFiles(storageInfoList: List<StorageInfo>) {
+        logger.info("DELETING ALL FILES IN MINIO Cluster.....")
+        val bucket = storageInfoList[0].bucketName
+        val objects = storageInfoList.map {
+            val targetFilePath = Paths.get(it.storagePath).resolve(it.storageFile)
+            DeleteObject(targetFilePath.toString())
+        }
+        val results = minioClient.removeObjects(RemoveObjectsArgs.builder().bucket(bucket).objects(objects).build())
+        for (result in results) {
+            val error = result.get()
+            logger.error("Error in deleting object ${error.objectName()}; ${error.message()}")
         }
     }
 }
