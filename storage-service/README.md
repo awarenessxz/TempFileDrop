@@ -3,9 +3,12 @@
 Storage Service that provides REST API Endpoints for **uploading, downloading and listing** files stored in either 
 **file storage (Folders)** or **object storage (MinIO)**
 
-- [Running the service (locally)](#running-the-service-locally)
-- [Deploy the service](#deploying-the-service)
-- [Uploading files to services (Mixed Multipart Request)](#uploading-files-to-the-service-mixed-multipart---multipart-request-with-json-data)
+- [Usage](#usage)
+    - [Running the service (locally)](#running-the-service-locally)
+    - [Deploy the service](#deploying-the-service)
+- [Documentation](#documentation)
+    - [Database Tables](#database-tables)
+    - [Uploading files to services (Mixed Multipart Request)](#uploading-files-to-the-service-mixed-multipart---multipart-request-with-json-data)
 
 ## Usage
 
@@ -18,20 +21,13 @@ cd <ROOT>
 
 ### Deploying the service
 
+## Documentation
 
-## Additional Info
+### Database Tables
 
-### Identifying Storage Path
-
-When using the service, the storage url is declared using the following format:
-
-```bash
-s3://<bucket_name>/<storage_path>
-
-where
-<bucket_name> is the bucket which you have registered and authorized to
-<storage_path> is the path to the directory/file inside the bucket
-```
+| Table | Columns | Description |
+| --- | --- | --- |
+| storage_info | id, bucketName, storagePath, storageFile, storageId | {storageId to files/object uploads} mapping. Given the **storageId**, the storage service will be able to identify the files uploaded and make them available for download. |
 
 ### Uploading files to the service (Mixed Multipart -> Multipart Request with JSON data)
 

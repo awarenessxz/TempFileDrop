@@ -19,14 +19,13 @@ tech stack will be applied:
 
 **Development Plan**
 1. Features
+    - Download
+        - Zip & Non Zip
     - Upload
         - Return webserver a link to download
         - Presigned URL (Temporary uploads)
         - Advanced Settings (Expiry...)
         - Ensure filesnames are unique (Random UUID + Timestamp?)
-    - Dashboard
-        - Webserver stores <user -- objects> mapping (For Dashboard)
-        - Show dashboard
 2. Implement Security
     - Spring Security
     - TLS (HTTPS) 
@@ -40,6 +39,7 @@ tech stack will be applied:
     - Make the object service and file service conditional
     - Session / Cache such that user remains login after refreshing...
     - Run some scheduled job to clean up empty folders
+    - Disable Dashboard Routes
 
 ## Architecture Design
 
@@ -127,7 +127,8 @@ tech stack will be applied:
     - Multipart Upload
         - [Spring Boot Multipart File Upload to Folder](https://bezkoder.com/spring-boot-file-upload/)
         - [Spring Boot Uploading and Downloading file from MinIO object store](https://blogs.ashrithgn.com/spring-boot-uploading-and-downloading-file-from-minio-object-store/)
-        - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload)
+        - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload
+        - [Spring Boot File Upload/Download](https://www.devglan.com/spring-boot/spring-boot-file-upload-download)
     - Multipart request with Json
         - [RequestBody and Multipart on Spring Boot](https://blogs.perficient.com/2020/07/27/requestbody-and-multipart-on-spring-boot/)
         - [Multiple files upload with request body using spring boot and test using Postman](https://medium.com/@pankajsingla_24995/multipart-request-with-request-body-using-spring-boot-and-test-using-postman-6ea46b71b75d)
@@ -141,3 +142,6 @@ tech stack will be applied:
     - Exception handling
         - [Spring Template Error Handling](https://www.baeldung.com/spring-rest-template-error-handling)
         - [Log your rest template without destroying the body](https://objectpartners.com/2018/03/01/log-your-resttemplate-request-and-response-without-destroying-the-body/)
+    - Download
+        - [Springboot single file download, multiple files zip package](https://www.programmersought.com/article/2688897886/)
+        
