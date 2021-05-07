@@ -1,12 +1,13 @@
 {
     "web_name": "TempFileDrop.io",
+    "user": "user1",
+    "password": "password",
     "navbar_menu": [
         {
             "path": "/developer",
             "label": "Developers"
         },
         {
-            "path": "/login",
             "label": "Login",
             "login_required": false,
             "hide_when_login": true
