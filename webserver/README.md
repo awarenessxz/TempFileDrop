@@ -34,7 +34,7 @@ cd <ROOT>
 | Endpoints | Description |
 | --- | --- |
 | /api/user-info | used for mocking login |
-| /api/uploaded-files | List & Delete uploads (both records in users_uploads table as well as objects itself) |
+| /api/users-upload-info | List & Delete uploads (both records in users_uploads table as well as objects itself) |
 | /api/files | uploading files and getting information on uploaded files for download |
 
 ### Database Tables
@@ -42,7 +42,7 @@ cd <ROOT>
 | Table | Columns | Description |
 | --- | --- | --- |
 | users | id, username, password, creationDate | used for mocking login |
-| users_uploads | id, folder, storageId, filenames, numOfDownloadsLeft, expiryDatetime, downloadLink | {users to uploads} mapping. Information about the active uploads that users have which is used to display in Dashboard page. **StorageId** is the reference ID used to obtain the "files" itself from the storage service. |
+| users_upload_info | id, folder, storageId | {users to uploads} mapping. Information about the active uploads that users have which is used to display in Dashboard page. **StorageId** is the reference ID used to obtain the "files" itself from the storage service. |
 
 ### Testing File Uploads (API)
 

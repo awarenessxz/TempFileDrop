@@ -16,12 +16,16 @@ export interface FileUploadResponse {
     storageId: string;
 }
 
-export interface UploadedFiles {
-    id: string;
-    user: string;
+export interface StorageInfo {
     filenames: string;
     numOfDownloadsLeft: number;
     expiryDatetime: Moment;
     storageId: string;
     downloadLink: string;
+}
+
+export interface UserUploadInfo {
+    id: string;
+    user: string;
+    storageInfo: StorageInfo;
 }

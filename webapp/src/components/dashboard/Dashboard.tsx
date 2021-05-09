@@ -13,13 +13,13 @@ import FileDropzone from "../common/dropzone/FileDropzone";
 import { useAuthState } from "../../utils/auth-context";
 import { joinURLs } from "../../utils/toolkit";
 import Data from "../../config/app.json";
-import { UploadedFiles } from "../../types/api-types";
+import { UserUploadInfo } from "../../types/api-types";
 import "./Dashboard.css";
 import moment from "moment";
 
 const Dashboard = () => {
     const [modalShow, setModalShow] = useState(false);
-    const [records, setRecords] = useState<UploadedFiles[]>([]);
+    const [records, setRecords] = useState<UserUploadInfo[]>([]);
     const [reloadRecord, setReloadRecord] = useState(false);    // trigger to reload
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
@@ -29,7 +29,7 @@ const Dashboard = () => {
         axios.get(`${Data.api_endpoints.uploaded_files}/${userInfo?.username}`)
             .then(res => {
                 if (res.status === 200) {
-                    const records: UploadedFiles[] = res.data;
+                    const records: UserUploadInfo[] = res.data;
                     setRecords(records);
                 }
             })
@@ -46,7 +46,7 @@ const Dashboard = () => {
         setRecords([...records]);
 
         // call backend
-        axios.delete(`${Data.api_endpoints.uploaded_files}/user1/${recordId}`)
+        axios.delete(`${Data.api_endpoints.uploaded_files}/${recordId}`)
             .then(res => {
                 if (res.status === 200) {
                     setMessage("Delete Success!");
@@ -98,10 +98,10 @@ const Dashboard = () => {
                         {records.map((record, idx) => (
                             <tr key={idx}>
                                 <td>{idx+1}</td>
-                                <td>{record.filenames}</td>
-                                <td>{record.numOfDownloadsLeft}</td>
-                                <td>{moment(record.expiryDatetime).format("DD MMM YYYY h:mma")}</td>
-                                <td><Link to={`/download/${record.storageId}`}>{joinURLs(window.location.origin, "download", record.storageId)}</Link></td>
+                                <td>{record.storageInfo.filenames}</td>
+                                <td>{record.storageInfo.numOfDownloadsLeft}</td>
+                                <td>{moment(record.storageInfo.expiryDatetime).format("DD MMM YYYY h:mma")}</td>
+                                <td><Link to={`/download/${record.storageInfo.storageId}`}>{joinURLs(window.location.origin, "download", record.storageInfo.storageId)}</Link></td>
                                 <td>
                                     <Button size="sm" variant="danger" onClick={() => handleDeleteRecord(idx, record.id)}>
                                         <FaTrash />

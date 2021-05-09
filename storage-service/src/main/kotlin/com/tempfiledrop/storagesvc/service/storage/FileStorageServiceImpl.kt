@@ -3,6 +3,7 @@ package com.tempfiledrop.storagesvc.service.storage
 import com.tempfiledrop.storagesvc.config.StorageSvcProperties
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
+import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
@@ -50,7 +51,7 @@ class FileStorageServiceImpl(
 
     @ExperimentalPathApi
     override fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo) {
-        logger.info("Uploading files to ${storageInfo.getFullStoragePath()} in Folder Storage.....")
+        logger.info("Uploading files to Folder Storage.....")
         // authorize & validate (is user authorize to write into this folder?)
 
         // if bucket is not found, throw exception (should never occur)
@@ -78,17 +79,17 @@ class FileStorageServiceImpl(
         }
     }
 
-    override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse) {
-        logger.info("Downloading ${storageInfo.storageFilename} from Folder Storage.....")
-        val filepath = root.resolve(storageInfo.getFullStoragePath()).toString()
+    override fun downloadFile(storageFile: StorageFile, response: HttpServletResponse) {
+        logger.info("Downloading ${storageFile.filename} from Folder Storage.....")
+        val filepath = root.resolve(storageFile.getFullStoragePath()).toString()
         val inputStream = FileInputStream(filepath)
         IOUtils.copyLarge(inputStream, response.outputStream)
     }
 
-    override fun downloadFilesAsZip(storageInfoList: List<StorageInfo>, response: HttpServletResponse) {
+    override fun downloadFilesAsZip(storageFiles: List<StorageFile>, response: HttpServletResponse) {
         logger.info("Downloading files as zip from Folder Storage.....")
         val zipOut = ZipOutputStream(response.outputStream)
-        storageInfoList.forEach {
+        storageFiles.forEach {
             val filepath = root.resolve(it.getFullStoragePath())
             val resource = FileSystemResource(filepath)
             val zipEntry = ZipEntry(resource.filename)
@@ -101,9 +102,9 @@ class FileStorageServiceImpl(
         zipOut.close()
     }
 
-    override fun deleteFiles(storageInfoList: List<StorageInfo>) {
-        logger.info("Deleting ${storageInfoList.size} files...")
-        storageInfoList.forEach {
+    override fun deleteFiles(storageFileList: List<StorageFile>) {
+        logger.info("Deleting ${storageFileList.size} files...")
+        storageFileList.forEach {
             val filepath = root.resolve(it.getFullStoragePath())
             FileSystemUtils.deleteRecursively(filepath)
         }

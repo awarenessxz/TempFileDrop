@@ -26,7 +26,7 @@
         "mock_login": "/api/user-info/login",
         "upload_files": "/api/files/upload",
         "download_files": "/api/files/download",
-        "files_storage_info": "/api/uploaded-files/download-info",
-        "uploaded_files": "/api/uploaded-files"
+        "files_storage_info": "/api/files/download-info",
+        "uploaded_files": "/api/users-upload-info"
     }
 }

@@ -7,7 +7,7 @@ import Button from "react-bootstrap/cjs/Button";
 import Container from "react-bootstrap/cjs/Container";
 import { extractFilenameFromContentDisposition } from "../../utils/toolkit";
 import Data from "../../config/app.json";
-import { UploadedFiles } from "../../types/api-types";
+import { StorageInfo } from "../../types/api-types";
 import "./DownloadPage.css";
 
 type DownloadPageRouterParams = {
@@ -22,14 +22,14 @@ const DownloadPage = (props: DownloadPageProps) => {
     const [successMsg, setSuccessMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const [refreshToggle, setRefreshToggle] = useState(false);
-    const [downloadInfo, setDownloadInfo] = useState<UploadedFiles | null>(null);
+    const [downloadInfo, setDownloadInfo] = useState<StorageInfo | null>(null);
 
     useEffect(() => {
         // retrieve information about the download
         axios.get(`${Data.api_endpoints.files_storage_info}/${props.match.params.storageId}`)
             .then(res => {
                 if (res.status === 200) {
-                    const info: UploadedFiles = res.data;
+                    const info: StorageInfo = res.data;
                     setDownloadInfo(info);
                 } else {
                     setErrorMsg("Download Link is Not Available!");
@@ -55,7 +55,6 @@ const DownloadPage = (props: DownloadPageProps) => {
                 link.setAttribute('download', filename);
                 document.body.appendChild(link);
                 link.click();
-                console.log(downloadInfo);
                 setSuccessMsg("You have downloaded the files!");
                 setRefreshToggle(!refreshToggle);
             })

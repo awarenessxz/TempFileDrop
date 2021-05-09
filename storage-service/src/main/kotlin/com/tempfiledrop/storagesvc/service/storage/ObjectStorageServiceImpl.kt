@@ -2,6 +2,7 @@ package com.tempfiledrop.storagesvc.service.storage
 
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
+import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
 import io.minio.*
 import io.minio.messages.DeleteObject
@@ -29,7 +30,7 @@ class ObjectStorageServiceImpl(
     override fun initStorage() { }
 
     override fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo) {
-        logger.info("Uploading files to ${storageInfo.getFullStoragePath()} in MinIO Cluster.....")
+        logger.info("Uploading files to MinIO Cluster.....")
         // authorize & validate (is user authorize to write into this folder?)
 
         try {
@@ -56,21 +57,21 @@ class ObjectStorageServiceImpl(
         }
     }
 
-    override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse) {
-        logger.info("Downloading ${storageInfo.storageFilename} from MinIO Cluster.....")
-        val filepath = storageInfo.getFileStoragePath()
-        val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(storageInfo.bucketName).`object`(filepath).build())
+    override fun downloadFile(storageFile: StorageFile, response: HttpServletResponse) {
+        logger.info("Downloading ${storageFile.filename} from MinIO Cluster.....")
+        val filepath = storageFile.getFileStoragePath()
+        val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(storageFile.bucketName).`object`(filepath).build())
         IOUtils.copyLarge(inputStream, response.outputStream)
     }
 
-    override fun downloadFilesAsZip(storageInfoList: List<StorageInfo>, response: HttpServletResponse) {
+    override fun downloadFilesAsZip(storageFiles: List<StorageFile>, response: HttpServletResponse) {
         logger.info("Downloading files as zip from MinIO Cluster.....")
         val zipOut = ZipOutputStream(response.outputStream)
-        storageInfoList.forEach {
+        storageFiles.forEach {
             val filepath = it.getFileStoragePath()
             val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(it.bucketName).`object`(filepath).build())
-            val zipEntry = ZipEntry(it.storageFilename)
-            zipEntry.size = it.storageFileLength
+            val zipEntry = ZipEntry(it.filename)
+            zipEntry.size = it.fileLength
             zipOut.putNextEntry(zipEntry)
             StreamUtils.copy(inputStream, zipOut)
             zipOut.closeEntry()
@@ -79,10 +80,10 @@ class ObjectStorageServiceImpl(
         zipOut.close()
     }
 
-    override fun deleteFiles(storageInfoList: List<StorageInfo>) {
+    override fun deleteFiles(storageFileList: List<StorageFile>) {
         logger.info("DELETING ALL FILES IN MINIO Cluster.....")
-        val bucket = storageInfoList[0].bucketName
-        val objects = storageInfoList.map {
+        val bucket = storageFileList[0].bucketName
+        val objects = storageFileList.map {
             val targetFilePath = it.getFileStoragePath()
             DeleteObject(targetFilePath)
         }

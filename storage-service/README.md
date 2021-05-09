@@ -40,7 +40,8 @@ TO BE ADDED...
 
 | Table | Columns | Description |
 | --- | --- | --- |
-| storage_info | id, bucketName, storagePath, storageFilename, storageFileContentType, storageFileLength, storageId | {storageId to files/object uploads} mapping. Given the **storageId**, the storage service will be able to identify the files uploaded and make them available for download. |
+| storage_info | **id**, bucketName, storagePath,  filenames, numOfDownloadsLeft, expiryDatetime, downloadLink | {storageId to files/object uploads} mapping. Given the **id** AKA **storageId**, the storage service will be able to identify the files uploaded and make them available for download. |
+| storage_files | id, bucketName, storagePath, storageFilename, storageFileContentType, storageFileLength, storageId | Contains the uploaded files details |
 
 ### Uploading files to the service (Mixed Multipart -> Multipart Request with JSON data)
 
