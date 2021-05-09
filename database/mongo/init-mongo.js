@@ -17,7 +17,7 @@ db.createUser({
 db.auth("service_user", "service_pass")
 
 // Collections for WebServer
-db.createCollection("users_uploads");
+db.createCollection("uploaded_files");
 db.createCollection("users");
 db.users.insert([
     { username: "user1", password: "password", creationDate: new Date(Date.now()) },

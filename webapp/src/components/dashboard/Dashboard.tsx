@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from "react";
+import { Link } from "react-router-dom";
 import axios from "axios";
 import { FaTrash } from "react-icons/fa";
 import Alert from "react-bootstrap/cjs/Alert";
@@ -10,28 +11,33 @@ import Table from "react-bootstrap/cjs/Table";
 import VerticallyCenteredModal from "../common/modal/VerticallyCenteredModal";
 import FileDropzone from "../common/dropzone/FileDropzone";
 import { useAuthState } from "../../utils/auth-context";
-import { UserUploadRecordsResponse } from "../../types/api-types";
+import { joinURLs } from "../../utils/toolkit";
+import Data from "../../config/app.json";
+import { UploadedFiles } from "../../types/api-types";
 import "./Dashboard.css";
+import moment from "moment";
 
 const Dashboard = () => {
     const [modalShow, setModalShow] = useState(false);
-    const [records, setRecords] = useState<UserUploadRecordsResponse[]>([]);
+    const [records, setRecords] = useState<UploadedFiles[]>([]);
     const [reloadRecord, setReloadRecord] = useState(false);    // trigger to reload
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
     const { userInfo } = useAuthState();
 
     useEffect(() => {
-        axios.get("/uploads/list/" + userInfo?.username)
+        axios.get(`${Data.api_endpoints.uploaded_files}/${userInfo?.username}`)
             .then(res => {
                 if (res.status === 200) {
-                    setRecords(res.data);
+                    const records: UploadedFiles[] = res.data;
+                    setRecords(records);
                 }
             })
             .catch(err => {
                 setIsError(true)
                 setMessage("Fail to fetch records...");
             });
+        // eslint-disable-next-line
     }, [reloadRecord]);
 
     const handleDeleteRecord = (idx: number, recordId: string) => {
@@ -40,7 +46,7 @@ const Dashboard = () => {
         setRecords([...records]);
 
         // call backend
-        axios.delete("/uploads/delete/user1/" + recordId)
+        axios.delete(`${Data.api_endpoints.uploaded_files}/user1/${recordId}`)
             .then(res => {
                 if (res.status === 200) {
                     setMessage("Delete Success!");
@@ -82,6 +88,8 @@ const Dashboard = () => {
                         <tr>
                             <th>#</th>
                             <th>Files</th>
+                            <th>Downloads Left</th>
+                            <th>Expiry Datetime</th>
                             <th>Download Link</th>
                             <th>Actions</th>
                         </tr>
@@ -90,8 +98,10 @@ const Dashboard = () => {
                         {records.map((record, idx) => (
                             <tr key={idx}>
                                 <td>{idx+1}</td>
-                                <td>{record.uploadedFiles}</td>
-                                <td><a href={record.downloadLink}>{record.downloadLink}</a></td>
+                                <td>{record.filenames}</td>
+                                <td>{record.numOfDownloadsLeft}</td>
+                                <td>{moment(record.expiryDatetime).format("DD MMM YYYY h:mma")}</td>
+                                <td><Link to={`/download/${record.storageId}`}>{joinURLs(window.location.origin, "download", record.storageId)}</Link></td>
                                 <td>
                                     <Button size="sm" variant="danger" onClick={() => handleDeleteRecord(idx, record.id)}>
                                         <FaTrash />

@@ -6,6 +6,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConstructorBinding
 @ConfigurationProperties("storagesvc")
 data class StorageSvcProperties(
+        val exposeEndpoint: String,
         val storageMode: String = "object",
         val fileStorage: FileStorageProps,
         val objectStorage: ObjectStorageProps

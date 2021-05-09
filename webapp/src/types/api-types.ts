@@ -1,3 +1,5 @@
+import { Moment } from "moment";
+
 export interface UserInfoResponse {
     userExists: boolean;
     userToken: String; // username
@@ -12,13 +14,14 @@ export interface FileUploadRequest {
 export interface FileUploadResponse {
     message: string;
     storageId: string;
-    downloadLink: string;
 }
 
-export interface UserUploadRecordsResponse {
+export interface UploadedFiles {
     id: string;
-    folder: string;
-    uploadedFiles: string;
+    user: string;
+    filenames: string;
+    numOfDownloadsLeft: number;
+    expiryDatetime: Moment;
     storageId: string;
     downloadLink: string;
 }

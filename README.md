@@ -14,32 +14,9 @@ tech stack will be applied:
 - [Usage](#usage)
     - [Start MinIO Service](#start-minio-service)
     - [Start TempFileDrop.io Service](#start-tempfiledropio-service)
+- [Future Works](#future-works)
 - [References](#references)
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
-
-**Development Plan**
-1. Features
-    - Download
-        - Zip & Non Zip
-    - Upload
-        - Return webserver a link to download
-        - Presigned URL (Temporary uploads)
-        - Advanced Settings (Expiry...)
-        - Ensure filesnames are unique (Random UUID + Timestamp?)
-2. Implement Security
-    - Spring Security
-    - TLS (HTTPS) 
-    - IAM for MinIO Cluster
-    - Better handle Response Code
-    - Bucket Authorization
-3. Others
-    - Register - Ensure users are unique
-    - Developer Swagger Page
-    - Create logo
-    - Make the object service and file service conditional
-    - Session / Cache such that user remains login after refreshing...
-    - Run some scheduled job to clean up empty folders
-    - Disable Dashboard Routes
 
 ## Architecture Design
 
@@ -110,11 +87,37 @@ tech stack will be applied:
     yarn install
     yarn start
     ```
+   
+## Future Works
+
+1. Features
+    - Upload
+        - Presigned URL (Temporary uploads)
+        - Ensure filesnames are unique (Random UUID + Timestamp?)
+    - Documentation
+        - Swagger Page
+2. Implement Security
+    - Spring Security
+    - TLS (HTTPS) 
+    - IAM for MinIO Cluster
+    - Better handle Response Code
+    - Bucket Authorization
+3. Others
+    - Create logo
+    - Session / Cache such that user remains login after refreshing...
+    - Run some scheduled job to clean up empty folders
+    - Make the client calls to storage service a library
+    - Make Navbar reactive to small screen (Frontend)
+    - Large File Downloads / Uploads (Feedback - Loading bar)
+    - Upgrade to WebClient instead of RestTemplate
+    - Bulk Request for Storage ID
 
 ## References
 - [Command Cheat Sheet](doc/CHEATSHEET.md)
-- API Design
+- API / S3 Design
     - [API Design Guidance: File Upload](https://tyk.io/api-design-guidance-file-upload/)
+    - [Stackoverflow - How do web applications typically interact with amazon s3](https://stackoverflow.com/questions/54655279/how-do-web-applications-typically-interact-with-amazon-s3)
+    - [How to gracefully store user files](https://stormpath.com/blog/how-to-gracefully-store-user-files)
 - Frontend
     - [How to add login Authentication to React Applications](https://www.digitalocean.com/community/tutorials/how-to-add-login-authentication-to-react-applications)
     - [React Login Authentication using useContext and useReducer](https://soshace.com/react-user-login-authentication-using-usecontext-and-usereducer/)
@@ -123,20 +126,26 @@ tech stack will be applied:
         - [Tutorial Example 1](https://www.digitalocean.com/community/tutorials/react-react-dropzone)
         - [Tutorial Example 2](https://www.newline.co/@dmitryrogozhny/how-to-drag-and-drop-files-in-react-applications-with-react-dropzone--c6732c93)
         - [CSS Tricks: Drag and drop for file uploading](https://css-tricks.com/drag-and-drop-file-uploading/)
+    - [Set up proxy to work with multiple apis in create-react-app](https://create-react-app.dev/docs/proxying-api-requests-in-development/#configuring-the-proxy-manually)
+    - [Stackoverflow - How to download files using Axios](https://stackoverflow.com/questions/41938718/how-to-download-files-using-axios)
+    - [Stackoverflow - How tp download file in reactjs](https://stackoverflow.com/questions/50694881/how-to-download-file-in-react-js)    
 - Backend
     - Multipart Upload
         - [Spring Boot Multipart File Upload to Folder](https://bezkoder.com/spring-boot-file-upload/)
         - [Spring Boot Uploading and Downloading file from MinIO object store](https://blogs.ashrithgn.com/spring-boot-uploading-and-downloading-file-from-minio-object-store/)
-        - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload
+        - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload)
         - [Spring Boot File Upload/Download](https://www.devglan.com/spring-boot/spring-boot-file-upload-download)
+        - [Upload Large Files with Spring Boot](https://blog.sayem.dev/2017/07/upload-large-files-spring-boot-html/)
+        - [Upload large file in Spring Boot 2 application](https://dzone.com/articles/upload-large-file-in-spring-boot-2-application-usi)
     - Multipart request with Json
         - [RequestBody and Multipart on Spring Boot](https://blogs.perficient.com/2020/07/27/requestbody-and-multipart-on-spring-boot/)
         - [Multiple files upload with request body using spring boot and test using Postman](https://medium.com/@pankajsingla_24995/multipart-request-with-request-body-using-spring-boot-and-test-using-postman-6ea46b71b75d)
         - [Stackoverflow - React Multipart file and JSON data](https://stackoverflow.com/questions/59235491/react-ajax-request-with-multipart-file-and-json-data)
         - [Spring Rest Template Multipart Upload](https://www.baeldung.com/spring-rest-template-multipart-upload)
         - [Stackoverflow - How do I send a multipart file using spring rest template](https://stackoverflow.com/questions/55138538/how-do-i-send-a-multipartfile-using-spring-resttemplate)
-    - Forwarding request (Service to Service) in Spring
+    - Forwarding request/response (Service to Service) in Spring
         - [Stackoverflow - How to send Multipart form data with restTemplate Spring-mvc](https://stackoverflow.com/questions/28408271/how-to-send-multipart-form-data-with-resttemplate-spring-mvc)
+        - [Stackoverflow - How to proxy a http video stream to any number of clients](https://stackoverflow.com/questions/47277640/how-to-proxy-a-http-video-stream-to-any-amount-of-clients-through-a-spring-webse)
     - MinIO
         - [Deploy MinIO on Kubernetes](https://docs.min.io/docs/deploy-minio-on-docker-compose.html)
     - Exception handling
@@ -144,4 +153,11 @@ tech stack will be applied:
         - [Log your rest template without destroying the body](https://objectpartners.com/2018/03/01/log-your-resttemplate-request-and-response-without-destroying-the-body/)
     - Download
         - [Springboot single file download, multiple files zip package](https://www.programmersought.com/article/2688897886/)
-        
+        - [Stackoverflow - Difference between return byte array and input stream](https://stackoverflow.com/questions/49050569/is-there-a-difference-between-returning-byte-array-or-servlet-output-stream-on-f)
+        - [Spring Rest Template Download large file](https://www.baeldung.com/spring-resttemplate-download-large-file)
+        - [Spring Boot File Download](https://o7planning.org/11765/spring-boot-file-download)
+        - [Download Server](https://github.com/nurkiewicz/download-server)
+        - [Download a file using Spring RestTemplate](https://www.javacodemonk.com/download-a-file-using-spring-resttemplate-75723d97)
+        - [Spring MVC Image Media Data](https://www.baeldung.com/spring-mvc-image-media-data)
+        - [Stackoverflow - Spring MVC Large file download (Out of Memory Issue)](https://stackoverflow.com/questions/15800565/spring-mvc-large-files-for-download-outofmemoryexception)
+        - [Bad Chunk Header mystery](https://rey5137.com/bad-chunk-header-mystery/)

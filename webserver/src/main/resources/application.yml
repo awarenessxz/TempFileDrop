@@ -11,7 +11,7 @@ spring:
 
 tempfiledrop:
   bucket-name: tempfiledrop
-  storage-service-url: http://localhost:8001/buckets
+  storage-service-url: http://localhost:8001/storagesvc
 
 ---
 
@@ -30,5 +30,5 @@ spring.data.mongodb:
 ###############################################################################################
 
 spring.servlet.multipart:
-  max-file-size: 500KB      # Max file size for each request
-  max-request-size: 500KB   # Max request size for a multipart/form-data
+  max-file-size: -1      # Max file size for each request
+  max-request-size: -1   # Max request size for a multipart/form-data

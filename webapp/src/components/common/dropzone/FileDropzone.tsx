@@ -10,7 +10,9 @@ import Row from "react-bootstrap/cjs/Row";
 import Table from "react-bootstrap/cjs/Table";
 import Spinner from "../loading/Spinner";
 import { useAuthState } from "../../../utils/auth-context";
-import { FileUploadRequest, FileUploadResponse } from "../../../types/api-types";
+import { joinURLs } from "../../../utils/toolkit";
+import Data from "../../../config/app.json";
+import { FileUploadRequest, FileUploadResponse } from "../../../types/api-types"
 import "./FileDropzone.css";
 
 interface FileDropzoneProps {
@@ -33,6 +35,7 @@ const FileDropzone = ({
     const [loading, setLoading] = useState(false);
     const [maxDownloads, setMaxDownloads] = useState<number|"">("");
     const [copiedText, setCopiedText] = useState("Copy to Clipboard");
+    const [downloadLink, setDownloadLink] = useState("");
     const downloadLinkRef = useRef(null);
     const selectRef = useRef(null);
 
@@ -57,11 +60,13 @@ const FileDropzone = ({
         }));
 
         // send request
-        axios.post("/files/upload", formData, {})
+        axios.post(Data.api_endpoints.upload_files, formData, {})
             .then(res => {
                 setLoading(false);
                 if (res.status === 200) {
-                    setUploadRes(res.data);
+                    const fileUploadResponse: FileUploadResponse = res.data;
+                    setDownloadLink(joinURLs(window.location.origin, "download", fileUploadResponse.storageId));
+                    setUploadRes(fileUploadResponse);
                     onSuccessfulUploadCallback();
                 } else {
                     setErrorMsg("Upload Failed!");
@@ -110,7 +115,7 @@ const FileDropzone = ({
                     <div className="dropzone-message-box message-success">
                         {uploadRes.message}
                         <div className="dropzone-share-link">
-                            <input ref={downloadLinkRef} value={uploadRes.downloadLink} onChange={() => {}}/>
+                            <input ref={downloadLinkRef} value={downloadLink} onChange={() => {}}/>
                             <div className="copy-tooltip">
                                 <Button onClick={copyToClipboard} onMouseOut={() => setCopiedText("Copy to Clipboard")}>
                                     <span className="copy-tooltiptext">{copiedText}</span>

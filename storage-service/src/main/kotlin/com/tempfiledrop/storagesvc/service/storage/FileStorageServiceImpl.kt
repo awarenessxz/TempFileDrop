@@ -1,26 +1,34 @@
-package com.tempfiledrop.storagesvc.service.filestorage
+package com.tempfiledrop.storagesvc.service.storage
 
 import com.tempfiledrop.storagesvc.config.StorageSvcProperties
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
+import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
-import org.springframework.core.io.Resource
-import org.springframework.core.io.UrlResource
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
+import org.springframework.context.annotation.Primary
+import org.springframework.core.io.FileSystemResource
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.util.FileSystemUtils
+import org.springframework.util.StreamUtils
 import org.springframework.web.multipart.MultipartFile
+import java.io.FileInputStream
 import java.io.IOException
-import java.net.MalformedURLException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.stream.Stream
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
+import javax.servlet.http.HttpServletResponse
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 
 @Service
+@Primary
+@ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "file")
 class FileStorageServiceImpl(
         properties: StorageSvcProperties
 ): FileStorageService {
@@ -30,7 +38,8 @@ class FileStorageServiceImpl(
 
     private val root: Path = Paths.get(properties.fileStorage.uploadPath)
 
-    override fun initLocalStorage() {
+    override fun initStorage() {
+        deleteAllFilesInFolder()
         try {
             logger.info("INITIALIZING FOLDER.....")
             Files.createDirectory(root)
@@ -40,7 +49,8 @@ class FileStorageServiceImpl(
     }
 
     @ExperimentalPathApi
-    override fun saveToFolder(files: List<MultipartFile>, storageInfo: StorageInfo) {
+    override fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo) {
+        logger.info("Uploading files to ${storageInfo.getFullStoragePath()} in Folder Storage.....")
         // authorize & validate (is user authorize to write into this folder?)
 
         // if bucket is not found, throw exception (should never occur)
@@ -68,32 +78,39 @@ class FileStorageServiceImpl(
         }
     }
 
-    override fun loadFromFolder(filename: String): Resource {
-        try {
-            val file: Path = root.resolve(filename)
-            val resource: Resource = UrlResource(file.toUri())
-            if (resource.exists() || resource.isReadable) {
-                return resource
-            } else {
-                throw RuntimeException("Could not read the file!")
-            }
-        } catch (e: MalformedURLException) {
-            throw RuntimeException("Error: " + e.message)
-        }
+    override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse) {
+        logger.info("Downloading ${storageInfo.storageFilename} from Folder Storage.....")
+        val filepath = root.resolve(storageInfo.getFullStoragePath()).toString()
+        val inputStream = FileInputStream(filepath)
+        IOUtils.copyLarge(inputStream, response.outputStream)
     }
 
-    override fun deleteFilesFromFolder(storageInfoList: List<StorageInfo>) {
+    override fun downloadFilesAsZip(storageInfoList: List<StorageInfo>, response: HttpServletResponse) {
+        logger.info("Downloading files as zip from Folder Storage.....")
+        val zipOut = ZipOutputStream(response.outputStream)
+        storageInfoList.forEach {
+            val filepath = root.resolve(it.getFullStoragePath())
+            val resource = FileSystemResource(filepath)
+            val zipEntry = ZipEntry(resource.filename)
+            zipEntry.size = resource.contentLength()
+            zipOut.putNextEntry(zipEntry)
+            StreamUtils.copy(resource.inputStream, zipOut)
+            zipOut.closeEntry()
+        }
+        zipOut.finish()
+        zipOut.close()
+    }
+
+    override fun deleteFiles(storageInfoList: List<StorageInfo>) {
         logger.info("Deleting ${storageInfoList.size} files...")
         storageInfoList.forEach {
-            logger.info("$it")
-            val path = root.resolve(it.getFullStoragePath())
-            logger.info(path.toString())
-            FileSystemUtils.deleteRecursively(path)
+            val filepath = root.resolve(it.getFullStoragePath())
+            FileSystemUtils.deleteRecursively(filepath)
         }
     }
 
     override fun deleteAllFilesInFolder() {
-        logger.info("DELETING ALL FILES IN UPLOADS FOLDER.....")
+        logger.info("DELETING ALL FILES IN FOLDER STORAGE.....")
         FileSystemUtils.deleteRecursively(root.toFile())
     }
 

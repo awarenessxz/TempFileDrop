@@ -33,6 +33,7 @@ const NavBar = () => {
         if (userInfo) {
             history.push("/dashboard")
         }
+        // eslint-disable-next-line
     }, [userInfo]);
 
     useEffect(() => {

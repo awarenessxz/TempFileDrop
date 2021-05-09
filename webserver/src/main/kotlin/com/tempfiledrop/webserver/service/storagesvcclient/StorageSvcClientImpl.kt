@@ -2,6 +2,7 @@ package com.tempfiledrop.webserver.service.storagesvcclient
 
 import com.tempfiledrop.webserver.config.ServerProperties
 import org.slf4j.LoggerFactory
+import org.springframework.core.io.Resource
 import org.springframework.http.*
 import org.springframework.stereotype.Service
 import org.springframework.util.LinkedMultiValueMap
@@ -17,8 +18,8 @@ class StorageSvcClientImpl(
         private val logger = LoggerFactory.getLogger(StorageSvcClientImpl::class.java)
     }
 
-    override fun uploadToStorageSvc(files: List<MultipartFile>, storageRequest: StorageRequest): ResponseEntity<StorageResponse> {
-        logger.info("Forwarding Request to Storage Service...")
+    override fun uploadToStorageSvc(files: List<MultipartFile>, storageRequest: StorageUploadRequest): ResponseEntity<StorageUploadResponse> {
+        logger.info("Forwarding Upload Request to Storage Service...")
 
         // craft header
         val headers = HttpHeaders()
@@ -33,7 +34,7 @@ class StorageSvcClientImpl(
         val requestEntity: HttpEntity<MultiValueMap<String, Any>> = HttpEntity(body, headers)
         val storageServiceUrl = "${serverProperties.storageServiceUrl}/upload"
         val restTemplate = RestTemplate()
-        val response = restTemplate.postForEntity(storageServiceUrl, requestEntity, StorageResponse::class.java)
+        val response = restTemplate.postForEntity(storageServiceUrl, requestEntity, StorageUploadResponse::class.java)
 
         logger.info("Response From Storage Service Received: $response")
         return response
@@ -44,5 +45,21 @@ class StorageSvcClientImpl(
         val storageServiceUrl = "${serverProperties.storageServiceUrl}/$bucket/$storageId"
         val restTemplate = RestTemplate()
         restTemplate.delete(storageServiceUrl)
+    }
+
+    override fun getStorageInfoByStorageId(bucket: String, storageId: String): ResponseEntity<StorageInfoResponse> {
+        logger.info("Forwarding GET Request to Storage Service...")
+        val storageServiceUrl = "${serverProperties.storageServiceUrl}/$bucket/$storageId"
+        val restTemplate = RestTemplate()
+        val response = restTemplate.getForEntity(storageServiceUrl, StorageInfoResponse::class.java)
+        logger.info("Response From Storage Service Received: $response")
+        return response
+    }
+
+    override fun downloadFromStorageSvc(bucket: String, storageId: String): ResponseEntity<Resource> {
+        logger.info("Forwarding Download Request to Storage Service...")
+        val storageServiceUrl = "${serverProperties.storageServiceUrl}/download/$bucket/$storageId"
+        val restTemplate = RestTemplate()
+        return restTemplate.exchange(storageServiceUrl, HttpMethod.GET, null, Resource::class.java)
     }
 }
