@@ -1,22 +1,24 @@
 package com.tempfiledrop.webserver.service.filestorage
 
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.tempfiledrop.webserver.config.ServerProperties
 import com.tempfiledrop.webserver.exception.ApiException
 import com.tempfiledrop.webserver.exception.ErrorCode
+import com.tempfiledrop.webserver.exception.ErrorResponse
 import com.tempfiledrop.webserver.service.storagesvcclient.StorageInfoResponse
 import com.tempfiledrop.webserver.service.storagesvcclient.StorageSvcClientImpl
 import com.tempfiledrop.webserver.service.storagesvcclient.StorageUploadRequest
 import com.tempfiledrop.webserver.service.useruploads.UserUploadInfo
-import com.tempfiledrop.webserver.service.useruploads.UserUploadInfoController
 import com.tempfiledrop.webserver.service.useruploads.UserUploadInfoServiceImpl
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.Resource
-import org.springframework.http.*
+import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
+import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.multipart.MultipartFile
-import java.lang.Exception
-import java.time.ZonedDateTime
+
 
 @RestController
 @RequestMapping("/api/files")
@@ -77,15 +79,24 @@ class FileStorageController(
         logger.info("Receiving request to get download information for $storageId")
 
         // verify if files exists on server
-        val storageSvcResponse = storageSvcClient.getStorageInfoByStorageId(serverProperties.bucketName, storageId)
-        val storageInfoResponse = storageSvcResponse.body
-        if (!storageSvcResponse.statusCode.is2xxSuccessful || storageInfoResponse === null) {
-            logger.info("WHAT HAPPENED --> $storageSvcResponse vs $storageInfoResponse")
-            throw ApiException("Fail to retrieve download information.", ErrorCode.NO_MATCHING_RECORD, HttpStatus.BAD_REQUEST)
+        try {
+            val storageSvcResponse = storageSvcClient.getStorageInfoByStorageId(serverProperties.bucketName, storageId)
+            val storageInfoResponse = storageSvcResponse.body
+            if (!storageSvcResponse.statusCode.is2xxSuccessful || storageInfoResponse === null) {
+                throw ApiException("Fail to retrieve download information for $storageId", ErrorCode.NO_MATCHING_RECORD, HttpStatus.BAD_REQUEST)
+            }
+            val response = StorageInfoResponse(storageInfoResponse.storageId, storageInfoResponse.downloadLink, storageInfoResponse.filenames, storageInfoResponse.numOfDownloadsLeft, storageInfoResponse.expiryDatetime)
+            return ResponseEntity(response, HttpStatus.OK)
+        } catch (e: HttpStatusCodeException) {
+            logger.error(e.responseBodyAsString)
+            val objectMapper = ObjectMapper()
+            val errorResponse = objectMapper.readValue(e.responseBodyAsString, ErrorResponse::class.java)
+            if (errorResponse.errorCode === ErrorCode.FILE_NOT_FOUND) {
+                // delete messages
+                logger.info("Deleting User Uploaded Record for $storageId....")
+                uploadedFilesRecordService.deleteUploadedFilesRecordByStorageId(storageId)
+            }
+            throw ApiException("Fail to retrieve download information for $storageId", ErrorCode.NO_MATCHING_RECORD, HttpStatus.BAD_REQUEST)
         }
-
-        // one more step to delete the records!! (Try retrieving) If cannot, then delete) above )
-        val response = StorageInfoResponse(storageInfoResponse.storageId, storageInfoResponse.downloadLink, storageInfoResponse.filenames, storageInfoResponse.numOfDownloadsLeft, storageInfoResponse.expiryDatetime)
-        return ResponseEntity(response, HttpStatus.OK)
     }
 }

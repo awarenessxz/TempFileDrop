@@ -60,7 +60,6 @@ class StorageController(
         // store files
         storageService.uploadFiles(files, storageInfo) // upload file
         storageInfoService.addStorageInfo(storageInfo) // store upload to storage mapping. Should populate storage ID after storing
-        logger.info("Storage ID == $storageInfo")
         storageFileService.saveFilesInfo(metadata.bucket, storagePath, storageInfo.id.toString(), files) // store file information
         val downloadLink = "${storageSvcProperties.exposeEndpoint}/storagesvc/download/${storageInfo.bucketName}/${storageInfo.id}"
         val response = StorageResponse("Files uploaded successfully", storageInfo.id.toString(), downloadLink)
@@ -71,11 +70,9 @@ class StorageController(
     fun deleteFilesInBucket(@PathVariable("bucket") bucket: String, @PathVariable("storageId") storageId: String): ResponseEntity<StorageResponse> {
         logger.info("Deleting Storage ID = $storageId in Bucket $bucket")
         val storageFiles = getStorageFilesAndValidateRequest(bucket, storageId)
-
-        // delete files
         storageService.deleteFiles(storageFiles)
-        storageInfoService.deleteStorageInfoById(storageId)
         storageFileService.deleteFilesInfo(storageId)
+        storageInfoService.deleteStorageInfoById(storageId)
         val response = StorageResponse("Files deleted successfully")
         return ResponseEntity(response, HttpStatus.OK)
     }
@@ -88,7 +85,15 @@ class StorageController(
             throw ApiException("Files not found in Bucket!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST) // bucket and storageID didn't match
         }
         if (storageInfo.numOfDownloadsLeft <= 0 || storageInfo.expiryDatetime.isBefore(ZonedDateTime.now())) {
-            throw ApiException("Files not available!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST) // storage have expired (will be scheduled for deletion)
+            // storage expired. Delete the records and objects
+            val storageFiles = storageFileService.getStorageFilesInfoByStorageId(storageInfo.id.toString())
+            if (storageFiles.isEmpty()) {
+                throw ApiException("Files details are not found in database", ErrorCode.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR) // should not occur! If it occurs, means files information in database is missing
+            }
+            storageService.deleteFiles(storageFiles)
+            storageFileService.deleteFilesInfo(storageInfo.id.toString())
+            storageInfoService.deleteStorageInfoById(storageInfo.id.toString())
+            throw ApiException("Files not available!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
         }
 
         val downloadLink = "${storageSvcProperties.exposeEndpoint}/storagesvc/download/${storageInfo.bucketName}/${storageInfo.id}"

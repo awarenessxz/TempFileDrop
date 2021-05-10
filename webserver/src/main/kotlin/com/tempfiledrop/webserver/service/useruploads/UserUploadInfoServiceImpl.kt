@@ -26,4 +26,8 @@ class UserUploadInfoServiceImpl(
     override fun deleteUploadedFilesRecordById(id: String) {
         repository.deleteById(id)
     }
+
+    override fun deleteUploadedFilesRecordByStorageId(storageId: String) {
+        repository.deleteByStorageId(storageId)
+    }
 }

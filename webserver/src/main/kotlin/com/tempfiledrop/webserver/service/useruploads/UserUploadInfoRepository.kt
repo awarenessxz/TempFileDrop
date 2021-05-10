@@ -7,4 +7,5 @@ import org.springframework.stereotype.Repository
 interface UserUploadInfoRepository: MongoRepository<UserUploadInfo, String> {
     fun findByUser(user: String): List<UserUploadInfo>
     fun findByStorageId(storageId: String): UserUploadInfo?
+    fun deleteByStorageId(storageId: String)
 }

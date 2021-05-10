@@ -7,5 +7,6 @@ enum class ErrorCode {
     UPLOAD_FAILED,
     DOWNLOAD_FAILED,
     USER_NOT_FOUND,
+    FILE_NOT_FOUND,
     NO_MATCHING_RECORD
 }

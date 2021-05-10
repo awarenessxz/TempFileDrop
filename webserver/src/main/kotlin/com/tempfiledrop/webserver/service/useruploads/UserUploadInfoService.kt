@@ -6,4 +6,5 @@ interface UserUploadInfoService {
     fun getUploadedFilesRecordByStorageId(storageId: String): UserUploadInfo?
     fun getUploadedFilesRecordsForUser(user: String): List<UserUploadInfo>
     fun deleteUploadedFilesRecordById(id: String)
+    fun deleteUploadedFilesRecordByStorageId(storageId: String)
 }

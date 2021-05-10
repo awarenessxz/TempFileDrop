@@ -1,6 +1,7 @@
 package com.tempfiledrop.webserver.service.storagesvcclient
 
 import com.tempfiledrop.webserver.config.ServerProperties
+import com.tempfiledrop.webserver.exception.ApiException
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.Resource
 import org.springframework.http.*
@@ -18,6 +19,7 @@ class StorageSvcClientImpl(
         private val logger = LoggerFactory.getLogger(StorageSvcClientImpl::class.java)
     }
 
+    @Throws(ApiException::class)
     override fun uploadToStorageSvc(files: List<MultipartFile>, storageRequest: StorageUploadRequest): ResponseEntity<StorageUploadResponse> {
         logger.info("Forwarding Upload Request to Storage Service...")
 
@@ -40,6 +42,7 @@ class StorageSvcClientImpl(
         return response
     }
 
+    @Throws(ApiException::class)
     override fun deleteFilesInFolder(bucket: String, storageId: String) {
         logger.info("Forwarding Delete Request to Storage Service...")
         val storageServiceUrl = "${serverProperties.storageServiceUrl}/$bucket/$storageId"
@@ -47,6 +50,7 @@ class StorageSvcClientImpl(
         restTemplate.delete(storageServiceUrl)
     }
 
+    @Throws(ApiException::class)
     override fun getStorageInfoByStorageId(bucket: String, storageId: String): ResponseEntity<StorageInfoResponse> {
         logger.info("Forwarding GET Request to Storage Service...")
         val storageServiceUrl = "${serverProperties.storageServiceUrl}/$bucket/$storageId"
@@ -56,6 +60,7 @@ class StorageSvcClientImpl(
         return response
     }
 
+    @Throws(ApiException::class)
     override fun downloadFromStorageSvc(bucket: String, storageId: String): ResponseEntity<Resource> {
         logger.info("Forwarding Download Request to Storage Service...")
         val storageServiceUrl = "${serverProperties.storageServiceUrl}/download/$bucket/$storageId"
