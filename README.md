@@ -161,3 +161,5 @@ tech stack will be applied:
         - [Spring MVC Image Media Data](https://www.baeldung.com/spring-mvc-image-media-data)
         - [Stackoverflow - Spring MVC Large file download (Out of Memory Issue)](https://stackoverflow.com/questions/15800565/spring-mvc-large-files-for-download-outofmemoryexception)
         - [Bad Chunk Header mystery](https://rey5137.com/bad-chunk-header-mystery/)
+    - Swagger
+        - [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)

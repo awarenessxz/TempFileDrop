@@ -34,7 +34,7 @@ class StorageSvcClientImpl(
 
         // craft request
         val requestEntity: HttpEntity<MultiValueMap<String, Any>> = HttpEntity(body, headers)
-        val storageServiceUrl = "${serverProperties.storageServiceUrl}/upload"
+        val storageServiceUrl = "${serverProperties.storageServiceUrl}/storagesvc/upload"
         val restTemplate = RestTemplate()
         val response = restTemplate.postForEntity(storageServiceUrl, requestEntity, StorageUploadResponse::class.java)
 
@@ -45,7 +45,7 @@ class StorageSvcClientImpl(
     @Throws(ApiException::class)
     override fun deleteFilesInFolder(bucket: String, storageId: String) {
         logger.info("Forwarding Delete Request to Storage Service...")
-        val storageServiceUrl = "${serverProperties.storageServiceUrl}/$bucket/$storageId"
+        val storageServiceUrl = "${serverProperties.storageServiceUrl}/storagesvc/$bucket/$storageId"
         val restTemplate = RestTemplate()
         restTemplate.delete(storageServiceUrl)
     }
@@ -53,7 +53,7 @@ class StorageSvcClientImpl(
     @Throws(ApiException::class)
     override fun getStorageInfoByStorageId(bucket: String, storageId: String): ResponseEntity<StorageInfoResponse> {
         logger.info("Forwarding GET Request to Storage Service...")
-        val storageServiceUrl = "${serverProperties.storageServiceUrl}/$bucket/$storageId"
+        val storageServiceUrl = "${serverProperties.storageServiceUrl}/storagesvc/$bucket/$storageId"
         val restTemplate = RestTemplate()
         val response = restTemplate.getForEntity(storageServiceUrl, StorageInfoResponse::class.java)
         logger.info("Response From Storage Service Received: $response")
@@ -63,7 +63,15 @@ class StorageSvcClientImpl(
     @Throws(ApiException::class)
     override fun downloadFromStorageSvc(bucket: String, storageId: String): ResponseEntity<Resource> {
         logger.info("Forwarding Download Request to Storage Service...")
-        val storageServiceUrl = "${serverProperties.storageServiceUrl}/download/$bucket/$storageId"
+        val storageServiceUrl = "${serverProperties.storageServiceUrl}/storagesvc/download/$bucket/$storageId"
+        val restTemplate = RestTemplate()
+        return restTemplate.exchange(storageServiceUrl, HttpMethod.GET, null, Resource::class.java)
+    }
+
+    @Throws(ApiException::class)
+    override fun getSwagger(): ResponseEntity<Resource> {
+        logger.info("Forwarding GET Swagger Request to Storage Service")
+        val storageServiceUrl = "${serverProperties.storageServiceUrl}/api-docs"
         val restTemplate = RestTemplate()
         return restTemplate.exchange(storageServiceUrl, HttpMethod.GET, null, Resource::class.java)
     }

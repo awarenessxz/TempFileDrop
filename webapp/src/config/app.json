@@ -27,6 +27,7 @@
         "upload_files": "/api/files/upload",
         "download_files": "/api/files/download",
         "files_storage_info": "/api/files/download-info",
-        "uploaded_files": "/api/users-upload-info"
+        "uploaded_files": "/api/users-upload-info",
+        "storagesvc_swagger": "/api/swagger/storagesvc"
     }
 }

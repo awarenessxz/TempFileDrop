@@ -11,7 +11,7 @@ spring:
 
 tempfiledrop:
   bucket-name: tempfiledrop
-  storage-service-url: http://localhost:8001/storagesvc
+  storage-service-url: http://localhost:8001
 
 ---
 
