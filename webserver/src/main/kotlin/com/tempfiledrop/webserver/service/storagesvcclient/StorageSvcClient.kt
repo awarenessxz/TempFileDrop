@@ -9,5 +9,4 @@ interface StorageSvcClient {
     fun deleteFilesInFolder(bucket: String, storageId: String)
     fun getStorageInfoByStorageId(bucket: String, storageId: String): ResponseEntity<StorageInfoResponse>
     fun downloadFromStorageSvc(bucket: String, storageId: String): ResponseEntity<Resource>
-    fun getSwagger(): ResponseEntity<Resource>
 }

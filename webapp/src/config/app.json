@@ -28,6 +28,6 @@
         "download_files": "/api/files/download",
         "files_storage_info": "/api/files/download-info",
         "uploaded_files": "/api/users-upload-info",
-        "storagesvc_swagger": "/api/swagger/storagesvc"
+        "storagesvc_swagger": "/storagesvc/api-docs"
     }
 }

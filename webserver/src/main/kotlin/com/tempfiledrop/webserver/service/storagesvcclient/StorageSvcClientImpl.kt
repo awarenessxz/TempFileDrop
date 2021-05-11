@@ -67,12 +67,4 @@ class StorageSvcClientImpl(
         val restTemplate = RestTemplate()
         return restTemplate.exchange(storageServiceUrl, HttpMethod.GET, null, Resource::class.java)
     }
-
-    @Throws(ApiException::class)
-    override fun getSwagger(): ResponseEntity<Resource> {
-        logger.info("Forwarding GET Swagger Request to Storage Service")
-        val storageServiceUrl = "${serverProperties.storageServiceUrl}/api-docs"
-        val restTemplate = RestTemplate()
-        return restTemplate.exchange(storageServiceUrl, HttpMethod.GET, null, Resource::class.java)
-    }
 }
