@@ -49,10 +49,10 @@ const FileDropzone = ({
             formData.append("files", file);
         });
         // @ts-ignore
-        const expiryPeriod = selectRef.current === null ? 0 : selectRef.current.options.selectedIndex
+        const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
         const metadata: FileUploadRequest = {
             username: userInfo === null ? "" : userInfo.username,
-            maxDownloads: maxDownloads === "" ? 10 : maxDownloads,
+            maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
             expiryPeriod
         };
         formData.append("metadata", new Blob([JSON.stringify(metadata)], {
