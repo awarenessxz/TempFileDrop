@@ -2,6 +2,8 @@ package com.tempfiledrop.storagesvc
 
 import com.tempfiledrop.storagesvc.config.StorageSvcProperties
 import com.tempfiledrop.storagesvc.service.storage.StorageService
+import io.swagger.v3.oas.annotations.OpenAPIDefinition
+import io.swagger.v3.oas.annotations.info.Info
 import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -10,6 +12,7 @@ import javax.annotation.Resource
 
 @SpringBootApplication
 @EnableConfigurationProperties(StorageSvcProperties::class)
+@OpenAPIDefinition(info = Info(title = "Storage Service API Definitions"))
 class StorageServiceApplication: CommandLineRunner {
 	@Resource
 	var storageService: StorageService? = null

@@ -44,7 +44,7 @@ object StorageUtils {
             1 -> now.plusDays(1)
             2 -> now.plusWeeks(1)
             3 -> now.plusMonths(1)
-            else -> throw ApiException("Invalid Expiry Period!", ErrorCode.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR)
+            else -> throw ApiException("Invalid Expiry Period!", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         }
     }
 }

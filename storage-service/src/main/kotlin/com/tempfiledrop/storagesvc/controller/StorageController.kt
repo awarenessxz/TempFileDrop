@@ -3,12 +3,18 @@ package com.tempfiledrop.storagesvc.controller
 import com.tempfiledrop.storagesvc.config.StorageSvcProperties
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
+import com.tempfiledrop.storagesvc.exception.ErrorResponse
 import com.tempfiledrop.storagesvc.service.storage.StorageService
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFileServiceImpl
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfoServiceImpl
 import com.tempfiledrop.storagesvc.util.StorageUtils
+import io.swagger.v3.oas.annotations.Operation
+import io.swagger.v3.oas.annotations.media.Content
+import io.swagger.v3.oas.annotations.media.Schema
+import io.swagger.v3.oas.annotations.responses.ApiResponse
+import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -44,8 +50,14 @@ class StorageController(
         return storageFiles
     }
 
+    @Operation(summary = "Upload single or multiple files to storage service")
+    @ApiResponses(value = [
+        ApiResponse(description = "File were uploaded successfully", responseCode = "200"),
+        ApiResponse(description = "Requested upload path is invalid", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
+        ApiResponse(description = "Upload Failed", responseCode = "500", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
+    ])
     @ExperimentalPathApi
-    @PostMapping("/upload", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE])
+    @PostMapping("/upload", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE], produces = ["application/json"])
     fun uploadFile(
             @RequestPart("files") files: List<MultipartFile>,
             @RequestPart("metadata", required = true) metadata: StorageRequest
@@ -66,18 +78,27 @@ class StorageController(
         return ResponseEntity(response, HttpStatus.OK)
     }
 
+    @Operation(summary = "Delete files based on bucket name and storageId")
+    @ApiResponses(value = [
+        ApiResponse(description = "File were deleted successfully", responseCode = "200", content = [Content(mediaType = "string")]),
+        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))])
+    ])
     @DeleteMapping("/{bucket}/{storageId}")
-    fun deleteFilesInBucket(@PathVariable("bucket") bucket: String, @PathVariable("storageId") storageId: String): ResponseEntity<StorageResponse> {
+    fun deleteFilesInBucket(@PathVariable("bucket") bucket: String, @PathVariable("storageId") storageId: String): ResponseEntity<String> {
         logger.info("Deleting Storage ID = $storageId in Bucket $bucket")
         val storageFiles = getStorageFilesAndValidateRequest(bucket, storageId)
         storageService.deleteFiles(storageFiles)
         storageFileService.deleteFilesInfo(storageId)
         storageInfoService.deleteStorageInfoById(storageId)
-        val response = StorageResponse("Files deleted successfully")
-        return ResponseEntity(response, HttpStatus.OK)
+        return ResponseEntity("Files deleted successfully", HttpStatus.OK)
     }
 
-    @GetMapping("/{bucket}/{storageId}")
+    @Operation(summary = "Get Storage Information of uploaded files using bucket name and storageId")
+    @ApiResponses(value = [
+        ApiResponse(description = "Successful operation", responseCode = "200"),
+        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
+    ])
+    @GetMapping("/{bucket}/{storageId}", produces = ["application/json"])
     fun getStorageInfoByStorageId(@PathVariable("bucket") bucket: String, @PathVariable("storageId") storageId: String): ResponseEntity<StorageInfoResponse> {
         logger.info("Retrieving Storage Information for $storageId in Bucket $bucket")
         val storageInfo = storageInfoService.getStorageInfoById(storageId) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
@@ -101,6 +122,11 @@ class StorageController(
         return ResponseEntity(response, HttpStatus.OK)
     }
 
+    @Operation(summary = "Download files using bucket name and storageId")
+    @ApiResponses(value = [
+        ApiResponse(description = "Successful operation", responseCode = "200"),
+        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))])
+    ])
     @GetMapping("/download/{bucket}/{storageId}")
     fun downloadFile(
             @PathVariable("bucket") bucket: String,
@@ -126,16 +152,4 @@ class StorageController(
         }
         storageInfoService.reduceDownloadCountById(storageId)
     }
-
-    /*
-    @GetMapping("/list")
-    fun getAllFiles(): ResponseEntity<List<FileInfo>> {
-        val fileInfos: List<FileInfo> = service.loadAllFilesFromFolder().map { path ->
-            val filename: String = path.fileName.toString()
-            val url = MvcUriComponentsBuilder.fromMethodName(StorageController::class.java, "getFile", path.fileName.toString()).build().toString()
-            FileInfo(filename, url)
-        }.collect(Collectors.toList())
-        return ResponseEntity(fileInfos, HttpStatus.OK)
-    }
-     */
 }
