@@ -94,13 +94,10 @@ tech stack will be applied:
     - Upload
         - Presigned URL (Temporary uploads)
         - Ensure filesnames are unique (Random UUID + Timestamp?)
-    - Documentation
-        - Swagger Page
 2. Implement Security
     - Spring Security
     - TLS (HTTPS) 
     - IAM for MinIO Cluster
-    - Better handle Response Code
     - Bucket Authorization
 3. Others
     - Create logo

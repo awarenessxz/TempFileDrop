@@ -38,7 +38,7 @@ class FileStorageController(
             @RequestPart("metadata", required = true) metadata: FileUploadInfoRequest
     ): ResponseEntity<FileUploadInfoResponse> {
         val storagePath = if (metadata.username.trim().isEmpty()) ANONYMOUS_FOLDER else metadata.username
-        logger.info("Received Request to store files in ${serverProperties.bucketName}/$storagePath")
+        logger.info("Received Request to store ${files.size} files in ${serverProperties.bucketName}/$storagePath")
 
         try {
             // Forward to Storage Service to store file

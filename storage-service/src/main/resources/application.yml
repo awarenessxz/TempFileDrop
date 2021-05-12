@@ -39,7 +39,7 @@ spring.data.mongodb:
 ###############################################################################################
 
 spring.servlet.multipart:
-  max-file-size: -1      # Max file size for each request
-  max-request-size: -1   # Max request size for a multipart/form-data
+  max-file-size: 5GB      # Max file size for each request
+  max-request-size: 5GB   # Max request size for a multipart/form-data
 
 ---

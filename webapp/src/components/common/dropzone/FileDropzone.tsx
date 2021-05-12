@@ -29,7 +29,9 @@ const FileDropzone = ({
     onSuccessfulUploadCallback = () => {}
 }: FileDropzoneProps) => {
     const { userInfo } = useAuthState();
-    const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone();
+    const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
+        maxSize: Data.dropzone.maxSizeInBytes
+    });
     const [errorMsg, setErrorMsg] = useState("");
     const [uploadRes, setUploadRes] = useState<FileUploadResponse|null>(null);
     const [loading, setLoading] = useState(false);
@@ -38,6 +40,7 @@ const FileDropzone = ({
     const [downloadLink, setDownloadLink] = useState("");
     const downloadLinkRef = useRef(null);
     const selectRef = useRef(null);
+    const isFileTooLarge = fileRejections.length > 0 && fileRejections[0].file.size > Data.dropzone.maxSizeInBytes;
 
     const handleUpload = (e: MouseEvent<HTMLButtonElement>) => {
         // reset states
@@ -73,7 +76,7 @@ const FileDropzone = ({
                 }
             })
             .catch(err => {
-                // console.log(err);
+                console.log(err.message);
                 setLoading(false);
                 setErrorMsg("Server Error! Please try again later...");
             });
@@ -100,6 +103,11 @@ const FileDropzone = ({
                         ? <p>Drag and drop your files here, or click to select files.</p>
                         : <p>{acceptedFiles.length} files selected</p>
                     }
+                    {isFileTooLarge && (
+                        <div className="text-danger mt-2">
+                            File is too large. Max file size is 5GB.
+                        </div>
+                    )}
                 </div>
                 {acceptedFiles.length > 0 && (
                     <div className="action-box">

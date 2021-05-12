@@ -22,6 +22,9 @@
             "login_required": true
         }
     ],
+    "dropzone": {
+        "maxSizeInBytes": 5368706371
+    },
     "api_endpoints": {
         "mock_login": "/api/user-info/login",
         "upload_files": "/api/files/upload",
