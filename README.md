@@ -18,6 +18,12 @@ tech stack will be applied:
 - [References](#references)
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
 
+**For more details, refer to the README of the individual services**
+- [Website](webapp)
+- [Web Server](webserver)
+- [Storage Service](storage-service)
+- [Storage Service Client Library](storage-service-client)
+
 ## Architecture Design
 
 ![Architecture](doc/architecture.png)
