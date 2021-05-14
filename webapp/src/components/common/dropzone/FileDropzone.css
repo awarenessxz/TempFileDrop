@@ -2,6 +2,23 @@
     padding: 0;
 }
 
+.dropzone-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    -webkit-transform: translateY( -50% );
+    transform: translateY( -50% );
+    text-align: center;
+    height: 100%;
+    z-index: 999999;
+    background-color: #92b0b3;
+}
+
 /*******************************************
  * DROP ZONE
  *******************************************/
@@ -55,25 +72,17 @@
 }
 
 /*******************************************
- * ERROR / MESSAGE
+ * Loading
  *******************************************/
 
-.dropzone-message-box {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    position: absolute;
-    top: 50%;
-    right: 0;
-    left: 0;
-    -webkit-transform: translateY( -50% );
-    transform: translateY( -50% );
-    text-align: center;
-    height: 100%;
-    z-index: 999999;
-    background-color: #92b0b3;
+.loader {
+    align-items: stretch;
+    padding: 20px;
 }
+
+/*******************************************
+ * ERROR / MESSAGE
+ *******************************************/
 
 .message-error {
     background-color: #f8d7da;
@@ -87,7 +96,7 @@
     border-color: #c3e6cb;
 }
 
-.dropzone-message-box .dropzone-share-link {
+.dropzone-share-link {
     width: 100%;
     display: flex;
     flex-direction: row;
@@ -96,7 +105,7 @@
     padding: 10px;
 }
 
-.dropzone-message-box .dropzone-share-link input {
+.dropzone-share-link input {
     flex: 1 1 auto;
     color: #383d41;
     background-color: #e2e3e5;

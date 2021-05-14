@@ -6,9 +6,9 @@ import Button from "react-bootstrap/cjs/Button";
 import Col from "react-bootstrap/cjs/Col";
 import Container from "react-bootstrap/cjs/Container";
 import Form from "react-bootstrap/cjs/Form";
+import ProgressBar from "react-bootstrap/cjs/ProgressBar";
 import Row from "react-bootstrap/cjs/Row";
 import Table from "react-bootstrap/cjs/Table";
-import Spinner from "../loading/Spinner";
 import { useAuthState } from "../../../utils/auth-context";
 import { joinURLs } from "../../../utils/toolkit";
 import Data from "../../../config/app.json";
@@ -32,18 +32,20 @@ const FileDropzone = ({
     const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
         maxSize: Data.dropzone.maxSizeInBytes
     });
+    const isFileTooLarge = fileRejections.length > 0 && fileRejections[0].file.size > Data.dropzone.maxSizeInBytes;
     const [errorMsg, setErrorMsg] = useState("");
     const [uploadRes, setUploadRes] = useState<FileUploadResponse|null>(null);
     const [loading, setLoading] = useState(false);
+    const [uploadPercentage, setUploadPercentage] = useState(0);
     const [maxDownloads, setMaxDownloads] = useState<number|"">("");
     const [copiedText, setCopiedText] = useState("Copy to Clipboard");
     const [downloadLink, setDownloadLink] = useState("");
     const downloadLinkRef = useRef(null);
     const selectRef = useRef(null);
-    const isFileTooLarge = fileRejections.length > 0 && fileRejections[0].file.size > Data.dropzone.maxSizeInBytes;
 
     const handleUpload = (e: MouseEvent<HTMLButtonElement>) => {
         // reset states
+        setUploadPercentage(0);
         setLoading(true);
 
         // craft payload
@@ -62,8 +64,19 @@ const FileDropzone = ({
             type: "application/json"
         }));
 
+        // set upload percentage
+        const options = {
+            onUploadProgress: (progressEvent: any) => {
+                const {loaded, total} = progressEvent;
+                const percent = Math.floor((loaded * 100) / total);
+                if (percent <= 100) {
+                    setUploadPercentage(percent);
+                }
+            }
+        }
+
         // send request
-        axios.post(Data.api_endpoints.upload_files, formData, {})
+        axios.post(Data.api_endpoints.upload_files, formData, options)
             .then(res => {
                 setLoading(false);
                 if (res.status === 200) {
@@ -115,12 +128,12 @@ const FileDropzone = ({
                     </div>
                 )}
                 {errorMsg && (
-                    <div className="dropzone-message-box message-error">
+                    <div className="dropzone-box message-error">
                         {errorMsg}
                     </div>
                 )}
                 {uploadRes && (
-                    <div className="dropzone-message-box message-success">
+                    <div className="dropzone-box message-success">
                         {uploadRes.message}
                         <div className="dropzone-share-link">
                             <input ref={downloadLinkRef} value={downloadLink} onChange={() => {}}/>
@@ -133,7 +146,11 @@ const FileDropzone = ({
                         </div>
                     </div>
                 )}
-                {loading && <Spinner spinnerType="ThreeDots" backgroundColor="#92b0b3" spinnerColor="#fff" />}
+                {loading && (
+                    <div className="dropzone-box loader">
+                        <ProgressBar striped now={uploadPercentage} animated />
+                    </div>
+                )}
             </div>
             {showConfigs && !loading && !uploadRes && (
                 <div className="dropzone-config-box">
