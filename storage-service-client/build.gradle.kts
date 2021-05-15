@@ -3,11 +3,12 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "2.4.5"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
+	id("java-library")
 	kotlin("jvm") version "1.4.32"
 	kotlin("plugin.spring") version "1.4.32"
 }
 
-group = "com.storagesvc"
+group = "com.tempfiledrop"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
@@ -18,6 +19,7 @@ repositories {
 dependencies {
 	// Spring Boot Framework
 	implementation("org.springframework.boot:spring-boot-starter")
+	implementation("org.springframework.boot:spring-boot-starter-web")
 
 	// Kotlin
 	implementation("org.springframework.boot:spring-boot-configuration-processor")
@@ -37,4 +39,16 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+/******************************************************************
+ * For building as Java Library
+ ******************************************************************/
+
+tasks.bootJar {
+	enabled = false
+}
+
+tasks.jar {
+	enabled = true
 }

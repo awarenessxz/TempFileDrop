@@ -1,1 +1,1 @@
-rootProject.name = "restclient"
+rootProject.name = "storage-service-client"

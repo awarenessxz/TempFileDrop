@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
-@ConfigurationProperties("tempfiledrop")
+@ConfigurationProperties("tempfiledrop.webserver")
 data class ServerProperties(
         val bucketName: String,
         val storageServiceUrl: String

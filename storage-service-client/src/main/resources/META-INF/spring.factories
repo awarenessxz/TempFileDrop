@@ -1,2 +1,2 @@
 org.springframework.boot.autoconfigure.EnableAutoConfiguration=\
-  com.storagesvc.restclient.config.RestClientAutoConfiguration
+  com.tempfiledrop.storagesvcclient.config.ClientAutoConfiguration

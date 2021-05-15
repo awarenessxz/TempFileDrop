@@ -19,7 +19,6 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.multipart.MultipartFile
 
-
 @RestController
 @RequestMapping("/api/files")
 class FileStorageController(
