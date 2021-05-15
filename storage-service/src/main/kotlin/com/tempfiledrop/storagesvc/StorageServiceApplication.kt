@@ -8,9 +8,11 @@ import org.springframework.boot.CommandLineRunner
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.properties.EnableConfigurationProperties
 import org.springframework.boot.runApplication
+import org.springframework.scheduling.annotation.EnableScheduling
 import javax.annotation.Resource
 
 @SpringBootApplication
+@EnableScheduling
 @EnableConfigurationProperties(StorageSvcProperties::class)
 @OpenAPIDefinition(info = Info(title = "Storage Service API Definitions"))
 class StorageServiceApplication: CommandLineRunner {

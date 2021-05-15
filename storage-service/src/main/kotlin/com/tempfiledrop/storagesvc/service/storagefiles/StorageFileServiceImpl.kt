@@ -15,7 +15,15 @@ class StorageFileServiceImpl(
         repository.deleteByStorageId(storageId)
     }
 
+    override fun deleteFilesInfoBulk(storageIds: List<String>) {
+        repository.deleteByStorageIdIn(storageIds)
+    }
+
     override fun getStorageFilesInfoByStorageId(storageId: String): List<StorageFile> {
         return repository.findByStorageId(storageId)
+    }
+
+    override fun getStorageFilesInfoByStorageIdBulk(storageIds: List<String>): List<StorageFile> {
+        return repository.findByStorageIdIn(storageIds)
     }
 }

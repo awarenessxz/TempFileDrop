@@ -5,6 +5,7 @@ import com.tempfiledrop.storagesvc.exception.ErrorCode
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import java.time.ZonedDateTime
 
 @Service
 class StorageInfoServiceImpl(
@@ -18,6 +19,10 @@ class StorageInfoServiceImpl(
         repository.deleteById(storageId)
     }
 
+    override fun deleteStorageInfoByIdBulk(storageIds: List<String>) {
+        repository.deleteByIdIn(storageIds)
+    }
+
     override fun getStorageInfosInBucket(bucket: String): List<StorageInfo> {
         return repository.findByBucketName(bucket)
     }
@@ -29,6 +34,10 @@ class StorageInfoServiceImpl(
     override fun getBulkStorageInfoById(storageIds: List<String>): List<StorageInfo> {
         val results = repository.findAllById(storageIds)
         return results.map { it }
+    }
+
+    override fun getExpiredStorageInfoList(): List<StorageInfo> {
+        return repository.findByExpiryDatetimeBeforeOrNumOfDownloadsLeftLessThan(ZonedDateTime.now(), 1)
     }
 
     override fun reduceDownloadCountById(storageId: String) {

@@ -108,7 +108,6 @@ tech stack will be applied:
 3. Others
     - Create logo
     - Session / Cache such that user remains login after refreshing...
-    - Run some scheduled job to clean up empty folders
     - Make the client calls to storage service a library
     - Make Navbar reactive to small screen (Frontend)
     - Large File Downloads / Uploads (Feedback - Loading bar)
