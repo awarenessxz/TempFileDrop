@@ -1,16 +1,16 @@
 package com.tempfiledrop.storagesvc.service.cleaner
 
 import com.tempfiledrop.storagesvc.service.storage.StorageService
-import com.tempfiledrop.storagesvc.service.storagefiles.StorageFileServiceImpl
-import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfoServiceImpl
+import com.tempfiledrop.storagesvc.service.storagefiles.StorageFileService
+import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfoService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component
 
 @Component
 class CleanupScheduler(
-        private val storageInfoService: StorageInfoServiceImpl,
-        private val storageFileService: StorageFileServiceImpl,
+        private val storageInfoService: StorageInfoService,
+        private val storageFileService: StorageFileService,
         private val storageService: StorageService
 ) {
     companion object {

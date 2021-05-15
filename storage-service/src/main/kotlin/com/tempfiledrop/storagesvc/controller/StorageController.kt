@@ -6,9 +6,9 @@ import com.tempfiledrop.storagesvc.exception.ErrorCode
 import com.tempfiledrop.storagesvc.exception.ErrorResponse
 import com.tempfiledrop.storagesvc.service.storage.StorageService
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
-import com.tempfiledrop.storagesvc.service.storagefiles.StorageFileServiceImpl
+import com.tempfiledrop.storagesvc.service.storagefiles.StorageFileService
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
-import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfoServiceImpl
+import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfoService
 import com.tempfiledrop.storagesvc.util.StorageUtils
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
@@ -29,8 +29,8 @@ import kotlin.io.path.ExperimentalPathApi
 @RestController
 @RequestMapping("/storagesvc")
 class StorageController(
-        private val storageInfoService: StorageInfoServiceImpl,
-        private val storageFileService: StorageFileServiceImpl,
+        private val storageInfoService: StorageInfoService,
+        private val storageFileService: StorageFileService,
         private val storageService: StorageService,
         private val storageSvcProperties: StorageSvcProperties
 ) {
@@ -99,9 +99,9 @@ class StorageController(
         val storageInfo = StorageInfo(metadata.bucket, storagePath, filenames, metadata.maxDownloads, expiryDatetime)
 
         // store files
-        storageService.uploadFiles(files, storageInfo) // upload file
+        val storageFiles = storageService.uploadFiles(files, storageInfo) // upload file
         storageInfoService.addStorageInfo(storageInfo) // store upload to storage mapping. Should populate storage ID after storing
-        storageFileService.saveFilesInfo(metadata.bucket, storagePath, storageInfo.id.toString(), files) // store file information
+        storageFileService.saveFilesInfo(storageInfo.id.toString(), storageFiles) // store file information
         val downloadLink = "${storageSvcProperties.exposeEndpoint}/storagesvc/download/${storageInfo.bucketName}/${storageInfo.id}"
         val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString(), downloadLink)
         return ResponseEntity(response, HttpStatus.OK)
@@ -176,7 +176,7 @@ class StorageController(
             // download as zip
             logger.info("Zip File Download...")
             response.status = HttpServletResponse.SC_OK
-            response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${storageId}.zip\"")
+            response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"download.zip\"")
             storageService.downloadFilesAsZip(storageFiles, response) // IMPORTANT: ORDER MATTERS (MUST BE AFTER SETTING HEADER)
         } else {
             // download as single file
@@ -184,7 +184,7 @@ class StorageController(
             val storageFile = storageFiles[0]
             response.contentType = storageFile.fileContentType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE
             response.setContentLengthLong(storageFile.fileLength)
-            response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${storageFile.filename}\"")
+            response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${storageFile.originalFilename}\"")
             storageService.downloadFile(storageFile, response) // IMPORTANT: ORDER MATTERS (MUST BE AFTER SETTING HEADER)
         }
         storageInfoService.reduceDownloadCountById(storageId)

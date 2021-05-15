@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse
 
 interface StorageService {
     fun initStorage()
-    fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo)
+    fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo): List<StorageFile>
     fun deleteFiles(storageFileList: List<StorageFile>)
     fun downloadFile(storageFile: StorageFile, response: HttpServletResponse)
     fun downloadFilesAsZip(storageFiles: List<StorageFile>, response: HttpServletResponse)

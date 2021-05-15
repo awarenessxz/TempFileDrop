@@ -9,6 +9,7 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
     - [Deploy the service](#deploying-the-service)
 - [Documentation](#documentation)
     - [Storage Service Design](#storage-service-design)
+    - [API Endpoints](#api-endpoints)
     - [Database Tables](#database-tables)
     - [Uploading files to services (Mixed Multipart Request)](#uploading-files-to-the-service-mixed-multipart---multipart-request-with-json-data)
 
@@ -67,7 +68,7 @@ scheduled job will run every day to clean up files that have already expired.
 | Table | Columns | Description |
 | --- | --- | --- |
 | storage_info | **id**, bucketName, storagePath,  filenames, numOfDownloadsLeft, expiryDatetime, downloadLink | {storageId to files/object uploads} mapping. Given the **id** AKA **storageId**, the storage service will be able to identify the files uploaded and make them available for download. |
-| storage_files | id, bucketName, storagePath, storageFilename, storageFileContentType, storageFileLength, storageId | Contains the uploaded files details |
+| storage_files | id, bucketName, storagePath, filename, originalFilename, fileContentType, fileLength, storageId | Contains the uploaded files details |
 
 ### Uploading files to the service (Mixed Multipart -> Multipart Request with JSON data)
 

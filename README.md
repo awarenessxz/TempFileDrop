@@ -35,7 +35,7 @@ tech stack will be applied:
     - Batch Calls
     - Speed of transfer
     - Mode of transfer
-    - How much load can it handles
+    - How much load can it handles (Out of Memory Issues)
 3. File Upload Mechanism
     - **Option A - Direct File Upload**
         - use HTTP `Content-Type` header on request to set the proper content
@@ -96,22 +96,19 @@ tech stack will be applied:
    
 ## Future Works
 
-1. Features
-    - Upload
-        - Presigned URL (Temporary uploads)
-        - Ensure filesnames are unique (Random UUID + Timestamp?)
-2. Implement Security
+1. Implement Security
     - Spring Security
     - TLS (HTTPS) 
     - IAM for MinIO Cluster
     - Bucket Authorization
-3. Others
-    - Create logo
-    - Session / Cache such that user remains login after refreshing...
-    - Make the client calls to storage service a library
-    - Make Navbar reactive to small screen (Frontend)
-    - Large File Downloads / Uploads (Feedback - Loading bar)
+2. Storage Service
+    - Get Storage Service Client working in a multi module project
     - Upgrade to WebClient instead of RestTemplate
+    - Look at Presigned Url feature that is available in S3 storage
+3. Misc
+    - Session / Cache such that user remains login after refreshing...
+    - Make Navbar reactive to small screen (Frontend)
+    
 
 ## References
 - [Command Cheat Sheet](doc/CHEATSHEET.md)

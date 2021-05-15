@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.*
 @RestController
 @RequestMapping("/api/user-info")
 class UserInfoController(
-        private val service: UserInfoServiceImpl
+        private val service: UserInfoService
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(UserInfoController::class.java)

@@ -9,7 +9,7 @@ import com.tempfiledrop.webserver.service.storagesvcclient.StorageInfoResponse
 import com.tempfiledrop.webserver.service.storagesvcclient.StorageSvcClientImpl
 import com.tempfiledrop.webserver.service.storagesvcclient.StorageUploadRequest
 import com.tempfiledrop.webserver.service.useruploads.UserUploadInfo
-import com.tempfiledrop.webserver.service.useruploads.UserUploadInfoServiceImpl
+import com.tempfiledrop.webserver.service.useruploads.UserUploadInfoService
 import org.slf4j.LoggerFactory
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
@@ -23,7 +23,7 @@ import org.springframework.web.multipart.MultipartFile
 @RequestMapping("/api/files")
 class FileStorageController(
         private val serverProperties: ServerProperties,
-        private val uploadedFilesRecordService: UserUploadInfoServiceImpl,
+        private val uploadedFilesRecordService: UserUploadInfoService,
         private val storageSvcClient: StorageSvcClientImpl
 ) {
     companion object {

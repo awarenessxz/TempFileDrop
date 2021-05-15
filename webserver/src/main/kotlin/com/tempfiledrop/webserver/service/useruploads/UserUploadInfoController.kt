@@ -3,8 +3,8 @@ package com.tempfiledrop.webserver.service.useruploads
 import com.tempfiledrop.webserver.config.ServerProperties
 import com.tempfiledrop.webserver.exception.ApiException
 import com.tempfiledrop.webserver.exception.ErrorCode
-import com.tempfiledrop.webserver.service.storagesvcclient.StorageSvcClientImpl
-import com.tempfiledrop.webserver.service.userinfo.UserInfoServiceImpl
+import com.tempfiledrop.webserver.service.storagesvcclient.StorageSvcClient
+import com.tempfiledrop.webserver.service.userinfo.UserInfoService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
@@ -14,9 +14,9 @@ import org.springframework.web.bind.annotation.*
 @RequestMapping("/api/users-upload-info")
 class UserUploadInfoController(
         private val serverProperties: ServerProperties,
-        private val userInfoService: UserInfoServiceImpl,
-        private val uploadedFilesRecordService: UserUploadInfoServiceImpl,
-        private val storageSvcClient: StorageSvcClientImpl
+        private val userInfoService: UserInfoService,
+        private val uploadedFilesRecordService: UserUploadInfoService,
+        private val storageSvcClient: StorageSvcClient
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(UserUploadInfoController::class.java)

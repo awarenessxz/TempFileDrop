@@ -5,6 +5,7 @@ import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
+import com.tempfiledrop.storagesvc.util.StorageUtils
 import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
@@ -20,10 +21,12 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.*
 import java.util.stream.Stream
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletResponse
+import kotlin.collections.ArrayList
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 
@@ -50,7 +53,7 @@ class FileStorageServiceImpl(
     }
 
     @ExperimentalPathApi
-    override fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo) {
+    override fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo): List<StorageFile> {
         logger.info("Uploading files to Folder Storage.....")
         // authorize & validate (is user authorize to write into this folder?)
 
@@ -61,6 +64,7 @@ class FileStorageServiceImpl(
             Files.createDirectory(bucket)
         }
 
+        val storageFiles = ArrayList<StorageFile>()
         try {
             // if path is not found, create it
             val storagePath = Paths.get(storageInfo.storagePath)
@@ -71,12 +75,16 @@ class FileStorageServiceImpl(
 
             // copy file into bucket
             files.forEach {
-                val filepath = bucketStoragePath.resolve(it.originalFilename!!)
+                val fileExtension = StorageUtils.getFileExtension(it.originalFilename!!)
+                val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
+                val filepath = bucketStoragePath.resolve(uuidFilename)
                 Files.copy(it.inputStream, filepath)
+                storageFiles.add(StorageFile(storageInfo.bucketName, storageInfo.storagePath, it.originalFilename!!, uuidFilename, it.contentType, it.size))
             }
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
         }
+        return storageFiles
     }
 
     override fun downloadFile(storageFile: StorageFile, response: HttpServletResponse) {
@@ -92,7 +100,7 @@ class FileStorageServiceImpl(
         storageFiles.forEach {
             val filepath = root.resolve(it.getFullStoragePath())
             val resource = FileSystemResource(filepath)
-            val zipEntry = ZipEntry(resource.filename)
+            val zipEntry = ZipEntry(it.originalFilename)
             zipEntry.size = resource.contentLength()
             zipOut.putNextEntry(zipEntry)
             StreamUtils.copy(resource.inputStream, zipOut)

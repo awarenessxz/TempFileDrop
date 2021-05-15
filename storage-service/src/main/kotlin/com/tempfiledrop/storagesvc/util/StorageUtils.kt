@@ -2,6 +2,7 @@ package com.tempfiledrop.storagesvc.util
 
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import java.nio.file.Files
@@ -21,6 +22,14 @@ object StorageUtils {
             }
         }
         return splitPath.joinToString("/")
+    }
+
+    fun getFileExtension(filename: String): String {
+        val pos = filename.lastIndexOf(".")
+        if (pos < filename.length && pos >= 0) {
+            return filename.substring(pos)
+        }
+        return ""
     }
 
     fun getMediaTypeForFile(filepath: String): String {
