@@ -53,7 +53,7 @@ class StorageSvcClientImpl(
     @Throws(ApiException::class)
     override fun getStorageInfoByStorageId(bucket: String, storageId: String): ResponseEntity<StorageInfoResponse> {
         logger.info("Forwarding GET Request to Storage Service...")
-        val storageServiceUrl = "${serverProperties.storageServiceUrl}/storagesvc/$bucket/$storageId"
+        val storageServiceUrl = "${serverProperties.storageServiceUrl}/storagesvc/storageinfo/$bucket/$storageId"
         val restTemplate = RestTemplate()
         val response = restTemplate.getForEntity(storageServiceUrl, StorageInfoResponse::class.java)
         logger.info("Response From Storage Service Received: $response")

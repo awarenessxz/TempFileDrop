@@ -8,6 +8,7 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
     - [Running the service (locally)](#running-the-service-locally)
     - [Deploy the service](#deploying-the-service)
 - [Documentation](#documentation)
+    - [Storage Service Design](#storage-service-design)
     - [Database Tables](#database-tables)
     - [Uploading files to services (Mixed Multipart Request)](#uploading-files-to-the-service-mixed-multipart---multipart-request-with-json-data)
 
@@ -35,6 +36,31 @@ cd <ROOT>
 TO BE ADDED...
 
 ## Documentation
+
+### Storage Service Design
+
+#### How uploads are stored and tagged
+
+![upload_design](../doc/storagesvc_design.png)
+
+- Each upload is tag to a **storageId** which is stored in the database
+- Following S3 convention, the consumer should have a bucket available in order to upload files
+
+#### Expiry and downloads capped
+
+As this is a temporary storage service, all uploads are tag with **expiry datetime** and **maximum number of downloads**. A 
+scheduled job will run every day to clean up files that have already expired. 
+
+### API Endpoints
+
+| Request Type | Endpoints | Description |
+| --- | --- | --- |
+| GET | /storagesvc/{bucket} | get contents inside bucket |
+| POST | /storagesvc/upload | upload files using multi-part request |
+| DELETE | /storagesvc/{bucket}/{storageId} | delete files from storage using bucket name and storageId |
+| GET | /storagesvc/storageinfo/{bucket}/{storageId} | get storage information using bucket name and storageId |
+| POST | /storagesvc/storageinfo/bulk | get multiple storage information using bucket name and multiple storageId |
+| GET | /storagesvc/download/{bucket}/{storageId} | download files using bucket name and storageId |
 
 ### Database Tables
 

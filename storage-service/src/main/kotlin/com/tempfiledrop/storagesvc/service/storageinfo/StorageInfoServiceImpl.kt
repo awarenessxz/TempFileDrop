@@ -18,8 +18,17 @@ class StorageInfoServiceImpl(
         repository.deleteById(storageId)
     }
 
+    override fun getStorageInfosInBucket(bucket: String): List<StorageInfo> {
+        return repository.findByBucketName(bucket)
+    }
+
     override fun getStorageInfoById(storageId: String): StorageInfo? {
         return repository.findByIdOrNull(storageId)
+    }
+
+    override fun getBulkStorageInfoById(storageIds: List<String>): List<StorageInfo> {
+        val results = repository.findAllById(storageIds)
+        return results.map { it }
     }
 
     override fun reduceDownloadCountById(storageId: String) {

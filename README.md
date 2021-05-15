@@ -113,7 +113,6 @@ tech stack will be applied:
     - Make Navbar reactive to small screen (Frontend)
     - Large File Downloads / Uploads (Feedback - Loading bar)
     - Upgrade to WebClient instead of RestTemplate
-    - Bulk Request for Storage ID
 
 ## References
 - [Command Cheat Sheet](doc/CHEATSHEET.md)
