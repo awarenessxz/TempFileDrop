@@ -29,7 +29,7 @@ import kotlin.io.path.createDirectories
 
 @Service
 @Primary
-@ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "file")
+@ConditionalOnProperty(prefix = "tempfiledrop.storagesvc", name = ["storage-mode"], havingValue = "file")
 class FileStorageServiceImpl(
         properties: StorageSvcProperties
 ): FileStorageService {

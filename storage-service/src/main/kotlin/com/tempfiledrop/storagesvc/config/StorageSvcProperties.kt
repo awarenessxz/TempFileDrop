@@ -4,7 +4,7 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
-@ConfigurationProperties("storagesvc")
+@ConfigurationProperties(prefix = "tempfiledrop.storagesvc")
 data class StorageSvcProperties(
         val exposeEndpoint: String,
         val storageMode: String = "object",

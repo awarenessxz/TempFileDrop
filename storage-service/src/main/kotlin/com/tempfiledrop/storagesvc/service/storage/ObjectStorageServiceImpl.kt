@@ -19,7 +19,7 @@ import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletResponse
 
 @Service
-@ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "object")
+@ConditionalOnProperty(prefix = "tempfiledrop.storagesvc", name = ["storage-mode"], havingValue = "object")
 class ObjectStorageServiceImpl(
         private val minioClient: MinioClient
 ): StorageService {
