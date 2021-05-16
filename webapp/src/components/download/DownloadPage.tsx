@@ -21,6 +21,7 @@ interface DownloadPageProps extends RouteComponentProps<DownloadPageRouterParams
 const DownloadPage = (props: DownloadPageProps) => {
     const [successMsg, setSuccessMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
+    const [disableBtn, setDisableBtn] = useState(false);
     const [refreshToggle, setRefreshToggle] = useState(false);
     const [downloadInfo, setDownloadInfo] = useState<StorageInfo | null>(null);
 
@@ -44,6 +45,7 @@ const DownloadPage = (props: DownloadPageProps) => {
 
     const handleDownload = (e: MouseEvent<HTMLButtonElement>) => {
         setSuccessMsg("");
+        setDisableBtn(true);
         axios.get(`${Data.api_endpoints.download_files}/${props.match.params.storageId}`, {
             responseType: "blob"
         })
@@ -56,6 +58,7 @@ const DownloadPage = (props: DownloadPageProps) => {
                 document.body.appendChild(link);
                 link.click();
                 setSuccessMsg("You have downloaded the files!");
+                setDisableBtn(false);
                 setRefreshToggle(!refreshToggle);
             })
             .catch(err => {
@@ -76,7 +79,7 @@ const DownloadPage = (props: DownloadPageProps) => {
                     {downloadInfo && (
                         <React.Fragment>
                             <p>Click on "Download" to retrieve your files</p>
-                            <Button size="lg" onClick={handleDownload}>
+                            <Button size="lg" onClick={handleDownload} disabled={disableBtn}>
                                 Download
                             </Button>
                             <Alert variant="warning">

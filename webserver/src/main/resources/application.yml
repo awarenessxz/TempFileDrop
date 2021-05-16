@@ -9,9 +9,11 @@ spring:
   profiles.active: dev
   application.name: webserver
 
-tempfiledrop.webserver:
-  bucket-name: tempfiledrop
-  storage-service-url: http://localhost:8001
+tempfiledrop:
+  webserver:
+    bucket-name: tempfiledrop
+  storagesvc-client:
+    storage-service-url: http://localhost:8001
 
 ---
 

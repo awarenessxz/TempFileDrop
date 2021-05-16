@@ -109,7 +109,6 @@ tech stack will be applied:
     - Session / Cache such that user remains login after refreshing...
     - Make Navbar reactive to small screen (Frontend)
     
-
 ## References
 - [Command Cheat Sheet](doc/CHEATSHEET.md)
 - API / S3 Design
@@ -135,6 +134,8 @@ tech stack will be applied:
         - [Spring Boot File Upload/Download](https://www.devglan.com/spring-boot/spring-boot-file-upload-download)
         - [Upload Large Files with Spring Boot](https://blog.sayem.dev/2017/07/upload-large-files-spring-boot-html/)
         - [Upload large file in Spring Boot 2 application](https://dzone.com/articles/upload-large-file-in-spring-boot-2-application-usi)
+        - [Advanced Spring File Upload](https://medium.com/swlh/advanced-spring-file-upload-6595d3c2b8f9)
+        - [Use RestTemplate cross-service large file uploads, probably 2G](https://www.programmersought.com/article/64782425852/)
     - Multipart request with Json
         - [RequestBody and Multipart on Spring Boot](https://blogs.perficient.com/2020/07/27/requestbody-and-multipart-on-spring-boot/)
         - [Multiple files upload with request body using spring boot and test using Postman](https://medium.com/@pankajsingla_24995/multipart-request-with-request-body-using-spring-boot-and-test-using-postman-6ea46b71b75d)
@@ -159,5 +160,6 @@ tech stack will be applied:
         - [Spring MVC Image Media Data](https://www.baeldung.com/spring-mvc-image-media-data)
         - [Stackoverflow - Spring MVC Large file download (Out of Memory Issue)](https://stackoverflow.com/questions/15800565/spring-mvc-large-files-for-download-outofmemoryexception)
         - [Bad Chunk Header mystery](https://rey5137.com/bad-chunk-header-mystery/)
+        - [Stackoverflow -  Get opened input stream from rest template for large file processing](https://stackoverflow.com/questions/34936101/get-opened-input-stream-from-rest-template-for-large-file-processing)
     - Swagger
         - [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)

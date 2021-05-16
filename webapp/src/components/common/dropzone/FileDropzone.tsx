@@ -9,6 +9,7 @@ import Form from "react-bootstrap/cjs/Form";
 import ProgressBar from "react-bootstrap/cjs/ProgressBar";
 import Row from "react-bootstrap/cjs/Row";
 import Table from "react-bootstrap/cjs/Table";
+import Spinner from "../loading/Spinner";
 import { useAuthState } from "../../../utils/auth-context";
 import { joinURLs } from "../../../utils/toolkit";
 import Data from "../../../config/app.json";
@@ -146,11 +147,12 @@ const FileDropzone = ({
                         </div>
                     </div>
                 )}
-                {loading && (
+                {loading && uploadPercentage < 100 && (
                     <div className="dropzone-box loader">
                         <ProgressBar striped now={uploadPercentage} animated />
                     </div>
                 )}
+                {loading && uploadPercentage >= 100 && <Spinner spinnerType="ThreeDots" backgroundColor="#92b0b3" spinnerColor="#fff" />}
             </div>
             {showConfigs && !loading && !uploadRes && (
                 <div className="dropzone-config-box">
@@ -164,7 +166,7 @@ const FileDropzone = ({
                                 <Form.Control
                                     type="text"
                                     pattern="[0-9]*"
-                                    placeholder="Maximum number of downloads (Default = 10)"
+                                    placeholder="Maximum number of downloads (Default = 1)"
                                     value={maxDownloads}
                                     onChange={e => {
                                         const re = /^[0-9\b]+$/;

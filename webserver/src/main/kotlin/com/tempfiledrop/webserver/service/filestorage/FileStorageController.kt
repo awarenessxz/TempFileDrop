@@ -1,7 +1,6 @@
 package com.tempfiledrop.webserver.service.filestorage
 
 import com.fasterxml.jackson.databind.ObjectMapper
-import com.tempfiledrop.webserver.config.ServerProperties
 import com.tempfiledrop.webserver.exception.ApiException
 import com.tempfiledrop.webserver.exception.ErrorCode
 import com.tempfiledrop.webserver.exception.ErrorResponse
@@ -11,6 +10,7 @@ import com.tempfiledrop.webserver.service.storagesvcclient.StorageUploadRequest
 import com.tempfiledrop.webserver.service.useruploads.UserUploadInfo
 import com.tempfiledrop.webserver.service.useruploads.UserUploadInfoService
 import org.slf4j.LoggerFactory
+import org.springframework.beans.factory.annotation.Value
 import org.springframework.core.io.Resource
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -18,11 +18,12 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.HttpStatusCodeException
 import org.springframework.web.multipart.MultipartFile
+import javax.servlet.http.HttpServletResponse
 
 @RestController
 @RequestMapping("/api/files")
 class FileStorageController(
-        private val serverProperties: ServerProperties,
+        @Value("\${tempfiledrop.webserver.bucket-name}") private val tempfiledropBucket: String,
         private val uploadedFilesRecordService: UserUploadInfoService,
         private val storageSvcClient: StorageSvcClientImpl
 ) {
@@ -37,11 +38,11 @@ class FileStorageController(
             @RequestPart("metadata", required = true) metadata: FileUploadInfoRequest
     ): ResponseEntity<FileUploadInfoResponse> {
         val storagePath = if (metadata.username.trim().isEmpty()) ANONYMOUS_FOLDER else metadata.username
-        logger.info("Received Request to store ${files.size} files in ${serverProperties.bucketName}/$storagePath")
+        logger.info("Received Request to store ${files.size} files in $tempfiledropBucket/$storagePath")
 
         try {
             // Forward to Storage Service to store file
-            val storageRequest = StorageUploadRequest(serverProperties.bucketName, storagePath, metadata.maxDownloads, metadata.expiryPeriod)
+            val storageRequest = StorageUploadRequest(tempfiledropBucket, storagePath, metadata.maxDownloads, metadata.expiryPeriod)
             val storageSvcResponse = storageSvcClient.uploadToStorageSvc(files, storageRequest)
             val fileStorageResponse = storageSvcResponse.body
             if (!storageSvcResponse.statusCode.is2xxSuccessful || fileStorageResponse == null) {
@@ -67,11 +68,10 @@ class FileStorageController(
     }
 
     @GetMapping("/download/{storageId}")
-    fun downloadFiles(@PathVariable("storageId") storageId: String): ResponseEntity<Resource> {
+    fun downloadFiles(@PathVariable("storageId") storageId: String, response: HttpServletResponse) {
         logger.info("Receiving request to download files from $storageId")
-        return storageSvcClient.downloadFromStorageSvc(serverProperties.bucketName, storageId)
+        storageSvcClient.downloadFromStorageSvc(tempfiledropBucket, storageId, response)
     }
-
 
     @GetMapping("/download-info/{storageId}")
     fun getStorageInformationForDownload(@PathVariable("storageId") storageId: String): ResponseEntity<StorageInfoResponse> {
@@ -79,7 +79,7 @@ class FileStorageController(
 
         // verify if files exists on server
         try {
-            val storageSvcResponse = storageSvcClient.getStorageInfoByStorageId(serverProperties.bucketName, storageId)
+            val storageSvcResponse = storageSvcClient.getStorageInfoByStorageId(tempfiledropBucket, storageId)
             val storageInfoResponse = storageSvcResponse.body
             if (!storageSvcResponse.statusCode.is2xxSuccessful || storageInfoResponse === null) {
                 throw ApiException("Fail to retrieve download information for $storageId", ErrorCode.NO_MATCHING_RECORD, HttpStatus.BAD_REQUEST)
