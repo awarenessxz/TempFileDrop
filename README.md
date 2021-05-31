@@ -58,6 +58,11 @@ tech stack will be applied:
     - **Server Side Request Forgery Vulnerability**
 5. Possible File Upload Defence
     - Renaming file name -- harder for attacker to find their uploaded file
+    
+Improvements to made
+- Try a streaming approach instead of waiting for all files to stitch
+- Consider submitting message to a queue to let users subscribe to the topic when files are available
+- Let frontend hit storage service directly
 
 ## Usage
 
