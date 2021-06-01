@@ -1,15 +1,7 @@
-# TempFileDrop.io
-
-TempFileDrop.io is a project that replicates [file.io](https://www.file.io/) which is a super simple file sharing application.
-The purpose of this project is to understand the mechanics behind building an object storage service application. The following
-tech stack will be applied:
-- **React** - front facing website
-- **Nginx** - Web server to serve website
-- **MinIO** - object storage server
-- **Spring Boot** - API web services
-- **Docker** - Containerization
+# TempFileDrop
 
 **Table of Content**
+- [Overview](#overview)
 - [Architecture Design](#architecture-design)
 - [Usage](#usage)
     - [Start MinIO Service](#start-minio-service)
@@ -17,8 +9,29 @@ tech stack will be applied:
 - [Future Works](#future-works)
 - [References](#references)
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
+    
+## Overview
 
-**For more details, refer to the README of the individual services**
+There are 2 main purpose of this project.
+1. **To design a centralized storage service.**
+    - Storage Medium will be based on either **file storage (NAS)** or **object storage (MinIO)**
+    - Storage Service acts as an **abstraction layer** such that consumers do not consume the storage medium directly.
+    - Features include:
+        - **Expiry date**
+        - **Max Downloads** allowed
+        - **Event Feedback** when files are uploaded / downloaded
+2. **To create a temporary file sharing application.**
+    - TempFileDrop is a project that replicates [file.io](https://www.file.io/) which is a super simple file sharing application.
+    
+**Technology Stack:**
+- **React** - Website Framework
+- **Nginx** - Web server to serve website
+- **MinIO** - Object storage server
+- **Spring Boot** - API web services
+- **Apache Kafka** - Event Streaming
+- **Docker** - Containerization
+
+**For more details on implementation, refer to the README of the individual services**
 - [Website](webapp)
 - [Web Server](webserver)
 - [Storage Service](storage-service)
@@ -26,7 +39,24 @@ tech stack will be applied:
 
 ## Architecture Design
 
-![Architecture](doc/architecture.png)
+### First Design 
+
+![design 1](doc/architecture_design1.png)
+
+This is the first conceptualize design of the centralized storage service. Applications will upload files to their own
+backend which will then proxy the request to the storage service. (Note that the backend have some logic which processes 
+the uploaded files, hence it is necessary for the backend to be aware of the uploads instead of having the application 
+upload directly to the storage service). 
+
+However, after developing the features, I realized that the amount of hops required to upload and download files is simply 
+not ideal...
+
+### Second Design
+
+![design 2](doc/architecture_design2.png)
+
+To further optimize the first design, the applications will directly upload to the storage service instead of proxying 
+through the backend. Event Streaming is added to update the backend when an upload / download is completed.
 
 ### Design Considerations
 
