@@ -4,7 +4,7 @@
 - [Overview](#overview)
 - [Architecture Design](#architecture-design)
 - [Usage](#usage)
-    - [Start MinIO Service](#start-minio-service)
+    - [Start MinIO Service](#start-centralized-storage-service)
     - [Start TempFileDrop.io Service](#start-tempfiledropio-service)
 - [Future Works](#future-works)
 - [References](#references)
