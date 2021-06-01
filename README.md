@@ -92,7 +92,7 @@ through the backend. Event Streaming is added to update the backend when an uplo
 
 ## Usage
 
-### Start MinIO Service
+### Start Centralized Storage Service
 
 1. Start the MinIO Distributed Cluster
     ```bash
@@ -100,20 +100,25 @@ through the backend. Event Streaming is added to update the backend when an uplo
     sudo rm -rf storage
     docker-compose up -d
     ```
-
-2. Start the Storage Service
+2. Start the message Broker
+    ```bash
+    cd kafka
+    sudo docker-compose up -d
+    ```
+3. Start the database
+    ```bash 
+    cd database
+    cd mongodata && sudo rm -rf * && cd ..     # OPTIONAL
+    docker-compose up -d
+    ```
+4. Start the Storage Service
     ```bash
     ./gradlew storage-service:bootRun
     ```
 
 ### Start TempFileDrop.io Service
 
-1. Start up the Database
-    ```bash 
-    cd database
-    cd mongodata && sudo rm -rf * && cd ..     # OPTIONAL
-    docker-compose up -d
-    ```
+1. Start up the Database (using the same database as above)
 2. Start the Web Server
     ```bash
     ./gradlew webserver:bootRun
@@ -133,7 +138,6 @@ through the backend. Event Streaming is added to update the backend when an uplo
     - IAM for MinIO Cluster
     - Bucket Authorization
 2. Storage Service
-    - Get Storage Service Client working in a multi module project
     - Upgrade to WebClient instead of RestTemplate
     - Look at Presigned Url feature that is available in S3 storage
 3. Misc
