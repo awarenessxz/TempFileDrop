@@ -17,11 +17,12 @@ There are 2 main purpose of this project.
     - Storage Medium will be based on either **file storage (NAS)** or **object storage (MinIO)**
     - Storage Service acts as an **abstraction layer** such that consumers do not consume the storage medium directly.
     - Features include:
-        - **Expiry date**
+        - **Expiry datetime** for files
         - **Max Downloads** allowed
         - **Event Feedback** when files are uploaded / downloaded
 2. **To create a temporary file sharing application.**
-    - TempFileDrop is a project that replicates [file.io](https://www.file.io/) which is a super simple file sharing application.
+    - **TempFileDrop.io** is a project that replicates [file.io](https://www.file.io/) which is a super simple file sharing application.
+    - Understand **file uploads / downloads using Rest** 
     
 **Technology Stack:**
 - **React** - Website Framework
@@ -88,11 +89,6 @@ through the backend. Event Streaming is added to update the backend when an uplo
     - **Server Side Request Forgery Vulnerability**
 5. Possible File Upload Defence
     - Renaming file name -- harder for attacker to find their uploaded file
-    
-Improvements to made
-- Try a streaming approach instead of waiting for all files to stitch
-- Consider submitting message to a queue to let users subscribe to the topic when files are available
-- Let frontend hit storage service directly
 
 ## Usage
 
