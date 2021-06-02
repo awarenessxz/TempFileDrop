@@ -26,6 +26,9 @@ dependencies {
 	// File Upload
 	implementation("commons-fileupload:commons-fileupload:1.4") // MultipartResolver implementation
 
+	// RabbitMQ
+	implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit") // Cloud Stream + RabbitMQ Binder
+
 	// Kotlin
 	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -34,6 +37,12 @@ dependencies {
 
 	// Testing
 	testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+dependencyManagement {
+	imports {
+		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2020.0.3")
+	}
 }
 
 tasks.withType<KotlinCompile> {

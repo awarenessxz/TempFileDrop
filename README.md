@@ -3,10 +3,7 @@
 **Table of Content**
 - [Overview](#overview)
 - [Architecture Design](#architecture-design)
-- [Usage](#usage)
-    - [Start Infrastructure Cluster](#start-infrastructure-cluster)
-    - [Start Centralized Storage Service](#start-centralized-storage-service)
-    - [Start TempFileDrop.io Service](#start-tempfiledropio-service)
+- [Getting Started](#getting-started)
 - [Future Works](#future-works)
 - [References](#references)
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
@@ -91,7 +88,7 @@ through the backend. Event Streaming is added to update the backend when an uplo
 5. Possible File Upload Defence
     - Renaming file name -- harder for attacker to find their uploaded file
 
-## Usage
+## Getting Started
 
 ### Start Infrastructure Cluster
 
@@ -201,3 +198,8 @@ sudo docker-compose -f infra/mongo/docker-compose.yaml up -d
         - [Stackoverflow -  Get opened input stream from rest template for large file processing](https://stackoverflow.com/questions/34936101/get-opened-input-stream-from-rest-template-for-large-file-processing)
     - Swagger
         - [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)
+    - Spring Cloud Stream +  RabbitMQ
+        - [Okta - spring cloud stream 3.0](https://developer.okta.com/blog/2020/04/15/spring-cloud-stream)
+        - [Introduction to event driven microservices with spring cloud stream](https://piotrminkowski.com/2020/06/05/introduction-to-event-driven-microservices-with-spring-cloud-stream/)
+        - [RabbitMQ docker-compose with default properties](https://github.com/changhuixu/rabbitmq-labs/tree/master/02_QueueProperties)
+        

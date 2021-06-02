@@ -1,0 +1,35 @@
+{
+    "rabbit_version": "3.7.28",
+    "rabbitmq_version": "3.7.28",
+    "users": [
+        {
+            "name": "admin",
+            "password_hash": "aej7rsYdwWt4FTtbWYScmUhZEnpbUpitkowh5VfcYEULHb4o",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": "administrator"
+        },
+        {
+            "name": "storage_user",
+            "password_hash": "6hOheQ9PncrNh+aHyfOl0z9U83VVrolWnLXTiykldGkVX7u3",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": ""
+        }
+    ],
+    "vhosts": [{ "name": "/" }],
+    "permissions": [
+        {
+            "user": "admin",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        },
+        {
+            "user": "storage_user",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ".*"
+        }
+    ]
+}

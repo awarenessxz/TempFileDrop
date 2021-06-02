@@ -24,6 +24,15 @@ RabbitMQ is set up to enable microservices to communicate via "Events".
     - `docker-compose down -v`
     - `docker volume ls` -- check that volume is taken down as well
 
+## Password
+
+Generate password hash - `python scripts/password_hash.py`
+
+| accounts | password |
+| --- | --- |
+| storage_user | storage123 |
+| admin | admin123 |
+
 ## References
 - [Spring Cloud Stream + Rabbit MQ](https://stackabuse.com/spring-cloud-stream-with-rabbitmq-message-driven-microservices/)
 - [Intro to Cloud Stream](https://www.baeldung.com/spring-cloud-stream)
