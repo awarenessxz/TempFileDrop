@@ -4,7 +4,8 @@
 - [Overview](#overview)
 - [Architecture Design](#architecture-design)
 - [Usage](#usage)
-    - [Start MinIO Service](#start-centralized-storage-service)
+    - [Start Infrastructure Cluster](#start-infrastructure-cluster)
+    - [Start Centralized Storage Service](#start-centralized-storage-service)
     - [Start TempFileDrop.io Service](#start-tempfiledropio-service)
 - [Future Works](#future-works)
 - [References](#references)
@@ -92,33 +93,35 @@ through the backend. Event Streaming is added to update the backend when an uplo
 
 ## Usage
 
+### Start Infrastructure Cluster
+
+```bash
+# Clean up persistent data [OPTIONAL]
+./infra/cleanup.sh
+
+# Start infra cluster instances
+sudo docker-compose -f infra/minio/docker-compose.yaml up -d
+sudo docker-compose -f infra/rabbitmq/docker-compose.yaml up -d
+sudo docker-compose -f infra/mongo/docker-compose.yaml up -d
+```
+
 ### Start Centralized Storage Service
 
-1. Start the MinIO Distributed Cluster
-    ```bash
-    cd minio
-    sudo rm -rf storage
-    docker-compose up -d
-    ```
-2. Start the message Broker
-    ```bash
-    cd kafka
-    sudo docker-compose up -d
-    ```
-3. Start the database
-    ```bash 
-    cd database
-    cd mongodata && sudo rm -rf * && cd ..     # OPTIONAL
-    docker-compose up -d
-    ```
-4. Start the Storage Service
+1. Ensure that the following services are available
+    - **Minio Cluster**
+    - **RabbitMQ**
+    - **MongoDB**
+2. Start the Storage Service
     ```bash
     ./gradlew storage-service:bootRun
     ```
 
 ### Start TempFileDrop.io Service
 
-1. Start up the Database (using the same database as above)
+1. Ensure that the following services are available
+    - **Centralized Storage Service**
+    - **RabbitMQ**
+    - **MongoDB**
 2. Start the Web Server
     ```bash
     ./gradlew webserver:bootRun

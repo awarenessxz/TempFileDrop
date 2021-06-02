@@ -4,12 +4,11 @@ Using Mongo to store application data.
 
 ## Usage
 
-1. Clear data inside `mongodata` folder **[OPTIONAL]**
-    - If you are starting a fresh copy of mongo db, make sure you delete everything except `.gitkeep` inside `mongodata` 
-    folder. **Reason for doing so:** We are using `mongodata` folder as a mount folder to persist the data inside our 
-    mongodb. Hence, if the folder have stuff, the init scripts inside `mongo` folder will not run.
-        - `cd mongodata`
-        - `rm -rf *`
+1. Clear data inside `storage` folder **[OPTIONAL]**
+    - If you are starting a fresh copy of mongo db, make sure you delete everything except `.gitkeep` inside `storage` 
+    folder. **Reason for doing so:** We are using `storage` folder as a mount folder to persist the data inside our 
+    mongodb. Hence, if the folder have stuff, the init scripts inside `scripts` folder will not run.
+        - `sudo rm -rf storage/*`
 
 2. Run container in background
     - `docker-compose up -d`
@@ -52,7 +51,7 @@ Using Mongo to store application data.
 - Remove the image -- `docker rmi [IMAGE_ID / IMAGE_NAME]`
 - Mongo
     - Pull Docker Image -- `docker pull mongo`
-    - Run Container Instance -- `docker run -it -d -p 27017:27017 -v ~/path/to/java-web-app/database/mongodata:/data/db --name mongodb mongo`
+    - Run Container Instance -- `docker run -it -d -p 27017:27017 -v ~/path/to/mongo/storage:/data/db --name mongodb mongo`
     - Access Container -- `docker exec -it <CONTAINER_NAME> bash`
         - Access Mongo
             - `mongo` --> launch mongo

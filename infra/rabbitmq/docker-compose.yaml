@@ -4,9 +4,6 @@ services:
   rabbitmq:
     image: rabbitmq:3.7-management
     container_name: rabbitmq
-    # hostname: dev-rmq01
-    # networks:
-    #   - rabbit-mq-network
     network_mode: host
     ports:
       - 15672:15672 # management port
@@ -22,7 +19,3 @@ services:
       RABBITMQ_DEFAULT_PASS: 123
     volumes:
       - ./storage/rabbitmq-node-1:/var/lib/rabbitmq
-
-#networks
-# rabbitmq-network:
-#   driver: bridge
