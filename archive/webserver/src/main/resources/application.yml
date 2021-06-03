@@ -1,0 +1,38 @@
+###############################################################################################
+# Server Configuration
+###############################################################################################
+
+server:
+  port: 7002
+
+spring:
+  profiles.active: dev
+  application.name: webserver
+
+tempfiledrop:
+  webserver:
+    bucket-name: tempfiledrop
+  storagesvc-client:
+    storage-service-url: http://localhost:8001
+
+---
+
+###############################################################################################
+# Servlet Configuration for Multipart File
+###############################################################################################
+
+spring.servlet.multipart:
+  max-file-size: 5GB      # Max file size for each request
+  max-request-size: 5GB   # Max request size for a multipart/form-data
+
+---
+
+###############################################################################################
+# Mongo DB Configuration
+###############################################################################################
+
+spring.data.mongodb:
+  uri: mongodb://service_user:service_pass@localhost:27017/webDB
+  authentication-database: webDB
+
+---

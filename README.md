@@ -39,7 +39,9 @@ There are 2 main purpose of this project.
 - [Website](webapp)
 - [Web Server](webserver)
 - [Storage Service](storage-service)
-- [Storage Service Client Library](storage-service-client)
+- **Archive (Old Designs which doesn't work anymore, just for reference)**
+    - [Storage Service Client Library](archive/storage-service-client)
+    - [Web Server](archive/webserver)
 
 ## Architecture Design
 

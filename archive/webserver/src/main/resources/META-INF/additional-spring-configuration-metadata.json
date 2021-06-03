@@ -1,0 +1,9 @@
+{
+    "properties": [
+        {
+            "name": "tempfiledrop.webserver.bucket-name",
+            "type": "java.lang.String",
+            "description": "Name of the Bucket to store in Storage service."
+        }
+    ]
+}
