@@ -1,0 +1,36 @@
+{
+    "web_name": "TempFileDrop.io",
+    "user": "user1",
+    "password": "password",
+    "navbar_menu": [
+        {
+            "path": "/developer",
+            "label": "Developers"
+        },
+        {
+            "label": "Login",
+            "login_required": false,
+            "hide_when_login": true
+        },
+        {
+            "path": "/dashboard",
+            "label": "My Dashboard",
+            "login_required": true
+        },
+        {
+            "label": "Logout",
+            "login_required": true
+        }
+    ],
+    "dropzone": {
+        "maxSizeInBytes": 5368706371
+    },
+    "api_endpoints": {
+        "mock_login": "/api/user-info/login",
+        "upload_fles": "/api/files/upload",
+        "download_files": "/api/files/download",
+        "files_storage_info": "/api/files/download-info",
+        "uploaded_files": "/api/users-upload-info",
+        "storagesvc_swagger": "/storagesvc/api-docs"
+    }
+}

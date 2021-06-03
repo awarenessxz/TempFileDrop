@@ -1,0 +1,47 @@
+{
+    "properties": [
+        {
+            "name": "tempfiledrop.storagesvc.storage-mode",
+            "type": "java.lang.String",
+            "description": "File Storage / Object Storage.",
+            "defaultValue": "object"
+        },
+        {
+            "name": "tempfiledrop.storagesvc.file-storage-upload-path",
+            "type": "java.lang.String",
+            "description": "Upload File Path File Storage.",
+            "defaultValue": "uploads"
+        },
+        ,
+        {
+            "name": "tempfiledrop.storagesvc.object-storage.minio-endpoint",
+            "type": "java.lang.String",
+            "description": "MinIO Cluster Endpoint."
+        },
+        {
+            "name": "tempfiledrop.storagesvc.object-storage.minio-access-key",
+            "type": "java.lang.String",
+            "description": "MinIO login credentials."
+        },
+        {
+            "name": "tempfiledrop.storagesvc.object-storage.minio-access-secret",
+            "type": "java.lang.String",
+            "description": "MinIO login credentials."
+        }
+    ],
+    "hints": [
+        {
+            "name": "tempfiledrop.storagesvc.storage-mode",
+            "values": [
+                {
+                    "value": "file",
+                    "description": "File Storage."
+                },
+                {
+                    "value": "object",
+                    "description": "Object Storage."
+                }
+            ]
+        }
+    ]
+}

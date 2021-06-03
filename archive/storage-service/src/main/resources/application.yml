@@ -3,17 +3,24 @@
 ###############################################################################################
 
 server:
-  port: 7001
+  port: 8001
 
 spring:
   profiles.active: dev
-  application.name: webserver
+  application.name: storagesvc
 
-tempfiledrop:
-  webserver:
-    bucket-name: tempfiledrop
-  storagesvc-client:
-    storage-service-url: http://localhost:8001
+springdoc.api-docs:
+  path: /api-docs
+
+tempfiledrop.storagesvc:
+  expose-endpoint: http://localhost:8001
+  storage-mode: object
+  file-storage:
+    upload-path: uploads
+  object-storage:
+    minio-endpoint: http://localhost:9000
+    minio-access-key: minio
+    minio-access-secret: minio123
 
 ---
 
