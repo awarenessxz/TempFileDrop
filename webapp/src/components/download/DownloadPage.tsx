@@ -27,7 +27,7 @@ const DownloadPage = (props: DownloadPageProps) => {
 
     useEffect(() => {
         // retrieve information about the download
-        axios.get(`${Data.api_endpoints.files_storage_info}/${props.match.params.storageId}`)
+        axios.get(`${Data.api_endpoints.storagesvc_storage_info}/${Data.bucket}/${props.match.params.storageId}`)
             .then(res => {
                 if (res.status === 200) {
                     const info: StorageInfo = res.data;
@@ -46,8 +46,11 @@ const DownloadPage = (props: DownloadPageProps) => {
     const handleDownload = (e: MouseEvent<HTMLButtonElement>) => {
         setSuccessMsg("");
         setDisableBtn(true);
-        axios.get(`${Data.api_endpoints.download_files}/${props.match.params.storageId}`, {
-            responseType: "blob"
+        axios.get(`${Data.api_endpoints.storagesvc_download}/${Data.bucket}/${props.match.params.storageId}`, {
+            responseType: "blob",
+            params: {
+                eventRoutingKey: Data.rabbitmq.downloadRoutingKey
+            }
         })
             .then(res => {
                 const filename = extractFilenameFromContentDisposition(res.headers);

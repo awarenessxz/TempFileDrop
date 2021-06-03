@@ -40,13 +40,18 @@ const Dashboard = () => {
         // eslint-disable-next-line
     }, [reloadRecord]);
 
-    const handleDeleteRecord = (idx: number, recordId: string) => {
+    const handleDeleteRecord = (idx: number, recordId: string, storageId: string) => {
         // remove from view
         records.splice(idx, 1);
         setRecords([...records]);
 
         // call backend
-        axios.delete(`${Data.api_endpoints.uploaded_files}/${recordId}`)
+        axios.delete(`${Data.api_endpoints.storagesvc}/${Data.bucket}/${storageId}`, {
+            params: {
+                eventData: JSON.stringify({ recordId: recordId }),
+                eventRoutingKey: Data.rabbitmq.deleteRoutingKey
+            }
+        })
             .then(res => {
                 if (res.status === 200) {
                     setMessage("Delete Success!");
@@ -57,6 +62,7 @@ const Dashboard = () => {
     };
 
     const onSuccessfulUpload = () => {
+        setMessage(""); // reset
         setReloadRecord(!reloadRecord);
     };
 
@@ -103,7 +109,7 @@ const Dashboard = () => {
                                 <td>{moment(record.storageInfo.expiryDatetime).format("DD MMM YYYY h:mma")}</td>
                                 <td><Link to={`/download/${record.storageInfo.storageId}`}>{joinURLs(window.location.origin, "download", record.storageInfo.storageId)}</Link></td>
                                 <td>
-                                    <Button size="sm" variant="danger" onClick={() => handleDeleteRecord(idx, record.id)}>
+                                    <Button size="sm" variant="danger" onClick={() => handleDeleteRecord(idx, record.id, record.storageInfo.storageId)}>
                                         <FaTrash />
                                     </Button>
                                 </td>

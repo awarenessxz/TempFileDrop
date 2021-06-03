@@ -6,9 +6,9 @@ SCRIPTPATH=$(dirname "$SCRIPT")     # Absolute path this script is in, thus /hom
 echo "script is located at $SCRIPTPATH"
 
 echo "shutting down all services..."
-sudo docker-compoose -f $SCRIPTPATH/mongo/docker-compoose.yaml down -v
-sudo docker-compoose -f $SCRIPTPATH/minio/docker-compoose.yaml down -v
-sudo docker-compoose -f $SCRIPTPATH/rabbitmq/docker-compoose.yaml down -v
+sudo docker-compose -f $SCRIPTPATH/mongo/docker-compose.yaml down -v
+sudo docker-compose -f $SCRIPTPATH/minio/docker-compose.yaml down -v
+sudo docker-compose -f $SCRIPTPATH/rabbitmq/docker-compose.yaml down -v
 
 echo "Cleaning up all persistent data..."
 sudo rm -rf $SCRIPTPATH/mongo/storage/*
@@ -16,6 +16,6 @@ sudo rm -rf $SCRIPTPATH/minio/storage/*
 sudo rm -rf $SCRIPTPATH/rabbitmq/storage/*
 
 echo "starting up all services..."
-sudo docker-compoose -f $SCRIPTPATH/mongo/docker-compoose.yaml up -d
-sudo docker-compoose -f $SCRIPTPATH/minio/docker-compoose.yaml up -d
-sudo docker-compoose -f $SCRIPTPATH/rabbitmq/docker-compoose.yaml up -d
+sudo docker-compose -f $SCRIPTPATH/mongo/docker-compose.yaml up -d
+sudo docker-compose -f $SCRIPTPATH/minio/docker-compose.yaml up -d
+sudo docker-compose -f $SCRIPTPATH/rabbitmq/docker-compose.yaml up -d

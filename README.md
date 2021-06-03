@@ -66,7 +66,7 @@ through the backend. Event Streaming is added to update the backend when an uplo
 
 #### Event Streaming Flow
 
-![Event Stream](doc/event_design.png)
+![Event Stream](doc/event_flow.png)
 
 ### Design Considerations
 

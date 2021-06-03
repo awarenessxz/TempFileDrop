@@ -10,11 +10,8 @@ spring:
   application.name: webserver
 
 tempfiledrop:
-  webserver:
-    bucket-name: tempfiledrop
-#  storagesvc-client:
-#    storage-service-url: http://localhost:8001
-
+  bucket-name: tempfiledrop
+  storagesvc-url: http://localhost:8001
 ---
 
 ###############################################################################################
@@ -48,7 +45,7 @@ spring:
     password: storage123
   cloud:
     function:
-      definition: filesDownloadedChannel;filesUploadedChannel
+      definition: filesDownloadedChannel;filesUploadedChannel;filesDeletedChannel
     stream:
       rabbit.bindings:
         filesDownloadedChannel-in-0.consumer:
@@ -57,12 +54,18 @@ spring:
         filesUploadedChannel-in-0.consumer:
 #          binding-routing-key-delimiter: ","
           binding-routing-key: tempfiledrop_upload
+        filesDeletedChannel-in-0.consumer:
+#          binding-routing-key-delimiter: ","
+          binding-routing-key: tempfiledrop_delete
       bindings:
         filesDownloadedChannel-in-0:
           destination: filesDownloadedExchange # mapping cloud stream output channel to rabbitmq exchange
           group: tempfiledrop                  # only 1 instance in consumer group will receive message (should be unique to your app)
         filesUploadedChannel-in-0:
           destination: filesUploadedExchange   # mapping cloud stream output channel to rabbitmq exchange
+          group: tempfiledrop                  # only 1 instance in consumer group will receive message (should be unique to your app)
+        filesDeletedChannel-in-0:
+          destination: filesDeletedExchange    # mapping cloud stream output channel to rabbitmq exchange
           group: tempfiledrop                  # only 1 instance in consumer group will receive message (should be unique to your app)
 
 ---

@@ -1,4 +1,4 @@
-package com.tempfiledrop.webserver.service.storagesvcclient
+package com.tempfiledrop.webserver.model
 
 import java.time.ZonedDateTime
 

@@ -26,12 +26,18 @@
     "dropzone": {
         "maxSizeInBytes": 5368706371
     },
+    "rabbitmq": {
+        "deleteRoutingKey": "tempfiledrop_delete",
+        "downloadRoutingKey": "tempfiledrop_download",
+        "uploadRoutingKey": "tempfiledrop_upload"
+    },
     "api_endpoints": {
         "mock_login": "/api/user-info/login",
-        "download_files": "/api/files/download",
-        "files_storage_info": "/api/files/download-info",
         "uploaded_files": "/api/users-upload-info",
         "storagesvc_swagger": "/storagesvc/api-docs",
-        "storagesvc_upload": "/storagesvc/upload"
+        "storagesvc_upload": "/storagesvc/upload",
+        "storagesvc_download": "/storagesvc/download",
+        "storagesvc_storage_info": "/storagesvc/storageinfo",
+        "storagesvc": "/storagesvc"
     }
 }

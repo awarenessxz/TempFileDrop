@@ -53,6 +53,17 @@ class StorageController(
         return storageFiles
     }
 
+    private fun getAndVerifyStorageInfo(storageId: String, bucket: String): StorageInfo {
+        val storageInfo = storageInfoService.getStorageInfoById(storageId) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
+        if (storageInfo.bucketName != bucket) {
+            throw ApiException("Files not found in Bucket!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST) // bucket and storageID didn't match
+        }
+        if (!checkIfStorageFileIsAvailable(storageInfo)) {
+            throw ApiException("Files not available!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
+        }
+        return storageInfo
+    }
+
     private fun checkIfStorageFileIsAvailable(storageInfo: StorageInfo): Boolean {
         if (storageInfo.numOfDownloadsLeft <= 0 || storageInfo.expiryDatetime.isBefore(ZonedDateTime.now())) {
             // storage expired. Delete the records and objects
@@ -108,7 +119,7 @@ class StorageController(
         val downloadLink = "${storageSvcProperties.exposeEndpoint}/storagesvc/download/${storageInfo.bucketName}/${storageInfo.id}"
 
         // send an event
-        producer.sendEventwithHeader(EventType.FILE_UPLOADED, storageInfo, metadata.eventData, metadata.eventRoutingKey)
+        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData, metadata.eventRoutingKey)
 
         // send response
         val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString(), downloadLink)
@@ -121,12 +132,25 @@ class StorageController(
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))])
     ])
     @DeleteMapping("/{bucket}/{storageId}")
-    fun deleteFilesInBucket(@PathVariable("bucket") bucket: String, @PathVariable("storageId") storageId: String): ResponseEntity<String> {
+    fun deleteFilesInBucket(
+            @PathVariable("bucket") bucket: String,
+            @PathVariable("storageId") storageId: String,
+            @RequestParam(required = false, defaultValue = "") eventData: String,
+            @RequestParam(defaultValue = "#") eventRoutingKey: String,
+    ): ResponseEntity<String> {
         logger.info("Deleting Storage ID = $storageId in Bucket $bucket")
-        val storageFiles = getStorageFilesAndValidateRequest(bucket, storageId)
+        val storageInfo = getAndVerifyStorageInfo(storageId, bucket)
+
+        // handle delete
+        val storageFiles = getStorageFilesAndValidateRequest(storageInfo.bucketName, storageInfo.id.toString())
         storageService.deleteFiles(storageFiles)
         storageFileService.deleteFilesInfo(storageId)
         storageInfoService.deleteStorageInfoById(storageId)
+
+        // send an event
+        producer.sendEventwithHeader(EventType.FILES_DELETED, storageInfo, eventData, eventRoutingKey)
+
+        // send response
         return ResponseEntity("Files deleted successfully", HttpStatus.OK)
     }
 
@@ -138,13 +162,7 @@ class StorageController(
     @GetMapping("/storageinfo/{bucket}/{storageId}", produces = ["application/json"])
     fun getStorageInfoByStorageId(@PathVariable("bucket") bucket: String, @PathVariable("storageId") storageId: String): ResponseEntity<StorageInfoResponse> {
         logger.info("Retrieving Storage Information for $storageId in Bucket $bucket")
-        val storageInfo = storageInfoService.getStorageInfoById(storageId) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
-        if (storageInfo.bucketName != bucket) {
-            throw ApiException("Files not found in Bucket!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST) // bucket and storageID didn't match
-        }
-        if (!checkIfStorageFileIsAvailable(storageInfo)) {
-            throw ApiException("Files not available!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
-        }
+        val storageInfo = getAndVerifyStorageInfo(storageId, bucket)
         val response = StorageInfoResponse(storageInfo.id.toString(), getDownloadLink(storageInfo.bucketName, storageInfo.id.toString()), storageInfo.filenames, storageInfo.numOfDownloadsLeft, storageInfo.expiryDatetime)
         return ResponseEntity(response, HttpStatus.OK)
     }
@@ -155,7 +173,7 @@ class StorageController(
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
     ])
     @PostMapping("/storageinfo/bulk")
-    fun getMultipleStorageInfoByStorageId(@RequestBody storageInfoReq: StorageInfoBulkRequest): ResponseEntity<List<StorageInfoResponse>> {
+    fun getMultipleStorageInfoByStorageId(@RequestBody storageInfoReq: StorageInfoBulkRequest): ResponseEntity<StorageInfoBulkResponse> {
         logger.info("Retrieving Bulk StorageInfo Request for ${storageInfoReq.storageIdList} in Bucket ${storageInfoReq.bucket}")
         val storageInfoList = storageInfoService.getBulkStorageInfoById(storageInfoReq.storageIdList)
         if (storageInfoList.any { it.bucketName != storageInfoReq.bucket}) {
@@ -164,7 +182,8 @@ class StorageController(
         val availableStorageInfoResponseList = storageInfoList
                 .filter { checkIfStorageFileIsAvailable(it) }
                 .map { StorageInfoResponse(it.id.toString(), getDownloadLink(it.bucketName, it.id.toString()), it.filenames, it.numOfDownloadsLeft, it.expiryDatetime) }
-        return ResponseEntity(availableStorageInfoResponseList, HttpStatus.OK)
+        val response = StorageInfoBulkResponse(availableStorageInfoResponseList)
+        return ResponseEntity(response, HttpStatus.OK)
     }
 
     @Operation(summary = "Download files using bucket name and storageId")
@@ -176,10 +195,16 @@ class StorageController(
     fun downloadFile(
             @PathVariable("bucket") bucket: String,
             @PathVariable("storageId") storageId: String,
+            @RequestParam(required = false, defaultValue = "") eventData: String,
+            @RequestParam(defaultValue = "#") eventRoutingKey: String,
             response: HttpServletResponse
     ) {
-        logger.info("Downloading Storage Information for $storageId")
-        val storageFiles = getStorageFilesAndValidateRequest(bucket, storageId)
+        logger.info("Downloading Storage Information for $storageId}")
+        // verify if files are available
+        val storageInfo = getAndVerifyStorageInfo(storageId, bucket)
+
+        // download
+        val storageFiles = getStorageFilesAndValidateRequest(storageInfo.bucketName, storageInfo.id.toString())
         if(storageFiles.size > 1) {
             // download as zip
             logger.info("Zip File Download...")
@@ -195,6 +220,11 @@ class StorageController(
             response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${storageFile.originalFilename}\"")
             storageService.downloadFile(storageFile, response) // IMPORTANT: ORDER MATTERS (MUST BE AFTER SETTING HEADER)
         }
-        storageInfoService.reduceDownloadCountById(storageId)
+
+        // process storage info
+        storageInfoService.reduceDownloadCountById(storageInfo.id.toString())
+
+        // send an event
+        producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageInfo, eventData, eventRoutingKey)
     }
 }

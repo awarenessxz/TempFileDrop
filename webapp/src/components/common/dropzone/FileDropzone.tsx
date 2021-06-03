@@ -62,7 +62,7 @@ const FileDropzone = ({
             storagePath: username === "" ? "anonymous" : username,
             maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
             expiryPeriod,
-            eventRoutingKey: "tempfiledrop_upload",
+            eventRoutingKey: Data.rabbitmq.uploadRoutingKey,
             eventData: JSON.stringify({ username: username })
         };
         formData.append("metadata", new Blob([JSON.stringify(metadata)], {
