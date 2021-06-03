@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
-import { FaTrash } from "react-icons/fa";
+import { FaTrash, FaDownload } from "react-icons/fa";
 import Alert from "react-bootstrap/cjs/Alert";
 import Button from "react-bootstrap/cjs/Button";
 import Col from "react-bootstrap/cjs/Col";
@@ -11,7 +11,7 @@ import Table from "react-bootstrap/cjs/Table";
 import VerticallyCenteredModal from "../common/modal/VerticallyCenteredModal";
 import FileDropzone from "../common/dropzone/FileDropzone";
 import { useAuthState } from "../../utils/auth-context";
-import { joinURLs } from "../../utils/toolkit";
+import {extractFilenameFromContentDisposition, joinURLs} from "../../utils/toolkit";
 import Data from "../../config/app.json";
 import { UserUploadInfo } from "../../types/api-types";
 import "./Dashboard.css";
@@ -59,6 +59,29 @@ const Dashboard = () => {
                 }
             })
             .catch(err => console.log(err));
+    };
+
+    const handleDownloadRecord = (storageId: string) => {
+        axios.get(`${Data.api_endpoints.storagesvc_download}/${Data.bucket}/${storageId}`, {
+            responseType: "blob",
+            params: {
+                eventRoutingKey: Data.rabbitmq.downloadRoutingKey
+            }
+        })
+            .then(res => {
+                const filename = extractFilenameFromContentDisposition(res.headers);
+                const url = window.URL.createObjectURL(new Blob([res.data]));
+                const link = document.createElement('a');
+                link.href = url;
+                link.setAttribute('download', filename);
+                document.body.appendChild(link);
+                link.click();
+                setMessage("You have downloaded the files!");
+                setReloadRecord(!reloadRecord);
+            })
+            .catch(err => {
+                console.log(err);
+            });
     };
 
     const onSuccessfulUpload = () => {
@@ -109,7 +132,10 @@ const Dashboard = () => {
                                 <td>{moment(record.storageInfo.expiryDatetime).format("DD MMM YYYY h:mma")}</td>
                                 <td><Link to={`/download/${record.storageInfo.storageId}`}>{joinURLs(window.location.origin, "download", record.storageInfo.storageId)}</Link></td>
                                 <td>
-                                    <Button size="sm" variant="danger" onClick={() => handleDeleteRecord(idx, record.id, record.storageInfo.storageId)}>
+                                    <Button className="action-btn" size="sm" variant="info" onClick={() => handleDownloadRecord(record.storageInfo.storageId)}>
+                                        <FaDownload />
+                                    </Button>
+                                    <Button className="action-btn" size="sm" variant="danger" onClick={() => handleDeleteRecord(idx, record.id, record.storageInfo.storageId)}>
                                         <FaTrash />
                                     </Button>
                                 </td>

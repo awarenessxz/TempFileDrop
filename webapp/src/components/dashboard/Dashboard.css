@@ -5,3 +5,7 @@
 .align-right {
     text-align: right;
 }
+
+.action-btn {
+    margin-right: 5px;
+}
