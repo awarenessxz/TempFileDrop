@@ -56,10 +56,14 @@ const FileDropzone = ({
         });
         // @ts-ignore
         const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
+        const username = userInfo === null ? "" : userInfo.username;
         const metadata: FileUploadRequest = {
-            username: userInfo === null ? "" : userInfo.username,
+            bucket: Data.bucket,
+            storagePath: username === "" ? "anonymous" : username,
             maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
-            expiryPeriod
+            expiryPeriod,
+            eventRoutingKey: "tempfiledrop_upload",
+            eventData: JSON.stringify({ username: username })
         };
         formData.append("metadata", new Blob([JSON.stringify(metadata)], {
             type: "application/json"
@@ -74,10 +78,10 @@ const FileDropzone = ({
                     setUploadPercentage(percent);
                 }
             }
-        }
+        };
 
         // send request
-        axios.post(Data.api_endpoints.upload_files, formData, options)
+        axios.post(Data.api_endpoints.storagesvc_upload, formData, options)
             .then(res => {
                 setLoading(false);
                 if (res.status === 200) {

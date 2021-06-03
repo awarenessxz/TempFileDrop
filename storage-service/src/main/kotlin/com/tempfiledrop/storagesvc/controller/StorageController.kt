@@ -4,6 +4,8 @@ import com.tempfiledrop.storagesvc.config.StorageSvcProperties
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
 import com.tempfiledrop.storagesvc.exception.ErrorResponse
+import com.tempfiledrop.storagesvc.service.event.EventType
+import com.tempfiledrop.storagesvc.service.event.RabbitMQProducer
 import com.tempfiledrop.storagesvc.service.storage.StorageService
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFileService
@@ -32,7 +34,8 @@ class StorageController(
         private val storageInfoService: StorageInfoService,
         private val storageFileService: StorageFileService,
         private val storageService: StorageService,
-        private val storageSvcProperties: StorageSvcProperties
+        private val storageSvcProperties: StorageSvcProperties,
+        private val producer: RabbitMQProducer
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(StorageController::class.java)
@@ -103,6 +106,11 @@ class StorageController(
         storageInfoService.addStorageInfo(storageInfo) // store upload to storage mapping. Should populate storage ID after storing
         storageFileService.saveFilesInfo(storageInfo.id.toString(), storageFiles) // store file information
         val downloadLink = "${storageSvcProperties.exposeEndpoint}/storagesvc/download/${storageInfo.bucketName}/${storageInfo.id}"
+
+        // send an event
+        producer.sendEventwithHeader(EventType.FILE_UPLOADED, storageInfo, metadata.eventData, metadata.eventRoutingKey)
+
+        // send response
         val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString(), downloadLink)
         return ResponseEntity(response, HttpStatus.OK)
     }

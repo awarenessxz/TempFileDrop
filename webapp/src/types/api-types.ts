@@ -6,14 +6,18 @@ export interface UserInfoResponse {
 }
 
 export interface FileUploadRequest {
-    username: string;
+    bucket: string;
+    storagePath: string;
     maxDownloads: number;
     expiryPeriod: number;
+    eventRoutingKey?: string;
+    eventData?: string;
 }
 
 export interface FileUploadResponse {
     message: string;
     storageId: string;
+    downloadLink: string;
 }
 
 export interface StorageInfo {

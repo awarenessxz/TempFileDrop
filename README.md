@@ -3,7 +3,12 @@
 **Table of Content**
 - [Overview](#overview)
 - [Architecture Design](#architecture-design)
+    - [First Design](#first-design)
+    - [Second Design](#second-design)
+        - [Event Streaming Flow](#event-streaming-flow)
+    - [Design Considerations](#design-considerations)
 - [Getting Started](#getting-started)
+- [How to consume storage service](#how-to-consume-storage-service)
 - [Future Works](#future-works)
 - [References](#references)
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
@@ -57,6 +62,10 @@ not ideal...
 To further optimize the first design, the applications will directly upload to the storage service instead of proxying 
 through the backend. Event Streaming is added to update the backend when an upload / download is completed.
 
+#### Event Streaming Flow
+
+![Event Stream](doc/event_design.png)
+
 ### Design Considerations
 
 1. How much space do we need for the MinIO Cluster
@@ -93,13 +102,8 @@ through the backend. Event Streaming is added to update the backend when an uplo
 ### Start Infrastructure Cluster
 
 ```bash
-# Clean up persistent data [OPTIONAL]
-./infra/cleanup.sh
-
-# Start infra cluster instances
-sudo docker-compose -f infra/minio/docker-compose.yaml up -d
-sudo docker-compose -f infra/rabbitmq/docker-compose.yaml up -d
-sudo docker-compose -f infra/mongo/docker-compose.yaml up -d
+# Clean up persistent data and restart the services
+./infra/cleanup_and_restart.sh
 ```
 
 ### Start Centralized Storage Service
@@ -129,7 +133,9 @@ sudo docker-compose -f infra/mongo/docker-compose.yaml up -d
     yarn install
     yarn start
     ```
-   
+
+## How to consume storage Service
+
 ## Future Works
 
 1. Implement Security
@@ -202,4 +208,6 @@ sudo docker-compose -f infra/mongo/docker-compose.yaml up -d
         - [Okta - spring cloud stream 3.0](https://developer.okta.com/blog/2020/04/15/spring-cloud-stream)
         - [Introduction to event driven microservices with spring cloud stream](https://piotrminkowski.com/2020/06/05/introduction-to-event-driven-microservices-with-spring-cloud-stream/)
         - [RabbitMQ docker-compose with default properties](https://github.com/changhuixu/rabbitmq-labs/tree/master/02_QueueProperties)
+        - [Stackoverflow - Set Routing Key for Producer](https://stackoverflow.com/questions/52329361/spring-cloud-stream-reactive-how-to-set-routing-key-for-producer)
+        - [Stackoverflow - Set multiple routing key for Consumer](https://stackoverflow.com/questions/50587227/multiple-bindingroutingkeys-for-a-consumer-with-spring-cloud-stream-using-rabbi)
         

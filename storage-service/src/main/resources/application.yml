@@ -53,10 +53,12 @@ spring:
     addresses: localhost:5672
     username: storage_user
     password: storage123
-  cloud.stream.bindings:
-    filesDownloadedChannel-out-0:
-      destination: filesDownloadedExchange # mapping cloud stream output channel to rabbitmq exchange
-    filesUploadedChannel-out-0:
-      destination: filesUploadedExchange   # mapping cloud stream output channel to rabbitmq exchange
+  cloud.stream:
+    rabbit.bindings:
+      filesDownloadedChannel-out-0.producer.routing-key-expression: headers.routingkey    # Get Routing key from streambridge header
+      filesUploadedChannel-out-0.producer.routing-key-expression: headers.routingkey      # Get Routing key from streambridge header
+    bindings:
+      filesDownloadedChannel-out-0.destination: filesDownloadedExchange # mapping cloud stream output channel to rabbitmq exchange
+      filesUploadedChannel-out-0.destination: filesUploadedExchange     # mapping cloud stream output channel to rabbitmq exchange
 
 ---

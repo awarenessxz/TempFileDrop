@@ -12,8 +12,8 @@ spring:
 tempfiledrop:
   webserver:
     bucket-name: tempfiledrop
-  storagesvc-client:
-    storage-service-url: http://localhost:8001
+#  storagesvc-client:
+#    storage-service-url: http://localhost:8001
 
 ---
 
@@ -21,9 +21,9 @@ tempfiledrop:
 # Servlet Configuration for Multipart File
 ###############################################################################################
 
-spring.servlet.multipart:
-  max-file-size: 5GB      # Max file size for each request
-  max-request-size: 5GB   # Max request size for a multipart/form-data
+#spring.servlet.multipart:
+#  max-file-size: 5GB      # Max file size for each request
+#  max-request-size: 5GB   # Max request size for a multipart/form-data
 
 ---
 
@@ -49,12 +49,20 @@ spring:
   cloud:
     function:
       definition: filesDownloadedChannel;filesUploadedChannel
-    stream.bindings:
-      filesDownloadedChannel-in-0:
-        destination: filesDownloadedExchange # mapping cloud stream output channel to rabbitmq exchange
-        group: tempfiledrop_download         # only 1 instance in consumer group will receive message (should be unique to your app)
-      filesUploadedChannel-in-0:
-        destination: filesUploadedExchange   # mapping cloud stream output channel to rabbitmq exchange
-        group: tempfiledrop_upload           # only 1 instance in consumer group will receive message (should be unique to your app)
+    stream:
+      rabbit.bindings:
+        filesDownloadedChannel-in-0.consumer:
+#          binding-routing-key-delimiter: ","
+          binding-routing-key: tempfiledrop_download
+        filesUploadedChannel-in-0.consumer:
+#          binding-routing-key-delimiter: ","
+          binding-routing-key: tempfiledrop_upload
+      bindings:
+        filesDownloadedChannel-in-0:
+          destination: filesDownloadedExchange # mapping cloud stream output channel to rabbitmq exchange
+          group: tempfiledrop                  # only 1 instance in consumer group will receive message (should be unique to your app)
+        filesUploadedChannel-in-0:
+          destination: filesUploadedExchange   # mapping cloud stream output channel to rabbitmq exchange
+          group: tempfiledrop                  # only 1 instance in consumer group will receive message (should be unique to your app)
 
 ---
