@@ -131,7 +131,7 @@ const Dashboard = () => {
                                 <td>{record.storageInfo.numOfDownloadsLeft}</td>
                                 <td>{moment(record.storageInfo.expiryDatetime).format("DD MMM YYYY h:mma")}</td>
                                 <td><Link to={`/download/${record.storageInfo.storageId}`}>{joinURLs(window.location.origin, "download", record.storageInfo.storageId)}</Link></td>
-                                <td>
+                                <td className="action-btn-group">
                                     <Button className="action-btn" size="sm" variant="info" onClick={() => handleDownloadRecord(record.storageInfo.storageId)}>
                                         <FaDownload />
                                     </Button>

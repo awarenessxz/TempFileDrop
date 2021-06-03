@@ -1,5 +1,7 @@
 package com.tempfiledrop.storagesvc.controller
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.tempfiledrop.storagesvc.config.StorageSvcProperties
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
@@ -17,6 +19,9 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
+import org.apache.commons.fileupload.FileItemIterator
+import org.apache.commons.fileupload.FileItemStream
+import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
@@ -25,8 +30,10 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MultipartFile
 import java.time.ZonedDateTime
+import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import kotlin.io.path.ExperimentalPathApi
+
 
 @RestController
 @RequestMapping("/storagesvc")
@@ -116,12 +123,42 @@ class StorageController(
         val storageFiles = storageService.uploadFiles(files, storageInfo) // upload file
         storageInfoService.addStorageInfo(storageInfo) // store upload to storage mapping. Should populate storage ID after storing
         storageFileService.saveFilesInfo(storageInfo.id.toString(), storageFiles) // store file information
-        val downloadLink = "${storageSvcProperties.exposeEndpoint}/storagesvc/download/${storageInfo.bucketName}/${storageInfo.id}"
+        val downloadLink = getDownloadLink(storageInfo.bucketName, storageInfo.id.toString())
 
         // send an event
-        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData, metadata.eventRoutingKey)
+        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey!!)
 
         // send response
+        val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString(), downloadLink)
+        return ResponseEntity(response, HttpStatus.OK)
+    }
+
+    @Operation(summary = "Upload single or multiple files to storage service")
+    @ApiResponses(value = [
+        ApiResponse(description = "File were uploaded successfully", responseCode = "200"),
+        ApiResponse(description = "Requested upload path is invalid", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
+        ApiResponse(description = "Upload Failed", responseCode = "500", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
+    ])
+    @ExperimentalPathApi
+    @PostMapping("/uploadV2")
+    fun uploadFileV2(request: HttpServletRequest): ResponseEntity<StorageUploadResponse> {
+        val isMultipart = ServletFileUpload.isMultipartContent(request)
+        if (!isMultipart) {
+            throw ApiException("Invalid Multipart Request", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
+        }
+
+        // process files
+        val results = storageService.uploadFilesViaStream(request)
+        val metadata = results.first
+        val storageInfo = results.second
+        val storageFiles = results.third
+        storageInfoService.addStorageInfo(storageInfo) // store upload to storage mapping. Should populate storage ID after storing
+        storageFileService.saveFilesInfo(storageInfo.id.toString(), storageFiles) // store file information
+        val downloadLink = getDownloadLink(storageInfo.bucketName, storageInfo.id.toString())
+
+        // send an event
+        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey!!)
+
         val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString(), downloadLink)
         return ResponseEntity(response, HttpStatus.OK)
     }
@@ -216,7 +253,7 @@ class StorageController(
             logger.info("Single File Download...")
             val storageFile = storageFiles[0]
             response.contentType = storageFile.fileContentType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE
-            response.setContentLengthLong(storageFile.fileLength)
+            // response.setContentLengthLong(storageFile.fileLength)
             response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${storageFile.originalFilename}\"")
             storageService.downloadFile(storageFile, response) // IMPORTANT: ORDER MATTERS (MUST BE AFTER SETTING HEADER)
         }

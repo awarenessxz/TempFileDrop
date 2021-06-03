@@ -51,9 +51,6 @@ const FileDropzone = ({
 
         // craft payload
         const formData = new FormData();
-        acceptedFiles.forEach(file => {
-            formData.append("files", file);
-        });
         // @ts-ignore
         const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
         const username = userInfo === null ? "" : userInfo.username;
@@ -68,6 +65,9 @@ const FileDropzone = ({
         formData.append("metadata", new Blob([JSON.stringify(metadata)], {
             type: "application/json"
         }));
+        acceptedFiles.forEach(file => {
+            formData.append("files", file);
+        });
 
         // set upload percentage
         const options = {

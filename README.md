@@ -39,9 +39,11 @@ There are 2 main purpose of this project.
 - [Website](webapp)
 - [Web Server](webserver)
 - [Storage Service](storage-service)
-- **Archive (Old Designs which doesn't work anymore, just for reference)**
+- **Archive (Old Designs)**
     - [Storage Service Client Library](archive/storage-service-client)
+    - [Storage Service](archive/storage-service)
     - [Web Server](archive/webserver)
+    - [Website](archive/webapp)
 
 ## Architecture Design
 
@@ -54,8 +56,8 @@ backend which will then proxy the request to the storage service. (Note that the
 the uploaded files, hence it is necessary for the backend to be aware of the uploads instead of having the application 
 upload directly to the storage service). 
 
-However, after developing the features, I realized that the amount of hops required to upload and download files is simply 
-not ideal...
+However, after developing the features, I realized that although we are proxying the upload and download from the webserver 
+via streams, the amount of hops required to upload and download files can be improved
 
 ### Second Design
 
@@ -105,7 +107,7 @@ through the backend. Event Streaming is added to update the backend when an uplo
 
 ```bash
 # Clean up persistent data and restart the services
-./infra/cleanup_and_restart.sh
+sudo ./infra/cleanup_and_restart.sh
 ```
 
 ### Start Centralized Storage Service
@@ -151,6 +153,7 @@ through the backend. Event Streaming is added to update the backend when an uplo
 3. Misc
     - Session / Cache such that user remains login after refreshing...
     - Make Navbar reactive to small screen (Frontend)
+    - Add websocket for dashboard and download page
     
 ## References
 - [Command Cheat Sheet](doc/CHEATSHEET.md)

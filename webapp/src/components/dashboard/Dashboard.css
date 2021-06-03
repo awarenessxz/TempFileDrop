@@ -9,3 +9,7 @@
 .action-btn {
     margin-right: 5px;
 }
+
+.action-btn-group {
+    display: flex;
+}

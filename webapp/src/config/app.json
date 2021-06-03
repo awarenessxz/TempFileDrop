@@ -35,7 +35,7 @@
         "mock_login": "/api/user-info/login",
         "uploaded_files": "/api/users-upload-info",
         "storagesvc_swagger": "/storagesvc/api-docs",
-        "storagesvc_upload": "/storagesvc/upload",
+        "storagesvc_upload": "/storagesvc/uploadV2",
         "storagesvc_download": "/storagesvc/download",
         "storagesvc_storage_info": "/storagesvc/storageinfo",
         "storagesvc": "/storagesvc"

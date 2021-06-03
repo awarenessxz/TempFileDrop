@@ -23,9 +23,6 @@ dependencies {
 	// Database
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb") // Mongo Database
 
-	// File Upload
-	implementation("commons-fileupload:commons-fileupload:1.4") // MultipartResolver implementation
-
 	// RabbitMQ
 	implementation("org.springframework.cloud:spring-cloud-starter-stream-rabbit") // Cloud Stream + RabbitMQ Binder
 
