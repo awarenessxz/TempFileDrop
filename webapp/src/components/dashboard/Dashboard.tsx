@@ -11,7 +11,7 @@ import Table from "react-bootstrap/cjs/Table";
 import VerticallyCenteredModal from "../common/modal/VerticallyCenteredModal";
 import FileDropzone from "../common/dropzone/FileDropzone";
 import { useAuthState } from "../../utils/auth-context";
-import {extractFilenameFromContentDisposition, joinURLs} from "../../utils/toolkit";
+import { extractFilenameFromContentDisposition, joinURLs } from "../../utils/toolkit";
 import Data from "../../config/app.json";
 import { UserUploadInfo } from "../../types/api-types";
 import "./Dashboard.css";

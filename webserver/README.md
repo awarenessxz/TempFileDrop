@@ -35,7 +35,6 @@ cd <ROOT>
 | --- | --- |
 | /api/user-info | used for mocking login |
 | /api/users-upload-info | List & Delete uploads (both records in users_uploads table as well as objects itself) |
-| /api/files | uploading files and getting information on uploaded files for download |
 
 ### Database Tables
 
