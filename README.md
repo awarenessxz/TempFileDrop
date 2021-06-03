@@ -8,7 +8,7 @@
         - [Event Streaming Flow](#event-streaming-flow)
     - [Design Considerations](#design-considerations)
 - [Getting Started](#getting-started)
-- [How to consume storage service](#how-to-consume-storage-service)
+- [How to consume storage service](storage-service/README.md#how-to-consume-centralized-storage-service)
 - [Future Works](#future-works)
 - [References](#references)
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
@@ -137,9 +137,7 @@ sudo ./infra/cleanup_and_restart.sh
     yarn install
     yarn start
     ```
-
-## How to consume storage Service
-
+   
 ## Future Works
 
 1. Implement Security
