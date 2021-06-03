@@ -14,7 +14,7 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
     - [API Endpoints](#api-endpoints)
 - [How to consume Centralized Storage Service](#how-to-consume-centralized-storage-service)
     - [1. How to upload files](#1-uploading-files)
-    - [2. How to add routingkey and custom data](#2-adding-routing-key-and-custom-data)
+    - [2. How to add routingkey and custom data for delete / download](#2-adding-routing-key-and-custom-data)
     - [3. How to consume event](#3-consuming-the-event)
     
 ## Getting Started
@@ -59,7 +59,7 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
         - no expiry 
 2. **Event Feedback**
     - when files are uploaded / downloaded / deleted, an event will be triggered.
-    - consumers can tagged the event with a **routingkey** such that only they will receive the event message.
+    - consumers can tagged the event with a **routingkey** such that only queues with this routing key will receive the message.
 
 #### More about StorageId
 
@@ -276,7 +276,7 @@ To consume the event, follow the steps below
     - **spring.cloud.function.definition** - Notice, the names defined here. They will correspond with our consumers which
     will be defined later...
     - **spring.cloud.stream.rabbit.bindings** - define your routing keys here
-    - **spring.cloud.stream.bindings: - define the bindings here. These will created queues which are binded to the exchange.
+    - **spring.cloud.stream.bindings** - define the bindings here. This will created queues which are binded to the exchange.
 3. Create Consumer Class
     ```kotlin
     @Component
