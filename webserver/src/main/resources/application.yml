@@ -31,31 +31,19 @@ spring.data.mongodb:
 spring:
   rabbitmq:
     addresses: localhost:5672
-    username: storage_user
+    username: storage_subscriber
     password: storage123
   cloud:
     function:
-      definition: filesDownloadedChannel;filesUploadedChannel;filesDeletedChannel
+      definition: storageSvcChannel
     stream:
       rabbit.bindings:
-        filesDownloadedChannel-in-0.consumer:
-#          binding-routing-key-delimiter: ","
-          binding-routing-key: tempfiledrop_download
-        filesUploadedChannel-in-0.consumer:
-#          binding-routing-key-delimiter: ","
-          binding-routing-key: tempfiledrop_upload
-        filesDeletedChannel-in-0.consumer:
-#          binding-routing-key-delimiter: ","
-          binding-routing-key: tempfiledrop_delete
+        storageSvcChannel-in-0.consumer:
+          binding-routing-key-delimiter: ","
+          binding-routing-key: tempfiledrop
+          bind-queue: false                   # Disable queue binding for access control
       bindings:
-        filesDownloadedChannel-in-0:
-          destination: filesDownloadedExchange # mapping cloud stream output channel to rabbitmq exchange
-          group: tempfiledrop                  # only 1 instance in consumer group will receive message (should be unique to your app)
-        filesUploadedChannel-in-0:
-          destination: filesUploadedExchange   # mapping cloud stream output channel to rabbitmq exchange
-          group: tempfiledrop                  # only 1 instance in consumer group will receive message (should be unique to your app)
-        filesDeletedChannel-in-0:
-          destination: filesDeletedExchange    # mapping cloud stream output channel to rabbitmq exchange
-          group: tempfiledrop                  # only 1 instance in consumer group will receive message (should be unique to your app)
-
+        storageSvcChannel-in-0:               # queue name = destination.group = storageSvcExchange.tempfiledrop
+          destination: storageSvcExchange     # mapping cloud stream output channel to rabbitmq exchange
+          group: tempfiledrop                 # only 1 instance in consumer group will receive message (should be unique to your app)
 ---

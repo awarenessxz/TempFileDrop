@@ -1,6 +1,7 @@
 package com.tempfiledrop.storagesvc.service.event
 
 data class EventMessage(
+        val eventType: String,
         val storageId: String,
         val storagePath: String,
         val storageFiles: String,

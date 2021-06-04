@@ -23,7 +23,17 @@ to serve data, handle logins & registration and process file uploads/downloads.
 ### Running the server locally
 
 ```bash
+# Go project's root
 cd <ROOT>
+
+# Ensure that exchange already exists. If not
+python infra/rabbitmq/scripts/init_storagesvc.py --create-exchange -e storageSvcExchange
+
+# Create the queue and bind to exchange
+python infra/rabbitmq/scripts/init_storagesvc.py --create-queue -q storageSvcExchange.tempfiledrop
+python infra/rabbitmq/scripts/init_storagesvc.py --bind-queue -e storageSvcExchange -q storageSvcExchange.tempfiledrop -r tempfiledrop
+
+# Start the service
 ./gradlew webserver:bootRun
 ```
 
@@ -42,9 +52,3 @@ cd <ROOT>
 | --- | --- | --- |
 | users | id, username, password, creationDate | used for mocking login |
 | users_upload_info | id, folder, storageId | {users to uploads} mapping. Information about the active uploads that users have which is used to display in Dashboard page. **StorageId** is the reference ID used to obtain the "files" itself from the storage service. |
-
-### Testing File Uploads (API)
-
-Ensure `mongoDB`, `minIO` and `storage-service` is up. To test uploading of files, use `Postman` and use the settings below
-
-![Test Webserver Upload](../doc/postman_webserver_upload.png)

@@ -27,9 +27,7 @@
         "maxSizeInBytes": 5368706371
     },
     "rabbitmq": {
-        "deleteRoutingKey": "tempfiledrop_delete",
-        "downloadRoutingKey": "tempfiledrop_download",
-        "uploadRoutingKey": "tempfiledrop_upload"
+        "routingkey": "tempfiledrop"
     },
     "api_endpoints": {
         "mock_login": "/api/user-info/login",

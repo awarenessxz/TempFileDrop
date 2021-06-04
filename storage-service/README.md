@@ -7,16 +7,21 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
     - [Configuring application.yaml](#configuring-applicationyaml)
     - [Running the service (locally)](#running-the-service-locally)
     - [Deploy the service](#deploying-the-service)
+    - [Testing API upload with Postman](#testing-api-uploads-with-postman)
 - [Documentation](#documentation)
     - [Storage Service Design](#storage-service-design)
         - [StorageId](#more-about-storageid)
     - [Database Tables](#database-tables)
     - [API Endpoints](#api-endpoints)
 - [How to consume Centralized Storage Service](#how-to-consume-centralized-storage-service)
-    - [1. How to upload files](#1-uploading-files)
-    - [2. How to add routingkey and custom data](#2-adding-routing-key-and-custom-data)
-    - [3. How to consume event](#3-consuming-the-event)
-    
+    - [1. Upload / Download / Delete files from Frontend](#1-upload--download--delete-request-from-frontend)
+        - [uploading files](#uploading-files)
+        - [downloading files](#downloading-files)
+        - [deleting files](#deleting-files)
+    - [2. RabbitMQ Queue Configuration](#rabbitmq-queue-configuration)
+        - [Queue creation](#queue-creation)
+        - [Consuming messages](#consuming-messages)
+        
 ## Getting Started
 
 ### Configuring application.yaml
@@ -32,13 +37,25 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
 ### Running the service (Locally)
 
 ```bash
+# Go project's root
 cd <ROOT>
+
+# Create the exchange
+python infra/rabbitmq/scripts/init_storagesvc.py --create-exchange -e storageSvcExchange
+
+# Start the service
 ./gradlew storage-service:bootRun
 ```
 
 ### Deploying the service
 
 TO BE ADDED...
+
+### Testing API uploads with POSTMAN
+
+Ensure `mongoDB`, `minIO` and `rabbitmq` is up. To test uploading of files, use `Postman` and use the settings below
+
+![Test Webserver Upload](../doc/postman_webserver_upload.png)
 
 ## Documentation
 
@@ -89,19 +106,25 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
 
 ### Events
 
-After delete / download / upload of files, an event will be triggered. Refer to the diagram below for more details.
-
-![event flow](../doc/event_flow.png)
+![event flow](../doc/event_flow_2.png)
 
 ## How to consume Centralized Storage Service
 
-Refer to this section on how to consume the centralized storage service. There are 3 main configurations you will need to
+Refer to this section on how to consume the centralized storage service. There are 2 main configurations you will need to
 consume the centralized storage service.
-- **How to upload files**
-- **Defining routingkey and data for delete / download / upload**
-- **Consuming the Event**
 
-### 1. Uploading Files
+- **Upload / Download / Delete Request from Frontend**
+- **RabbitMQ Queue Configuration**
+
+### 1. Upload / Download / Delete Request from Frontend
+
+For all the 3 types of request, it is necessary to provide **eventData [OPTIONAL]** and **eventRoutingKey**.
+- **eventRoutingKey**: This is an **OPTIONAL** field. When upload is completed, an event will be published to the message
+broker. This allows you to customize the event such that only queues with this routing key will retrieve the message.
+- **eventData**: This is an **OPTIONAL** field. When upload is completed, an event will be published to the message 
+broker. This allows you to pass data to the consumer.
+
+#### Uploading Files
 
 When uploading files, you will be required to attach metadata (json object) to the upload. The metadata required is as
 follows:
@@ -126,12 +149,8 @@ follows:
     - **2** = 1 week
     - **3** = 1 month
     - **4** = no expiry
-- **eventRoutingKey**: This is an **OPTIONAL** field. When upload is completed, an event will be published to the message
-broker. This allows you to customize the event such that only queues with this routing key will retrieve the message.
-- **eventData**: This is an **OPTIONAL** field. When upload is completed, an event will be published to the message 
-broker. This allows you to pass data to the consumer.
 
-#### Using Javascript (React + Axios)
+##### Sample Codes using Axios
 
 ```javascript
 const uploadfunction = (uploadedFiles, userInfo) => {
@@ -158,7 +177,7 @@ const uploadfunction = (uploadedFiles, userInfo) => {
 };
 ```
 
-#### Using Kotlin (Spring MVC with RestTemplate)
+##### Sample codes using RestTemplate
 
 ```kotlin
 data class StorageInfo(
@@ -192,12 +211,7 @@ fun uploadFile(
 }
 ```
 
-### 2. Adding Routing Key and Custom Data
-
-Similar to upload, you can define **eventRoutingKey** and **eventData** when deleting / downloading files. Code samples
-are as follows:
-
-#### Download example
+#### Downloading Files
 
 ```javascript
 axios.get(`/storagesvc/<BUCKET_NAME>/<STORAGE_ID>`, {
@@ -220,7 +234,7 @@ axios.get(`/storagesvc/<BUCKET_NAME>/<STORAGE_ID>`, {
     });
 ```
 
-#### Delete example
+#### Deleting Files
 
 ```javascript
  axios.delete(`/storagesvc/<BUCKET_NAME>/<STORAGE_ID>`, {
@@ -233,9 +247,16 @@ axios.get(`/storagesvc/<BUCKET_NAME>/<STORAGE_ID>`, {
     .catch(err => console.log(err));
 ```
 
-### 3. Consuming the Event
+### RabbitMQ Queue Configuration
 
-To consume the event, follow the steps below
+#### Queue Creation
+
+As a subscriber, you do not have permission to declare queues and bind to the exchange. It is necessary for administrators
+to assist with queue creation. 
+
+#### Consuming messages
+
+To consume messages, follow the steps below
 
 1. Install Dependencies - Spring Cloud Stream and RabbitMQ Binder
     ```bash
@@ -248,76 +269,61 @@ To consume the event, follow the steps below
     spring:
       rabbitmq:
         addresses: localhost:5672
-        username: storage_user
+        username: storage_subscriber
         password: storage123
       cloud:
         function:
-          definition: filesDownloadedChannel;filesUploadedChannel;filesDeletedChannel
+          definition: storageSvcChannel
         stream:
           rabbit.bindings:
-            filesDownloadedChannel-in-0.consumer:
-              binding-routing-key: tempfiledrop_download
-            filesUploadedChannel-in-0.consumer:
-              binding-routing-key: tempfiledrop_upload
-            filesDeletedChannel-in-0.consumer:
-              binding-routing-key: tempfiledrop_delete
+            storageSvcChannel-in-0.consumer:
+              binding-routing-key-delimiter: ","
+              binding-routing-key: tempfiledrop
+              bind-queue: false                  
           bindings:
-            filesDownloadedChannel-in-0:
-              destination: filesDownloadedExchange 
-              group: tempfiledrop                  
-            filesUploadedChannel-in-0:
-              destination: filesUploadedExchange   
-              group: tempfiledrop                  
-            filesDeletedChannel-in-0:
-              destination: filesDeletedExchange    
-              group: tempfiledrop                 
+            storageSvcChannel-in-0:
+              destination: storageSvcExchange     
+              group: tempfiledrop               
     ```
     - **spring.cloud.rabbitmq** - RabbitMQ Cluster configuration
-    - **spring.cloud.function.definition** - Notice, the names defined here. They will correspond with our consumers which
-    will be defined later...
-    - **spring.cloud.stream.rabbit.bindings** - define your routing keys here
-    - **spring.cloud.stream.bindings: - define the bindings here. These will created queues which are binded to the exchange.
+    - **spring.cloud.function.definition** - Notice that this binds to the names in our `RabbitMQConsumer.kt`
 3. Create Consumer Class
     ```kotlin
-    @Component
-    class RabbitMQConsumer{
+    @Configuration
+    class RabbitMQConsumer(
+            private val storageService: StorageService,
+    ) {
         companion object {
             private val logger = LoggerFactory.getLogger(RabbitMQConsumer::class.java)
         }
     
         @Bean
-        fun filesDeletedChannel(): Consumer<EventMessage> = Consumer {
-            logger.info("Received Files Deleted Event From Storage Service: {}", it)
-        }
-    
-        @Bean
-        fun filesDownloadedChannel(): Consumer<EventMessage> = Consumer {
-            logger.info("Received Files Downloaded Event from Storage Service: {}", it)
-        }
-    
-        @Bean
-        fun filesUploadedChannel(): Consumer<EventMessage> = Consumer {
-            logger.info("Received Files Uploaded Event from Storage Service: {}", it)
-   
-            val objectMapper = ObjectMapper().registerKotlinModule()
-            val data = objectMapper.readValue(it.data, CustomData::class.java)
+        fun storageSvcChannel(): Consumer<EventMessage> = Consumer {
+            logger.info("Received Event (${it.eventType}) From Storage Service: $it")
+            when (EventType.valueOf(it.eventType)) {
+                EventType.FILES_DELETED -> storageService.processFilesDeletedEvent(it)
+                EventType.FILES_DOWNLOADED -> storageService.processFilesDownloadedEvent(it)
+                EventType.FILES_UPLOADED -> storageService.processFilesUploadedEvent(it)
+            }
         }
     }
     ```
-    - Refer to **filesUploadedChannel** for example on how to extract your data **eventData** specified when you upload
-    files
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
+   ```kotlin
+    enum class EventType {
+        FILES_UPLOADED,
+        FILES_DOWNLOADED,
+        FILES_DELETED
+    }
+    ```
+   
+   ```kotlin
+   data class EventMessage(
+       val eventType: String,      // corresponds to EventType
+       val storageId: String,
+       val storagePath: String,
+       val storageFiles: String,
+       val bucket: String,
+       val data: String            // corresponds to eventData which you passed in
+   )
+   ```

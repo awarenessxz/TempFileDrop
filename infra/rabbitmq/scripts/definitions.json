@@ -9,7 +9,13 @@
             "tags": "administrator"
         },
         {
-            "name": "storage_user",
+            "name": "storage_publisher",
+            "password_hash": "6hOheQ9PncrNh+aHyfOl0z9U83VVrolWnLXTiykldGkVX7u3",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": ""
+        },
+        {
+            "name": "storage_subscriber",
             "password_hash": "6hOheQ9PncrNh+aHyfOl0z9U83VVrolWnLXTiykldGkVX7u3",
             "hashing_algorithm": "rabbit_password_hashing_sha256",
             "tags": ""
@@ -25,10 +31,17 @@
             "read": ".*"
         },
         {
-            "user": "storage_user",
+            "user": "storage_publisher",
             "vhost": "/",
-            "configure": ".*",
+            "configure": "",
             "write": ".*",
+            "read": ""
+        },
+        {
+            "user": "storage_subscriber",
+            "vhost": "/",
+            "configure": "",
+            "write": "",
             "read": ".*"
         }
     ]

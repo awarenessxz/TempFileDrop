@@ -68,7 +68,7 @@ through the backend. Event Streaming is added to update the backend when an uplo
 
 #### Event Streaming Flow
 
-![Event Stream](doc/event_flow.png)
+![Event Stream](doc/event_flow_2.png)
 
 ### Design Considerations
 
@@ -108,6 +108,9 @@ through the backend. Event Streaming is added to update the backend when an uplo
 ```bash
 # Clean up persistent data and restart the services
 sudo ./infra/cleanup_and_restart.sh
+
+# Create Exchange and Queue (For Development purpose only)
+./infra/rabbitmq/scripts/init_storagesvc.sh
 ```
 
 ### Start Centralized Storage Service
@@ -116,7 +119,12 @@ sudo ./infra/cleanup_and_restart.sh
     - **Minio Cluster**
     - **RabbitMQ**
     - **MongoDB**
-2. Start the Storage Service
+2. Ensure that Exchange have been created
+   ```bash
+   # Create exchange if not created
+   python infra/rabbitmq/scripts/init_storagesvc.py --create-exchange -e storageSvcExchange
+   ```    
+3. Start the Storage Service
     ```bash
     ./gradlew storage-service:bootRun
     ```
@@ -127,11 +135,17 @@ sudo ./infra/cleanup_and_restart.sh
     - **Centralized Storage Service**
     - **RabbitMQ**
     - **MongoDB**
-2. Start the Web Server
+2. Ensure that Queue binds to Exchange
+    ```bash
+    # Bind Queue to Exchange if not configured
+    python infra/rabbitmq/scripts/init_storagesvc.py --create-queue -q storageSvcExchange.tempfiledrop
+    python infra/rabbitmq/scripts/init_storagesvc.py --bind-queue -e storageSvcExchange -q storageSvcExchange.tempfiledrop -r tempfiledrop
+    ```
+3. Start the Web Server
     ```bash
     ./gradlew webserver:bootRun
     ```
-3. Start the Web Application
+4. Start the Web Application
     ```bash
     cd webapp
     yarn install

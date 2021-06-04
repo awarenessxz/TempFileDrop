@@ -12,31 +12,20 @@ class RabbitMQProducer(
         private val streamBridge: StreamBridge
 ) {
     companion object {
-        private const val FILES_DOWNLOADED_OUTPUT_CHANNEL = "filesDownloadedChannel-out-0"
-        private const val FILES_UPLOADED_OUTPUT_CHANNEL = "filesUploadedChannel-out-0"
-        private const val FILES_DELETED_OUTPUT_CHANNEL = "filesDeletedChannel-out-0"
+        private const val STORAGE_SERVICE_CHANNEL = "storageSvcChannel-out-0"
         private val logger = LoggerFactory.getLogger(RabbitMQProducer::class.java)
     }
 
-    private fun getBinding(eventType: EventType): String {
-        return when (eventType) {
-            EventType.FILES_DELETED -> FILES_DELETED_OUTPUT_CHANNEL
-            EventType.FILES_DOWNLOADED -> FILES_DOWNLOADED_OUTPUT_CHANNEL
-            EventType.FILES_UPLOADED -> FILES_UPLOADED_OUTPUT_CHANNEL
-        }
-    }
-
     fun sendEvent(eventType: EventType, storageInfo: StorageInfo, data: String) {
-        val message = EventMessage(storageInfo.id.toString(), storageInfo.storagePath, storageInfo.filenames, storageInfo.bucketName, data)
-        val binding = getBinding(eventType)
-        streamBridge.send(binding, message)
+        logger.info("Publishing Event ($eventType.name) to $STORAGE_SERVICE_CHANNEL")
+        val message = EventMessage(eventType.name, storageInfo.id.toString(), storageInfo.storagePath, storageInfo.filenames, storageInfo.bucketName, data)
+        streamBridge.send(STORAGE_SERVICE_CHANNEL, message)
     }
 
-    fun sendEventwithHeader(eventType: EventType, storageInfo: StorageInfo, data: String, routingKey: String = "#") {
-        val message = EventMessage(storageInfo.id.toString(), storageInfo.storagePath, storageInfo.filenames, storageInfo.bucketName, data)
-        val binding = getBinding(eventType)
-        logger.info("Publishing Event to $binding with router Key = $routingKey")
-        streamBridge.send(binding, MessageBuilder.createMessage(
+    fun sendEventwithHeader(eventType: EventType, storageInfo: StorageInfo, data: String, routingKey: String = "") {
+        val message = EventMessage(eventType.name, storageInfo.id.toString(), storageInfo.storagePath, storageInfo.filenames, storageInfo.bucketName, data)
+        logger.info("Publishing Event ($eventType.name) to $STORAGE_SERVICE_CHANNEL with router Key = $routingKey")
+        streamBridge.send(STORAGE_SERVICE_CHANNEL, MessageBuilder.createMessage(
                 message,
                 MessageHeaders(mutableMapOf(Pair<String, Any>("routingkey", routingKey)))
         ))

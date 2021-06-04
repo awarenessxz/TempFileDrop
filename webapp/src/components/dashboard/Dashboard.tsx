@@ -49,7 +49,7 @@ const Dashboard = () => {
         axios.delete(`${Data.api_endpoints.storagesvc}/${Data.bucket}/${storageId}`, {
             params: {
                 eventData: JSON.stringify({ recordId: recordId }),
-                eventRoutingKey: Data.rabbitmq.deleteRoutingKey
+                eventRoutingKey: Data.rabbitmq.routingkey
             }
         })
             .then(res => {
@@ -65,7 +65,7 @@ const Dashboard = () => {
         axios.get(`${Data.api_endpoints.storagesvc_download}/${Data.bucket}/${storageId}`, {
             responseType: "blob",
             params: {
-                eventRoutingKey: Data.rabbitmq.downloadRoutingKey
+                eventRoutingKey: Data.rabbitmq.routingkey
             }
         })
             .then(res => {

@@ -49,7 +49,7 @@ const DownloadPage = (props: DownloadPageProps) => {
         axios.get(`${Data.api_endpoints.storagesvc_download}/${Data.bucket}/${props.match.params.storageId}`, {
             responseType: "blob",
             params: {
-                eventRoutingKey: Data.rabbitmq.downloadRoutingKey
+                eventRoutingKey: Data.rabbitmq.routingkey
             }
         })
             .then(res => {

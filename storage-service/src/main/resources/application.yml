@@ -52,16 +52,14 @@ spring.data.mongodb:
 spring:
   rabbitmq:
     addresses: localhost:5672
-    username: storage_user
+    username: storage_publisher
     password: storage123
   cloud.stream:
     rabbit.bindings:
-      filesDownloadedChannel-out-0.producer.routing-key-expression: headers.routingkey    # Get Routing key from streambridge header
-      filesUploadedChannel-out-0.producer.routing-key-expression: headers.routingkey      # Get Routing key from streambridge header
-      filesDeletedChannel-out-0.producer.routing-key-expression: headers.routingkey       # Get Routing key from streambridge header
+      storageSvcChannel-out-0.producer:
+        routing-key-expression: headers.routingkey    # Get Routing key from streambridge header
+        declare-exchange: false                       # Disable exchange creation for access control
     bindings:
-      filesDeletedChannel-out-0.destination: filesDeletedExchange       # mapping cloud stream output channel to rabbitmq exchange
-      filesDownloadedChannel-out-0.destination: filesDownloadedExchange # mapping cloud stream output channel to rabbitmq exchange
-      filesUploadedChannel-out-0.destination: filesUploadedExchange     # mapping cloud stream output channel to rabbitmq exchange
+      storageSvcChannel-out-0.destination: storageSvcExchange       # mapping cloud stream output channel to rabbitmq exchange
 
 ---
