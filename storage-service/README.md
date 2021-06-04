@@ -21,7 +21,7 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
     - [2. RabbitMQ Queue Configuration](#rabbitmq-queue-configuration)
         - [Queue creation](#queue-creation)
         - [Consuming messages](#consuming-messages)
-        
+
 ## Getting Started
 
 ### Configuring application.yaml
@@ -76,7 +76,7 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
         - no expiry 
 2. **Event Feedback**
     - when files are uploaded / downloaded / deleted, an event will be triggered.
-    - consumers can tagged the event with a **routingkey** such that only they will receive the event message.
+    - consumers can tagged the event with a **routingkey** such that only queues with this routing key will receive the message.
 
 #### More about StorageId
 
@@ -171,9 +171,7 @@ const uploadfunction = (uploadedFiles, userInfo) => {
     });
 
     // send request
-    axios.post("/storagesvc/upload", formData, {}) {
-        ...
-    }       
+    axios.post("/storagesvc/upload", formData, {})
 };
 ```
 
