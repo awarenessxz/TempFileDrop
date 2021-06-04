@@ -42,6 +42,7 @@ spring:
           binding-routing-key-delimiter: ","
           binding-routing-key: tempfiledrop
           bind-queue: false                   # Disable queue binding for access control
+          declare-exchange: false             # Disable exchange creation for access control
       bindings:
         storageSvcChannel-in-0:               # queue name = destination.group = storageSvcExchange.tempfiledrop
           destination: storageSvcExchange     # mapping cloud stream output channel to rabbitmq exchange
