@@ -126,7 +126,7 @@ class StorageController(
         val downloadLink = getDownloadLink(storageInfo.bucketName, storageInfo.id.toString())
 
         // send an event
-        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey!!)
+        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey)
 
         // send response
         val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString(), downloadLink)
@@ -157,7 +157,7 @@ class StorageController(
         val downloadLink = getDownloadLink(storageInfo.bucketName, storageInfo.id.toString())
 
         // send an event
-        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey!!)
+        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey)
 
         val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString(), downloadLink)
         return ResponseEntity(response, HttpStatus.OK)

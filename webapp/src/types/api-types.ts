@@ -10,7 +10,7 @@ export interface FileUploadRequest {
     storagePath: string;
     maxDownloads: number;
     expiryPeriod: number;
-    eventRoutingKey?: string;
+    eventRoutingKey: string;
     eventData?: string;
 }
 

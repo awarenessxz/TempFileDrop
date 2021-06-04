@@ -119,8 +119,7 @@ consume the centralized storage service.
 ### 1. Upload / Download / Delete Request from Frontend
 
 For all the 3 types of request, it is necessary to provide **eventData [OPTIONAL]** and **eventRoutingKey**.
-- **eventRoutingKey**: This is an **OPTIONAL** field. When upload is completed, an event will be published to the message
-broker. This allows you to customize the event such that only queues with this routing key will retrieve the message.
+- **eventRoutingKey**: When upload is completed, an event will be published to the message broker using this routing key.
 - **eventData**: This is an **OPTIONAL** field. When upload is completed, an event will be published to the message 
 broker. This allows you to pass data to the consumer.
 
