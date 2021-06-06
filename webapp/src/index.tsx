@@ -1,6 +1,7 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
+import "./utils/axios-interceptors";
 import App from './components/core/App';
 import reportWebVitals from './reportWebVitals';
 

@@ -32,10 +32,10 @@
     "api_endpoints": {
         "mock_login": "/api/user-info/login",
         "uploaded_files": "/api/users-upload-info",
-        "storagesvc_swagger": "/storagesvc/api-docs",
-        "storagesvc_upload": "/storagesvc/uploadV2",
-        "storagesvc_download": "/storagesvc/download",
-        "storagesvc_storage_info": "/storagesvc/storageinfo",
-        "storagesvc": "/storagesvc"
+        "storagesvc_swagger": "/api/storagesvc/api-docs",
+        "storagesvc_upload": "/api/storagesvc/uploadV2",
+        "storagesvc_download": "/api/storagesvc/download",
+        "storagesvc_storage_info": "/api/storagesvc/storageinfo",
+        "storagesvc": "/api/storagesvc"
     }
 }

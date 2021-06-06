@@ -1,7 +1,5 @@
 package com.tempfiledrop.storagesvc.controller
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.tempfiledrop.storagesvc.config.StorageSvcProperties
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
@@ -19,8 +17,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import org.apache.commons.fileupload.FileItemIterator
-import org.apache.commons.fileupload.FileItemStream
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpHeaders
@@ -34,9 +30,8 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import kotlin.io.path.ExperimentalPathApi
 
-
 @RestController
-@RequestMapping("/storagesvc")
+@RequestMapping("/api/storagesvc")
 class StorageController(
         private val storageInfoService: StorageInfoService,
         private val storageFileService: StorageFileService,

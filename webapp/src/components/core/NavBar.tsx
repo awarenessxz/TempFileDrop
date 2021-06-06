@@ -5,13 +5,7 @@ import Nav from "react-bootstrap/cjs/Nav";
 import Navbar from "react-bootstrap/cjs/Navbar";
 import Spinner from "../common/loading/Spinner";
 import VerticallyCenteredModal from "../common/modal/VerticallyCenteredModal";
-import {
-    dispatchLoginUserAction,
-    dispatchLogoutUserAction,
-    useAuthDispatch,
-    useAuthState
-} from "../../utils/auth-context";
-import { LoginUserPayload } from "../../utils/auth-context/auth-action";
+import { dispatchLoginUserAction, useAuthDispatch, useAuthState } from "../../utils/auth-context";
 import Data from "../../config/app.json";
 import Alert from "react-bootstrap/cjs/Alert";
 
@@ -25,16 +19,8 @@ interface MenuItem {
 const NavBar = () => {
     const history = useHistory();
     const [modalShow, setModalShow] = useState(false);
-    const { loading, errorMsg, userInfo } = useAuthState();
+    const { loading, errorMsg, keycloak, isAuthenticated } = useAuthState();
     const dispatch = useAuthDispatch();
-    const isLoggedIn = userInfo != null;
-
-    useEffect(() => {
-        if (userInfo) {
-            history.push("/dashboard")
-        }
-        // eslint-disable-next-line
-    }, [userInfo]);
 
     useEffect(() => {
         if (errorMsg) {
@@ -44,14 +30,13 @@ const NavBar = () => {
 
     const handleLogout = (e: MouseEvent) => {
         e.preventDefault();
-        dispatchLogoutUserAction(dispatch);
         history.push("/");
+        keycloak?.logout();
     };
 
     const handleLogin = (e: MouseEvent) => {
         e.preventDefault();
-        const payload: LoginUserPayload = { username: Data.user, password: Data.password };
-        dispatchLoginUserAction(dispatch, payload);
+        dispatchLoginUserAction(dispatch, keycloak);
     };
 
     const handleNoPath = (item: MenuItem, idx: number) => {
@@ -72,11 +57,11 @@ const NavBar = () => {
                     <Nav>
                         {Data.navbar_menu.map((item, idx) => {
                             if (item.login_required) {
-                                if (!isLoggedIn) {
+                                if (!isAuthenticated) {
                                     return null;
                                 }
                             }
-                            if (item.hide_when_login && isLoggedIn) {
+                            if (item.hide_when_login && isAuthenticated) {
                                 return null;
                             }
                             if (item.path) {

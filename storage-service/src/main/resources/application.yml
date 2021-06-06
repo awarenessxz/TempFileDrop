@@ -7,7 +7,7 @@ server:
 
 spring:
   profiles.active: dev
-  application.name: storagesvc
+  application.name: storage-service
 
 springdoc.api-docs:
   path: /api-docs
@@ -63,3 +63,16 @@ spring:
       storageSvcChannel-out-0.destination: storageSvcExchange       # mapping cloud stream output channel to rabbitmq exchange
 
 ---
+
+###############################################################################################
+# Keycloak Configuration
+###############################################################################################
+
+#keycloak:
+#  auth-server-url: http://localhost:8080/auth
+#  realm: storage
+#  resource: centralized-storage-service         # client
+#  principal-attribute: preferred_username       # map the Principal name with our Keycloak username
+#  bearer-only: true
+#  public-client: false
+

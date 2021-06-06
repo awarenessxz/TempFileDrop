@@ -1,6 +1,7 @@
-import React, { Dispatch } from "react";
+import React, { Dispatch, useEffect } from "react";
 import { AuthActionTypes, AuthState } from "./auth-types";
 import { AuthReducer, initialState } from "./auth-reducer";
+import { dispatchInitKeycloak } from "./auth-action";
 
 const AuthStateContext = React.createContext<AuthState | null>(null); // This context object will contain the authentication token and user details.
 const AuthDispatchContext = React.createContext<Dispatch<AuthActionTypes> | null>(null); // We will use this context object to pass the dispatch method given to us by the useReducer that we will be creating later to manage the state. This makes it easy to provide the dispatch method to components that need it.
@@ -29,6 +30,12 @@ export const useAuthDispatch = (): Dispatch<AuthActionTypes> | null => {
 
 export const AuthProvider: React.FC = ({ children }) => {
     const [state, dispatch] = React.useReducer(AuthReducer, initialState);
+
+    useEffect(() => {
+        if (state.keycloak === null) {
+            dispatchInitKeycloak(dispatch);
+        }
+    }, [state.keycloak]);
 
     return (
         <AuthStateContext.Provider value={state}>

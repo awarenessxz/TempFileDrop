@@ -77,6 +77,8 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
 2. **Event Feedback**
     - when files are uploaded / downloaded / deleted, an event will be triggered.
     - consumers can tagged the event with a **routingkey** such that only queues with this routing key will receive the message.
+3. **Anonymous Uploads / Download**
+    - no login is required to upload and download files.
 
 #### More about StorageId
 
@@ -96,13 +98,13 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
 
 | Request Type | Endpoints | Description |
 | --- | --- | --- |
-| GET | /storagesvc/{bucket} | get contents inside bucket |
-| POST | /storagesvc/upload | upload files using multi-part request |
-| POST | /storagesvc/uploadV2 | upload files using multi-part request using streaming |
-| DELETE | /storagesvc/{bucket}/{storageId} | delete files from storage using bucket name and storageId |
-| GET | /storagesvc/storageinfo/{bucket}/{storageId} | get storage information using bucket name and storageId |
-| POST | /storagesvc/storageinfo/bulk | get multiple storage information using bucket name and multiple storageId |
-| GET | /storagesvc/download/{bucket}/{storageId} | download files using bucket name and storageId |
+| GET | /api/storagesvc/{bucket} | get contents inside bucket |
+| POST | /api/storagesvc/upload | upload files using multi-part request |
+| POST | /api/storagesvc/uploadV2 | upload files using multi-part request using streaming |
+| DELETE | /api/storagesvc/{bucket}/{storageId} | delete files from storage using bucket name and storageId |
+| GET | /api/storagesvc/storageinfo/{bucket}/{storageId} | get storage information using bucket name and storageId |
+| POST | /api/storagesvc/storageinfo/bulk | get multiple storage information using bucket name and multiple storageId |
+| GET | /api/storagesvc/download/{bucket}/{storageId} | download files using bucket name and storageId |
 
 ### Events
 

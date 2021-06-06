@@ -18,6 +18,8 @@ db.auth("service_user", "service_pass")
 
 // Collections for WebServer
 db.createCollection("users_upload_info");
+
+// Not required for new design with Key Cloak
 db.createCollection("users");
 db.users.insert([
     { username: "user1", password: "password", creationDate: new Date(Date.now()) },

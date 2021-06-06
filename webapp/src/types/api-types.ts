@@ -1,10 +1,5 @@
 import { Moment } from "moment";
 
-export interface UserInfoResponse {
-    userExists: boolean;
-    userToken: String; // username
-}
-
 export interface FileUploadRequest {
     bucket: string;
     storagePath: string;

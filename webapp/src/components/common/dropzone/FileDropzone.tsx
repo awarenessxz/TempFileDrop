@@ -29,7 +29,7 @@ const FileDropzone = ({
     showConfigs = false,
     onSuccessfulUploadCallback = () => {}
 }: FileDropzoneProps) => {
-    const { userInfo } = useAuthState();
+    const { userToken, isAuthenticated } = useAuthState();
     const { acceptedFiles, fileRejections, getRootProps, getInputProps } = useDropzone({
         maxSize: Data.dropzone.maxSizeInBytes
     });
@@ -53,14 +53,13 @@ const FileDropzone = ({
         const formData = new FormData();
         // @ts-ignore
         const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
-        const username = userInfo === null ? "" : userInfo.username;
         const metadata: FileUploadRequest = {
             bucket: Data.bucket,
-            storagePath: username === "" ? "anonymous" : username,
+            storagePath: isAuthenticated ? (userToken ? userToken.username : "") : "anonymous",
             maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
             expiryPeriod,
             eventRoutingKey: Data.rabbitmq.routingkey,
-            eventData: JSON.stringify({ username: username })
+            eventData: JSON.stringify({ username: userToken?.username })
         };
         formData.append("metadata", new Blob([JSON.stringify(metadata)], {
             type: "application/json"

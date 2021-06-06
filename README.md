@@ -9,6 +9,7 @@
     - [Design Considerations](#design-considerations)
 - [Getting Started](#getting-started)
 - [How to consume storage service](storage-service/README.md#how-to-consume-centralized-storage-service)
+- [Authentication with Keycloak](#authentication-with-keycloak)
 - [Future Works](#future-works)
 - [References](#references)
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
@@ -23,6 +24,7 @@ There are 2 main purpose of this project.
         - **Expiry datetime** for files
         - **Max Downloads** allowed
         - **Event Feedback** when files are uploaded / downloaded
+        - **Anonymous Upload / Download**
 2. **To create a temporary file sharing application.**
     - **TempFileDrop.io** is a project that replicates [file.io](https://www.file.io/) which is a super simple file sharing application.
     - Understand **file uploads / downloads using Rest** 
@@ -98,19 +100,25 @@ through the backend. Event Streaming is added to update the backend when an uplo
         - Submit a `PUT` request to upload content
 4. Possible File Upload Vulnerabilities
     - **Server Side Request Forgery Vulnerability**
-5. Possible File Upload Defence
-    - Renaming file name -- harder for attacker to find their uploaded file
+    - **Defend Strategies**:
+        - There should be a **whitelist** of allowed file types. This list determines the types of files that can be uploaded,
+        and rejects all files that do not match the approved types.
+        - **Client- or Server-side input validation** to ensure evasion techniques that have not been used to bypass the
+        whitelist filter. These evasion techniques could include appending a second file type to the file name 
+        (eg.. image.jph.php) or using trailing space or dots in the file name.
+        - **Maximum filename length and file size** should be set.
+        - Directory to which files are uploaded should be **outside of the website root**.
+        - All uploaded files should be **scanned by antivirus software** before they are opened. 
+        - App should not use **file names** supplied by user. Uploaded files should be renamed according to a predetermined
+        condition. This makes it harder for attacker to find their uploaded files.
 
 ## Getting Started
 
 ### Start Infrastructure Cluster
 
 ```bash
-# Clean up persistent data and restart the services
-sudo ./infra/cleanup_and_restart.sh
-
-# Create Exchange and Queue (For Development purpose only)
-./infra/rabbitmq/scripts/init_storagesvc.sh
+# Clean up persistent data and restart the services (Fresh State)
+sudo infra/cleanup_and_restart.sh
 ```
 
 ### Start Centralized Storage Service
@@ -152,10 +160,15 @@ sudo ./infra/cleanup_and_restart.sh
     yarn start
     ```
    
+## Authentication with Keycloak
+
+This is the rough design on how role is configured.
+
+![Keycloak Role Design](doc/keycloak_roles.png)
+
 ## Future Works
 
 1. Implement Security
-    - Spring Security
     - TLS (HTTPS) 
     - IAM for MinIO Cluster
     - Bucket Authorization
@@ -227,4 +240,9 @@ sudo ./infra/cleanup_and_restart.sh
         - [RabbitMQ docker-compose with default properties](https://github.com/changhuixu/rabbitmq-labs/tree/master/02_QueueProperties)
         - [Stackoverflow - Set Routing Key for Producer](https://stackoverflow.com/questions/52329361/spring-cloud-stream-reactive-how-to-set-routing-key-for-producer)
         - [Stackoverflow - Set multiple routing key for Consumer](https://stackoverflow.com/questions/50587227/multiple-bindingroutingkeys-for-a-consumer-with-spring-cloud-stream-using-rabbi)
-        
+- Security
+    - [Keycloak for Identity and Access Management & High Availability Deployment with Kubernetes](https://medium.com/devops-dudes/keycloak-for-identity-and-access-management-9860a994bf0)
+    - [Baeldung - Spring Boot + Keycloak](https://www.baeldung.com/spring-boot-keycloak)
+    - [Securing Spring Boot Rest APIs with Keycloak](https://medium.com/devops-dudes/securing-spring-boot-rest-apis-with-keycloak-1d760b2004e)
+    - [Secure Frontend (React) and Backend (Node JS Express Rest API) with Keycloak](https://medium.com/devops-dudes/secure-front-end-react-js-and-back-end-node-js-express-rest-api-with-keycloak-daf159f0a94e)
+    

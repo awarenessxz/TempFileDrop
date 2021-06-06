@@ -20,6 +20,10 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
+	// Security
+//	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.keycloak:keycloak-spring-boot-starter") // Keycloak
+
 	// Documentation
 	implementation("org.springdoc:springdoc-openapi-ui:1.5.8")
 
@@ -48,6 +52,7 @@ dependencies {
 dependencyManagement {
 	imports {
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2020.0.3")
+		mavenBom("org.keycloak.bom:keycloak-adapter-bom:11.0.2")
 	}
 }
 

@@ -7,7 +7,7 @@ server:
 
 spring:
   profiles.active: dev
-  application.name: webserver
+  application.name: tempfiledrop-webserver
 
 tempfiledrop:
   bucket-name: tempfiledrop
@@ -48,3 +48,15 @@ spring:
           destination: storageSvcExchange     # mapping cloud stream output channel to rabbitmq exchange
           group: tempfiledrop                 # only 1 instance in consumer group will receive message (should be unique to your app)
 ---
+
+###############################################################################################
+# Keycloak Configuration
+###############################################################################################
+
+keycloak:
+  auth-server-url: http://localhost:8080/auth
+  realm: storage
+  resource: tempfiledrop-webserver              # client
+  principal-attribute: preferred_username       # map the Principal name with our Keycloak username
+  bearer-only: true
+  public-client: false

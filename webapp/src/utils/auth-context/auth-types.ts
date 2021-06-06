@@ -1,5 +1,21 @@
-export interface UserInfo {
+import { KeycloakInstance, KeycloakTokenParsed } from "keycloak-js";
+
+/* ***************************************************************************************
+ * Type Defintion for Others
+ *************************************************************************************** */
+
+// additional types which are not available in the original type definition provided
+export interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
+    preferred_username: string;
+    name: string;
+    roles: string[];
+}
+
+export interface UserToken {
     username: string;
+    name: string;
+    roles: string[];
+    isAdmin: boolean;
 }
 
 /* ***************************************************************************************
@@ -7,40 +23,44 @@ export interface UserInfo {
  *************************************************************************************** */
 
 export interface AuthState {
-    userInfo: UserInfo | null;
     loading: boolean;
     errorMsg: string | null;
+    userToken: UserToken | null;
+    keycloak: KeycloakInstance | null;
+    isAuthenticated: boolean;
 }
 
 /* ***************************************************************************************
  * List of all action type
  *************************************************************************************** */
 
+export const INIT_KEYCLOAK = "INIT_KEYCLOAK";
 export const REQUEST_LOGIN = "REQUEST_LOGIN";
-export const REQUEST_LOGOUT = "REQUEST_LOGOUT";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
-export const LOGIN_ERROR = "LOGIN_ERROR"
+export const LOGIN_ERROR = "LOGIN_ERROR";
 
 /* ***************************************************************************************
  * Types Definition for all action type
  *************************************************************************************** */
 
-interface LoginUserAction {
-    type: typeof REQUEST_LOGIN;
+interface InitKeycloakAction {
+    type: typeof INIT_KEYCLOAK;
     payload: {
-        username: string;
-        password: string;
+        keycloak: KeycloakInstance | null;
+        isAuthenticated: boolean;
+        userToken: UserToken | null;
     }
 }
 
-interface LogoutUserAction {
-    type: typeof REQUEST_LOGOUT;
+interface LoginUserAction {
+    type: typeof REQUEST_LOGIN;
 }
 
 interface LoginUserSuccessAction {
     type: typeof LOGIN_SUCCESS;
     payload: {
-        username: string;
+        isAuthenticated: boolean;
+        userToken: UserToken | null;
     }
 }
 
@@ -53,7 +73,7 @@ interface LoginUserErrorAction {
 
 // union action types
 export type AuthActionTypes =
+    | InitKeycloakAction
     | LoginUserAction
-    | LogoutUserAction
     | LoginUserSuccessAction
     | LoginUserErrorAction;

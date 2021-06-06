@@ -3,7 +3,7 @@ import { Redirect, Route, RouteProps } from "react-router-dom";
 import { useAuthState } from "./auth-context";
 
 const ProtectedRoute = (props: RouteProps): JSX.Element => {
-    const { userInfo } = useAuthState();
+    const { isAuthenticated } = useAuthState();
     const Component = props.component as React.ComponentType<any>;
 
     if (props.render) {
@@ -15,8 +15,7 @@ const ProtectedRoute = (props: RouteProps): JSX.Element => {
             exact={props.exact}
             path={props.path}
             render={(componentProps): JSX.Element => {
-                const isAuthed = userInfo !== null;
-                return isAuthed ? <Component {...componentProps} /> : <Redirect to="/notfound" />;
+                return isAuthenticated ? <Component {...componentProps} /> : <Redirect to="/notfound" />;
             }}
         />
     );

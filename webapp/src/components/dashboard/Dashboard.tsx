@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
+import moment from "moment";
 import { FaTrash, FaDownload } from "react-icons/fa";
 import Alert from "react-bootstrap/cjs/Alert";
 import Button from "react-bootstrap/cjs/Button";
@@ -15,7 +16,6 @@ import { extractFilenameFromContentDisposition, joinURLs } from "../../utils/too
 import Data from "../../config/app.json";
 import { UserUploadInfo } from "../../types/api-types";
 import "./Dashboard.css";
-import moment from "moment";
 
 const Dashboard = () => {
     const [modalShow, setModalShow] = useState(false);
@@ -23,22 +23,23 @@ const Dashboard = () => {
     const [reloadRecord, setReloadRecord] = useState(false);    // trigger to reload
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
-    const { userInfo } = useAuthState();
+    const { userToken } = useAuthState();
 
     useEffect(() => {
-        axios.get(`${Data.api_endpoints.uploaded_files}/${userInfo?.username}`)
-            .then(res => {
-                if (res.status === 200) {
-                    const records: UserUploadInfo[] = res.data;
-                    setRecords(records);
-                }
-            })
-            .catch(err => {
-                setIsError(true)
-                setMessage("Fail to fetch records...");
-            });
-        // eslint-disable-next-line
-    }, [reloadRecord]);
+        if (userToken) {
+            axios.get(`${Data.api_endpoints.uploaded_files}/${userToken.username}`)
+                .then(res => {
+                    if (res.status === 200) {
+                        const records: UserUploadInfo[] = res.data;
+                        setRecords(records);
+                    }
+                })
+                .catch(err => {
+                    setIsError(true)
+                    setMessage("Fail to fetch records...");
+                });
+        }
+    }, [reloadRecord, userToken]);
 
     const handleDeleteRecord = (idx: number, recordId: string, storageId: string) => {
         // remove from view
