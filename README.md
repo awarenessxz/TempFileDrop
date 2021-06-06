@@ -245,4 +245,9 @@ This is the rough design on how role is configured.
     - [Baeldung - Spring Boot + Keycloak](https://www.baeldung.com/spring-boot-keycloak)
     - [Securing Spring Boot Rest APIs with Keycloak](https://medium.com/devops-dudes/securing-spring-boot-rest-apis-with-keycloak-1d760b2004e)
     - [Secure Frontend (React) and Backend (Node JS Express Rest API) with Keycloak](https://medium.com/devops-dudes/secure-front-end-react-js-and-back-end-node-js-express-rest-api-with-keycloak-daf159f0a94e)
+    - [Role Based Access Control for multiple keycloak clients](https://janikvonrotz.ch/2020/04/30/role-based-access-control-for-multiple-keycloak-clients/)
+    - [Spring Security + Keycloak](https://www.thomasvitale.com/spring-security-keycloak/)
+    - [Keycloak authentication flow SSO Client](https://www.thomasvitale.com/keycloak-authentication-flow-sso-client/)
+    - [Using Spring Boot OAuth2 instead of Keycloak adapters](https://medium.com/@bcarunmail/securing-rest-api-using-keycloak-and-spring-oauth2-6ddf3a1efcc2)
+    - [Using Spring Boot OAuth2 instead of Keycloak adapters](https://wstutorial.com/rest/spring-security-oauth2-keycloak.html)
     

@@ -1,22 +1,5 @@
-import { KeycloakInstance, KeycloakTokenParsed } from "keycloak-js";
-
-/* ***************************************************************************************
- * Type Defintion for Others
- *************************************************************************************** */
-
-// additional types which are not available in the original type definition provided
-export interface CustomKeycloakTokenParsed extends KeycloakTokenParsed {
-    preferred_username: string;
-    name: string;
-    roles: string[];
-}
-
-export interface UserToken {
-    username: string;
-    name: string;
-    roles: string[];
-    isAdmin: boolean;
-}
+import { KeycloakInstance } from "keycloak-js";
+import { UserToken } from "../keycloak-utils";
 
 /* ***************************************************************************************
  * Type Definition of State
@@ -46,9 +29,10 @@ export const LOGIN_ERROR = "LOGIN_ERROR";
 interface InitKeycloakAction {
     type: typeof INIT_KEYCLOAK;
     payload: {
-        keycloak: KeycloakInstance | null;
+        keycloak: KeycloakInstance;
         isAuthenticated: boolean;
         userToken: UserToken | null;
+        errorMsg?: string | null;
     }
 }
 

@@ -1,26 +1,13 @@
 import { Dispatch } from "react";
 import {
     AuthActionTypes,
-    CustomKeycloakTokenParsed,
     INIT_KEYCLOAK,
     LOGIN_ERROR,
     LOGIN_SUCCESS,
-    REQUEST_LOGIN,
-    UserToken
+    REQUEST_LOGIN
 } from "./auth-types";
 import Keycloak, { KeycloakInstance } from "keycloak-js";
-
-const extractUserToken = (token: CustomKeycloakTokenParsed | undefined): UserToken | null => {
-    if (token) {
-        return {
-            username: token.preferred_username,
-            name: token.name,
-            roles: token.roles,
-            isAdmin: token.roles.includes("admin")
-        };
-    }
-    return null;
-};
+import { extractUserToken, hasTempFileDropRoles } from "../keycloak-utils";
 
 export const dispatchInitKeycloak = (dispatch: Dispatch<AuthActionTypes> | null) => {
     if (dispatch === null) {
@@ -30,18 +17,21 @@ export const dispatchInitKeycloak = (dispatch: Dispatch<AuthActionTypes> | null)
     const keycloak = Keycloak("/keycloak.json") ;
     keycloak.init({ onLoad: "check-sso" })
         .then(authenticated => {
+            console.log("USER ==> ", authenticated, hasTempFileDropRoles(keycloak.realmAccess));
             window.accessToken = keycloak.token || "";
             dispatch({
                 type: INIT_KEYCLOAK,
                 payload: {
                     keycloak,
                     isAuthenticated: authenticated,
-                    userToken: extractUserToken(keycloak.tokenParsed as CustomKeycloakTokenParsed)
+                    userToken: authenticated ? extractUserToken(keycloak.tokenParsed) : null,
+                    errorMsg: authenticated ? null : "Login Failed! User is not registered!"
                 }
             });
         })
-        .catch(() => {
-            dispatch({ type: INIT_KEYCLOAK, payload: { keycloak: null, isAuthenticated: false, userToken: null }});
+        .catch(error => {
+            console.warn(error);
+            dispatch({ type: INIT_KEYCLOAK, payload: { keycloak, isAuthenticated: false, userToken: null }});
         });
 };
 
@@ -63,11 +53,12 @@ export const dispatchLoginUserAction = (dispatch: Dispatch<AuthActionTypes> | nu
                 type: LOGIN_SUCCESS,
                 payload: {
                     isAuthenticated: authenticated,
-                    userToken: extractUserToken(keycloak.tokenParsed as CustomKeycloakTokenParsed)
+                    userToken: extractUserToken(keycloak.tokenParsed)
                 }
             });
         })
         .catch(error => {
+            console.warn(error);
             dispatch({ type: LOGIN_ERROR, payload: { error: "Login Failed! Please try again." } });
         });
 };

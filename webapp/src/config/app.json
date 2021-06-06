@@ -29,6 +29,10 @@
     "rabbitmq": {
         "routingkey": "tempfiledrop"
     },
+    "keycloak": {
+        "realmRoles": ["tempfiledrop-user", "tempfiledrop-admin"],
+        "clientRoles": ["user", "admin"]
+    },
     "api_endpoints": {
         "mock_login": "/api/user-info/login",
         "uploaded_files": "/api/users-upload-info",

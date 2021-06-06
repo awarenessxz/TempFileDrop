@@ -21,7 +21,7 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
 	// Security
-//	implementation("org.springframework.boot:spring-boot-starter-security")
+	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.keycloak:keycloak-spring-boot-starter") // Keycloak
 
 	// Documentation
