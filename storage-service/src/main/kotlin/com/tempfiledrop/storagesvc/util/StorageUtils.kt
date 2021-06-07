@@ -2,7 +2,6 @@ package com.tempfiledrop.storagesvc.util
 
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
-import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import java.nio.file.Files

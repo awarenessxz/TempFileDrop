@@ -41,12 +41,12 @@ import kotlin.io.path.createDirectories
 @ConditionalOnProperty(prefix = "tempfiledrop.storagesvc", name = ["storage-mode"], havingValue = "file")
 class FileStorageServiceImpl(
         properties: StorageSvcProperties
-): FileStorageService {
+): StorageService() {
     companion object {
         private val logger = LoggerFactory.getLogger(FileStorageServiceImpl::class.java)
     }
 
-    private val root: Path = Paths.get(properties.fileStorage.uploadPath)
+    private val root: Path = Paths.get(properties.fileStorage.uploadDirectory)
 
     override fun initStorage() {
         deleteAllFilesInFolder()
@@ -63,7 +63,7 @@ class FileStorageServiceImpl(
         logger.info("Uploading files to Folder Storage.....")
 
         // create bucket if not available
-        val bucket = root.resolve(storageInfo.bucketName)
+        val bucket = root.resolve(storageInfo.bucket)
         if (!Files.exists(bucket)) {
             Files.createDirectory(bucket)
         }
@@ -83,7 +83,7 @@ class FileStorageServiceImpl(
                 val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
                 val filepath = bucketStoragePath.resolve(uuidFilename)
                 Files.copy(it.inputStream, filepath)
-                storageFiles.add(StorageFile(storageInfo.bucketName, storageInfo.storagePath, it.originalFilename!!, uuidFilename, it.contentType, it.size))
+                storageFiles.add(StorageFile(storageInfo.bucket, storageInfo.storagePath, it.originalFilename!!, uuidFilename, it.contentType, it.size))
             }
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
@@ -182,12 +182,12 @@ class FileStorageServiceImpl(
         }
     }
 
-    override fun deleteAllFilesInFolder() {
+    fun deleteAllFilesInFolder() {
         logger.info("DELETING ALL FILES IN FOLDER STORAGE.....")
         FileSystemUtils.deleteRecursively(root.toFile())
     }
 
-    override fun loadAllFilesFromFolder(): Stream<Path> {
+    fun loadAllFilesFromFolder(): Stream<Path> {
         try {
             return Files.walk(root, 1).filter { path -> path != root }.map(root::relativize)
         } catch (e: IOException) {

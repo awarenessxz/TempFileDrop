@@ -12,7 +12,6 @@ export interface FileUploadRequest {
 export interface FileUploadResponse {
     message: string;
     storageId: string;
-    downloadLink: string;
 }
 
 export interface StorageInfo {
@@ -20,7 +19,6 @@ export interface StorageInfo {
     numOfDownloadsLeft: number;
     expiryDatetime: Moment;
     storageId: string;
-    downloadLink: string;
 }
 
 export interface UserUploadInfo {

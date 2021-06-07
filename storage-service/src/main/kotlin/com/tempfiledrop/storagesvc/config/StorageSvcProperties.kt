@@ -6,13 +6,12 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConstructorBinding
 @ConfigurationProperties(prefix = "tempfiledrop.storagesvc")
 data class StorageSvcProperties(
-        val exposeEndpoint: String,
         val storageMode: String = "object",
         val fileStorage: FileStorageProps,
         val objectStorage: ObjectStorageProps
 )
 
-data class FileStorageProps(val uploadPath: String)
+data class FileStorageProps(val uploadDirectory: String)
 
 data class ObjectStorageProps(
         val minioEndpoint: String,

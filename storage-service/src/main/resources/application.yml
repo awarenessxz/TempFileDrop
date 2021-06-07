@@ -13,10 +13,9 @@ springdoc.api-docs:
   path: /api-docs
 
 tempfiledrop.storagesvc:
-  expose-endpoint: http://localhost:8001
   storage-mode: object
   file-storage:
-    upload-path: uploads
+    upload-directory: uploads
   object-storage:
     minio-endpoint: http://localhost:9000
     minio-access-key: minio

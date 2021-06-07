@@ -29,7 +29,7 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
 | Property Group | Property | Remarks |
 | --- | --- | --- |
 | storagesvc | storage-mode | Choice of storage mode = file / object |
-| storagesvc.file-storage | upload-path | directory to upload files to |
+| storagesvc.file-storage | upload-directory | directory to upload files to |
 | storagesvc.object-storage | minio-endpoint | endpoint of minio cluster |
 | storagesvc.object-storage | minio-access-key | access key for minio cluster |
 | storagesvc.object-storage | minio-access-secret | access secret for minio cluster |

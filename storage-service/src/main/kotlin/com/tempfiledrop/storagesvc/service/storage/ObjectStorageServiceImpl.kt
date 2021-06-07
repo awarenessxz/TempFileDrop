@@ -30,8 +30,8 @@ import kotlin.collections.ArrayList
 @Service
 @ConditionalOnProperty(prefix = "tempfiledrop.storagesvc", name = ["storage-mode"], havingValue = "object")
 class ObjectStorageServiceImpl(
-        private val minioClient: MinioClient
-): StorageService {
+        private val minioClient: MinioClient,
+): StorageService() {
     companion object {
         private val logger = LoggerFactory.getLogger(ObjectStorageServiceImpl::class.java)
     }
@@ -44,8 +44,8 @@ class ObjectStorageServiceImpl(
         val storageFiles = ArrayList<StorageFile>()
         try {
             // create bucket if not available
-            if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(storageInfo.bucketName).build())) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(storageInfo.bucketName).build())
+            if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(storageInfo.bucket).build())) {
+                minioClient.makeBucket(MakeBucketArgs.builder().bucket(storageInfo.bucket).build())
             }
 
             // upload to bucket
@@ -55,13 +55,13 @@ class ObjectStorageServiceImpl(
                 val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
                 val targetFilePath = targetFolderPath.resolve(uuidFilename)
                 minioClient.putObject(PutObjectArgs.builder()
-                        .bucket(storageInfo.bucketName)
+                        .bucket(storageInfo.bucket)
                         .contentType(it.contentType)
                         .`object`(targetFilePath.toString())
                         .stream(it.inputStream, it.size, -1)
                         .build()
                 )
-                storageFiles.add(StorageFile(storageInfo.bucketName, storageInfo.storagePath, it.originalFilename!!, uuidFilename, it.contentType, it.size))
+                storageFiles.add(StorageFile(storageInfo.bucket, storageInfo.storagePath, it.originalFilename!!, uuidFilename, it.contentType, it.size))
             }
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)

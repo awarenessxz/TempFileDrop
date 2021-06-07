@@ -7,9 +7,9 @@
             "defaultValue": "object"
         },
         {
-            "name": "tempfiledrop.storagesvc.file-storage-upload-path",
+            "name": "tempfiledrop.storagesvc.file-storage.upload-directory",
             "type": "java.lang.String",
-            "description": "Upload File Path File Storage.",
+            "description": "File Upload Directory.",
             "defaultValue": "uploads"
         },
         ,

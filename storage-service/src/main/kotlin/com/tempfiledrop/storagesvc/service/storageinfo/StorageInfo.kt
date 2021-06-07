@@ -7,7 +7,7 @@ import java.time.ZonedDateTime
 
 @Document(collection="storage_info")
 data class StorageInfo(
-        val bucketName: String,                 // bucket_name
+        val bucket: String,                     // bucket_name
         val storagePath: String,                // the directory
         val filenames: String,                  // files uploaded delimited by comma
         val numOfDownloadsLeft: Int,            // number of downloads left
