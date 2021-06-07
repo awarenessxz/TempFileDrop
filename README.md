@@ -127,6 +127,7 @@ sudo infra/cleanup_and_restart.sh
     - **Minio Cluster**
     - **RabbitMQ**
     - **MongoDB**
+    - **Keycloak**
 2. Ensure that Exchange have been created
    ```bash
    # Create exchange if not created
@@ -143,6 +144,7 @@ sudo infra/cleanup_and_restart.sh
     - **Centralized Storage Service**
     - **RabbitMQ**
     - **MongoDB**
+    - **Keycloak**
 2. Ensure that Queue binds to Exchange
     ```bash
     # Bind Queue to Exchange if not configured
