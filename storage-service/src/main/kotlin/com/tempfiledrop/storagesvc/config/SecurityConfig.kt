@@ -12,14 +12,14 @@ import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 import org.springframework.security.core.session.SessionRegistryImpl
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
-import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = [KeycloakSecurityComponents::class])
-internal class SecurityConfig: KeycloakWebSecurityConfigurerAdapter(), WebMvcConfigurer {
+internal class SecurityConfig: KeycloakWebSecurityConfigurerAdapter() {
 
     @Autowired
     @Throws(Exception::class)
@@ -38,14 +38,16 @@ internal class SecurityConfig: KeycloakWebSecurityConfigurerAdapter(), WebMvcCon
 
     @Bean
     override fun sessionAuthenticationStrategy(): SessionAuthenticationStrategy {
-        return RegisterSessionAuthenticationStrategy(SessionRegistryImpl())
+//        return RegisterSessionAuthenticationStrategy(SessionRegistryImpl()) // for public / confidential access type
+        return NullAuthenticatedSessionStrategy() // for bearer-only access type
     }
 
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         super.configure(http)
         http.authorizeRequests()
-                .antMatchers("/*").hasAnyRole("storage-service-admin")
+                .antMatchers("/anonymous/**").permitAll()
+                .antMatchers("/**").hasAnyRole("user", "admin") // only works for client roles in the property ${keycloak.resource}
                 .anyRequest().authenticated()
         http.csrf().disable()
     }

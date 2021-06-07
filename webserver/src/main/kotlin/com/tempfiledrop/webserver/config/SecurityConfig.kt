@@ -2,16 +2,21 @@ package com.tempfiledrop.webserver.config
 
 import org.keycloak.adapters.springboot.KeycloakSpringBootConfigResolver
 import org.keycloak.adapters.springsecurity.KeycloakSecurityComponents
+import org.keycloak.adapters.springsecurity.client.KeycloakClientRequestFactory
+import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate
 import org.keycloak.adapters.springsecurity.config.KeycloakWebSecurityConfigurerAdapter
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.beans.factory.config.ConfigurableBeanFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.ComponentScan
 import org.springframework.context.annotation.Configuration
+import org.springframework.context.annotation.Scope
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 import org.springframework.security.core.session.SessionRegistryImpl
+import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy
 import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
@@ -19,7 +24,9 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = [KeycloakSecurityComponents::class])
-internal class SecurityConfig: KeycloakWebSecurityConfigurerAdapter(), WebMvcConfigurer {
+internal class SecurityConfig(
+        private val keycloakClientRequestFactory: KeycloakClientRequestFactory
+): KeycloakWebSecurityConfigurerAdapter(), WebMvcConfigurer {
 
     @Autowired
     @Throws(Exception::class)
@@ -38,14 +45,21 @@ internal class SecurityConfig: KeycloakWebSecurityConfigurerAdapter(), WebMvcCon
 
     @Bean
     override fun sessionAuthenticationStrategy(): SessionAuthenticationStrategy {
-        return RegisterSessionAuthenticationStrategy(SessionRegistryImpl())
+//        return RegisterSessionAuthenticationStrategy(SessionRegistryImpl()) // for public / confidential access type
+        return NullAuthenticatedSessionStrategy() // for bearer-only access type
+    }
+
+    @Bean
+    @Scope(ConfigurableBeanFactory.SCOPE_PROTOTYPE)
+    fun keycloakRestTemplate(): KeycloakRestTemplate {
+        return KeycloakRestTemplate(keycloakClientRequestFactory)
     }
 
     @Throws(Exception::class)
     override fun configure(http: HttpSecurity) {
         super.configure(http)
         http.authorizeRequests()
-                .antMatchers("/*").hasAnyRole("tempfiledrop-user", "tempfiledrop-admin")
+                .antMatchers("/*").hasAnyRole("user", "admin")
                 .anyRequest().authenticated()
         http.csrf().disable()
     }

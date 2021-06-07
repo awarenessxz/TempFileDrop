@@ -75,6 +75,4 @@ keycloak:
   principal-attribute: preferred_username       # map the Principal name with our Keycloak username
   bearer-only: true                             # the adapter will not attempt to authenticate users, but only verify bearer tokens.
   public-client: false                          # this is not client side application
-  credentials:
-    secret: 60faae82-c7e9-45e7-9c69-9ec374d5d8f5
-#  use-resource-role-mappings: true
+  use-resource-role-mappings: true              # use client roles

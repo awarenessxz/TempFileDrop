@@ -2,11 +2,26 @@
 
 Using Keycloak for authentication
 
-## Overview
+- [Usage](#usage)
+- [Useful Links](#useful-links)
+- [Get Token using Postman](#get-token-using-postman)
+- [Access Types](#access-type)
+- [Role Based Access Type](#role-based-access-control)
 
 ## Usage
 
-`sudo docker-compose up -d`
+```bash
+# Start the docker container instance (Predefined configuration can be found in storage-realm.json)
+sudo docker-compose up -d
+
+# Navigate to admin console page
+http://localhost:8080/auth/
+
+# Login using admin:admin
+
+# Stop the docker container instance
+sudo docker-compose down -v
+```
     
 ## Useful Links
 
@@ -34,7 +49,17 @@ docker exec -it kc /opt/jboss/keycloak/bin/standalone.sh \
 -Dkeycloak.migration.file=/tmp/my_realm.json
 ```
 
+## Access Type
+
+- **Public** - for applications which requires browser logins
+- **Confidential** - for mixture of web applications and API.
+- **Bearer-only** - for API Microservices. No browser login available.
+
+For micro-service to call microservice, the caller must be **confidential** and callee must be **bearer-only**
+
 ## Role Based Access Control
+
+![Role Based](../../doc/keycloak_roles.png)
 
 ### Web Applications
 
@@ -65,7 +90,7 @@ docker exec -it kc /opt/jboss/keycloak/bin/standalone.sh \
             var adminRoleModel = client.getRole("admin");
         
             if (!user.hasRole(userRoleModel) && !user.hasRole(adminRoleModel)) {
-                context.failure(AuthenticationFlowError.INVALID_USER);
+                context.forkWithErrorMessage(new FormMessage('label', 'User is not allowed to access this client.'));
                 return;
             }
         
@@ -82,3 +107,8 @@ docker exec -it kc /opt/jboss/keycloak/bin/standalone.sh \
 
 ### Rest API Microservices
 
+Similar to the web application above, 
+1. **Create Client**
+    - Follow the same step above but set **Access Type** to **bearer-only**.
+2. **Create Client Role** (same as above)
+3. **Tag Client Role to Realm Role** (same as above)

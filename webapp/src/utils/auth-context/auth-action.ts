@@ -7,7 +7,7 @@ import {
     REQUEST_LOGIN
 } from "./auth-types";
 import Keycloak, { KeycloakInstance } from "keycloak-js";
-import { extractUserToken, hasTempFileDropRoles } from "../keycloak-utils";
+import { extractUserToken } from "../keycloak-utils";
 
 export const dispatchInitKeycloak = (dispatch: Dispatch<AuthActionTypes> | null) => {
     if (dispatch === null) {
@@ -17,7 +17,6 @@ export const dispatchInitKeycloak = (dispatch: Dispatch<AuthActionTypes> | null)
     const keycloak = Keycloak("/keycloak.json") ;
     keycloak.init({ onLoad: "check-sso" })
         .then(authenticated => {
-            console.log("USER ==> ", authenticated, hasTempFileDropRoles(keycloak.realmAccess));
             window.accessToken = keycloak.token || "";
             dispatch({
                 type: INIT_KEYCLOAK,
