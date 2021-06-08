@@ -1,6 +1,6 @@
 import { Moment } from "moment";
 
-export interface FileUploadRequest {
+export interface FileUploadMetadata {
     bucket: string;
     storagePath: string;
     maxDownloads: number;

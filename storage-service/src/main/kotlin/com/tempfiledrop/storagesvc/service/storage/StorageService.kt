@@ -1,6 +1,6 @@
 package com.tempfiledrop.storagesvc.service.storage
 
-import com.tempfiledrop.storagesvc.controller.StorageUploadRequest
+import com.tempfiledrop.storagesvc.controller.StorageUploadMetadata
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
@@ -8,6 +8,7 @@ import com.tempfiledrop.storagesvc.service.storagefiles.StorageFileService
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfoService
 import com.tempfiledrop.storagesvc.util.StorageUtils
+import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
@@ -25,7 +26,7 @@ abstract class StorageService {
 
     abstract fun initStorage()
     abstract fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo): List<StorageFile>
-    abstract fun uploadFilesViaStream(request: HttpServletRequest): Triple<StorageUploadRequest, StorageInfo, List<StorageFile>>
+    abstract fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): Triple<StorageUploadMetadata, StorageInfo, List<StorageFile>>
     abstract fun deleteFiles(storageFileList: List<StorageFile>)
     abstract fun downloadFile(storageFile: StorageFile, response: HttpServletResponse)
     abstract fun downloadFilesAsZip(storageFiles: List<StorageFile>, response: HttpServletResponse)
@@ -98,12 +99,12 @@ abstract class StorageService {
     }
 
     // simple file upload
-    fun uploadToBucket(files: List<MultipartFile>, metadata: StorageUploadRequest): StorageInfo {
+    fun uploadToBucket(files: List<MultipartFile>, metadata: StorageUploadMetadata): StorageInfo {
         // process files
         val storagePath = StorageUtils.processStoragePath(metadata.storagePath) ?: throw ApiException("Storage path is invalid", ErrorCode.UPLOAD_FAILED, HttpStatus.BAD_REQUEST)
         val filenames = files.joinToString(",") { it.originalFilename.toString() }
         val expiryDatetime = StorageUtils.processExpiryPeriod(metadata.expiryPeriod)
-        val storageInfo = StorageInfo(metadata.bucket, storagePath, filenames, metadata.maxDownloads, expiryDatetime)
+        val storageInfo = StorageInfo(metadata.bucket!!, storagePath, filenames, metadata.maxDownloads, expiryDatetime)
 
         // store files
         val storageFiles = uploadFiles(files, storageInfo) // upload file
@@ -114,8 +115,12 @@ abstract class StorageService {
     }
 
     // upload via stream
-    fun uploadViaStreamToBucket(request: HttpServletRequest): Pair<StorageUploadRequest, StorageInfo> {
-        val (metadata, storageInfo, storageFiles) = uploadFilesViaStream(request) // upload files
+    fun uploadViaStreamToBucket(request: HttpServletRequest, isAnonymous: Boolean = false): Pair<StorageUploadMetadata, StorageInfo> {
+        val isMultipart = ServletFileUpload.isMultipartContent(request)
+        if (!isMultipart) {
+            throw ApiException("Invalid Multipart Request", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
+        }
+        val (metadata, storageInfo, storageFiles) = uploadFilesViaStream(request, isAnonymous) // upload files
         storageInfoService.addStorageInfo(storageInfo) // store upload to storage mapping. Should populate storage ID after storing
         storageFileService.saveFilesInfo(storageInfo.id.toString(), storageFiles) // store file information
         return Pair(metadata, storageInfo)
@@ -159,5 +164,4 @@ abstract class StorageService {
         }
         return storageInfo
     }
-
 }

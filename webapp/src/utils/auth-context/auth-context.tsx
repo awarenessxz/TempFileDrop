@@ -14,7 +14,7 @@ export const useAuthState = (): AuthState => {
     if (context === null) {
         return {
             ...initialState,
-            errorMsg: "Error loading data...Please refresh page!"
+            authErrorMsg: "Error loading data...Please refresh page!"
         };
     }
     return context;

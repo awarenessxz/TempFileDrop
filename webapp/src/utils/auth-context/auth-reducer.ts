@@ -8,8 +8,8 @@ import {
 } from "./auth-types";
 
 export const initialState: AuthState = {
-    loading: false,
-    errorMsg: null,
+    isAuthReady: false,
+    authErrorMsg: null,
     userToken: null,
     keycloak: null,
     isAuthenticated: false
@@ -20,6 +20,7 @@ export const AuthReducer = (state: AuthState = initialState, action: AuthActionT
         case INIT_KEYCLOAK:
             return {
                 ...state,
+                isAuthReady: true,
                 keycloak: action.payload.keycloak,
                 isAuthenticated: action.payload.isAuthenticated,
                 userToken: action.payload.userToken
@@ -27,22 +28,22 @@ export const AuthReducer = (state: AuthState = initialState, action: AuthActionT
         case REQUEST_LOGIN:
             return {
                 ...state,
-                loading: true,
-                errorMsg: null
+                isAuthReady: false,
+                authErrorMsg: null
             };
         case LOGIN_SUCCESS:
             return {
                 ...state,
-                loading: false,
-                errorMsg: null,
+                isAuthReady: true,
+                authErrorMsg: null,
                 isAuthenticated: action.payload.isAuthenticated,
                 userToken: action.payload.userToken
             };
         case LOGIN_ERROR:
             return {
                 ...state,
-                loading: false,
-                errorMsg: action.payload.error
+                isAuthReady: true,
+                authErrorMsg: action.payload.error
             };
         default:
             return state;

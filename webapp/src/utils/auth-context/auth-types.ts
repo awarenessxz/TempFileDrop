@@ -6,8 +6,8 @@ import { UserToken } from "../keycloak-utils";
  *************************************************************************************** */
 
 export interface AuthState {
-    loading: boolean;
-    errorMsg: string | null;
+    isAuthReady: boolean;
+    authErrorMsg: string | null;
     userToken: UserToken | null;
     keycloak: KeycloakInstance | null;
     isAuthenticated: boolean;

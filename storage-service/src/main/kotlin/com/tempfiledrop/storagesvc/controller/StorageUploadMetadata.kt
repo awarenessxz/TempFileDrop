@@ -2,8 +2,8 @@ package com.tempfiledrop.storagesvc.controller
 
 import io.swagger.v3.oas.annotations.media.Schema
 
-@Schema(name = "Storage Upload Request", description = "Additional data required when uploading files to storage service")
-data class StorageUploadRequest(
+@Schema(name = "Storage Upload Metadata", description = "Additional data required when uploading files to storage service")
+data class StorageUploadMetadata(
         val bucket: String,
         val storagePath: String,
         val maxDownloads: Int,

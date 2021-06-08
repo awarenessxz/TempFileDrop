@@ -7,6 +7,7 @@ import Button from "react-bootstrap/cjs/Button";
 import Container from "react-bootstrap/cjs/Container";
 import { extractFilenameFromContentDisposition } from "../../utils/toolkit";
 import Data from "../../config/app.json";
+import { useAuthState } from "../../utils/auth-context";
 import { StorageInfo } from "../../types/api-types";
 import "./DownloadPage.css";
 
@@ -19,6 +20,7 @@ interface DownloadPageProps extends RouteComponentProps<DownloadPageRouterParams
 }
 
 const DownloadPage = (props: DownloadPageProps) => {
+    const { isAuthReady, isAuthenticated } = useAuthState();
     const [successMsg, setSuccessMsg] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const [disableBtn, setDisableBtn] = useState(false);
@@ -26,31 +28,39 @@ const DownloadPage = (props: DownloadPageProps) => {
     const [downloadInfo, setDownloadInfo] = useState<StorageInfo | null>(null);
 
     useEffect(() => {
-        // retrieve information about the download
-        axios.get(`${Data.api_endpoints.storagesvc_storage_info}/${Data.bucket}/${props.match.params.storageId}`)
-            .then(res => {
-                if (res.status === 200) {
-                    const info: StorageInfo = res.data;
-                    setDownloadInfo(info);
-                } else {
-                    setErrorMsg("Download Link is Not Available!");
-                }
-            })
-            .catch(err => {
-                console.log(err);
-                setErrorMsg("Download Link is no longer available!");
-            })
+        if (isAuthReady) {
+            // retrieve information about the download
+            const url = isAuthenticated
+                ? `${Data.api_endpoints.storagesvc_storage_info}/${Data.bucket}/${props.match.params.storageId}`
+                : `${Data.api_endpoints.storagesvc_storage_info_anonymous}/${props.match.params.storageId}`;
+
+            console.log(isAuthenticated, url)
+            axios.get(url)
+                .then(res => {
+                    if (res.status === 200) {
+                        const info: StorageInfo = res.data;
+                        setDownloadInfo(info);
+                    } else {
+                        setErrorMsg("Download Link is Not Available!");
+                    }
+                })
+                .catch(err => {
+                    console.log(err);
+                    setErrorMsg("Download Link is no longer available!");
+                });
+        }
         // eslint-disable-next-line
-    }, [refreshToggle]);
+    }, [refreshToggle, isAuthenticated, isAuthReady]);
 
     const handleDownload = (e: MouseEvent<HTMLButtonElement>) => {
         setSuccessMsg("");
         setDisableBtn(true);
-        axios.get(`${Data.api_endpoints.storagesvc_download}/${Data.bucket}/${props.match.params.storageId}`, {
+        const url = isAuthenticated
+            ? `${Data.api_endpoints.storagesvc_download}/${Data.bucket}/${props.match.params.storageId}`
+            : `${Data.api_endpoints.storagesvc_download_anonymous}/${props.match.params.storageId}`;
+        axios.get(url, {
             responseType: "blob",
-            params: {
-                eventRoutingKey: Data.rabbitmq.routingkey
-            }
+            params: isAuthenticated ? { eventRoutingKey: Data.rabbitmq.routingkey } : {}
         })
             .then(res => {
                 const filename = extractFilenameFromContentDisposition(res.headers);

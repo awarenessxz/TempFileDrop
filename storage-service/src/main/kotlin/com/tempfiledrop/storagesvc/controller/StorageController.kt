@@ -1,7 +1,5 @@
 package com.tempfiledrop.storagesvc.controller
 
-import com.tempfiledrop.storagesvc.exception.ApiException
-import com.tempfiledrop.storagesvc.exception.ErrorCode
 import com.tempfiledrop.storagesvc.exception.ErrorResponse
 import com.tempfiledrop.storagesvc.service.event.EventType
 import com.tempfiledrop.storagesvc.service.event.RabbitMQProducer
@@ -11,7 +9,6 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
-import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
@@ -48,9 +45,9 @@ class StorageController(
     ])
     @ExperimentalPathApi
     @PostMapping("/upload/slow", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE], produces = ["application/json"])
-    fun uploadFile(
+    fun uploadFiles(
             @RequestPart("files") files: List<MultipartFile>,
-            @RequestPart("metadata", required = true) metadata: StorageUploadRequest
+            @RequestPart("metadata", required = true) metadata: StorageUploadMetadata
     ): ResponseEntity<StorageUploadResponse> {
         logger.info("Receiving Request to store ${files.size} files in ${metadata.bucket}/${metadata.storagePath}")
 
@@ -73,12 +70,8 @@ class StorageController(
     ])
     @ExperimentalPathApi
     @PostMapping("/upload")
-    fun uploadFileV2(request: HttpServletRequest): ResponseEntity<StorageUploadResponse> {
+    fun uploadFilesViaStream(request: HttpServletRequest): ResponseEntity<StorageUploadResponse> {
         logger.info("Receiving upload request via stream")
-        val isMultipart = ServletFileUpload.isMultipartContent(request)
-        if (!isMultipart) {
-            throw ApiException("Invalid Multipart Request", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
-        }
 
         // store files
         val (metadata, storageInfo) = storageService.uploadViaStreamToBucket(request)
@@ -148,7 +141,7 @@ class StorageController(
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))])
     ])
     @GetMapping("/download/{bucket}/{storageId}")
-    fun downloadFile(
+    fun downloadFiles(
             @PathVariable("bucket") bucket: String,
             @PathVariable("storageId") storageId: String,
             @RequestParam(required = false, defaultValue = "") eventData: String,

@@ -1,8 +1,6 @@
 package com.tempfiledrop.storagesvc.service.storage
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.tempfiledrop.storagesvc.controller.StorageUploadRequest
+import com.tempfiledrop.storagesvc.controller.StorageUploadMetadata
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
@@ -69,25 +67,22 @@ class ObjectStorageServiceImpl(
         return storageFiles
     }
 
-    override fun uploadFilesViaStream(request: HttpServletRequest): Triple<StorageUploadRequest, StorageInfo, List<StorageFile>> {
+    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): Triple<StorageUploadMetadata, StorageInfo, List<StorageFile>> {
         logger.info("Uploading files to MinIO Cluster using input streams.....")
         val storageFiles = ArrayList<StorageFile>()
 
         // process upload
         val fileuploadHandler = ServletFileUpload()
         val iterStream: FileItemIterator = fileuploadHandler.getItemIterator(request)
-        var metadata: StorageUploadRequest? = null
-        var storagePath: String? = null
+        var metadata: StorageUploadMetadata? = StorageUtils.getStorageUploadMetadata(isAnonymous)
         try {
             while(iterStream.hasNext()) {
                 val item = iterStream.next()
+                logger.info("FILES ==> ${item.name} ${item.fieldName}")
                 if (metadata === null) {
-                    // first multipart file should be metadata
-                    if (item.fieldName == "metadata") {
-                        val mapper = ObjectMapper().registerKotlinModule()
-                        metadata = mapper.readValue(item.openStream(), StorageUploadRequest::class.java)
-                        storagePath = StorageUtils.processStoragePath(metadata.storagePath) ?: throw ApiException("Storage path is invalid", ErrorCode.UPLOAD_FAILED, HttpStatus.BAD_REQUEST)
-
+                    // First multipart file should be metadata.
+                    metadata = StorageUtils.getStorageUploadMetadata(isAnonymous, item) // shouldn't be anonymous anymore.
+                    if (metadata != null) {
                         // create bucket if not available
                         if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(metadata.bucket).build())) {
                             minioClient.makeBucket(MakeBucketArgs.builder().bucket(metadata.bucket).build())
@@ -99,7 +94,7 @@ class ObjectStorageServiceImpl(
                     // subsequent multipart files are uploads
                     if (item.fieldName == "files") {
                         // upload to bucket
-                        val targetFolderPath = Paths.get(storagePath!!)
+                        val targetFolderPath = Paths.get(metadata.storagePath)
                         val fileExtension = StorageUtils.getFileExtension(item.name)
                         val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
                         val targetFilePath = targetFolderPath.resolve(uuidFilename)
@@ -110,7 +105,7 @@ class ObjectStorageServiceImpl(
                                 .stream(item.openStream(), -1, 10485760)
                                 .build()
                         )
-                        storageFiles.add(StorageFile(metadata.bucket, storagePath, item.name!!, uuidFilename, item.contentType, -1))
+                        storageFiles.add(StorageFile(metadata.bucket, metadata.storagePath, item.name!!, uuidFilename, item.contentType, -1))
                     } else {
                         throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
                     }
@@ -124,7 +119,7 @@ class ObjectStorageServiceImpl(
 
         val filenames = storageFiles.joinToString(",") { it.originalFilename }
         val expiryDatetime = StorageUtils.processExpiryPeriod(metadata!!.expiryPeriod)
-        val storageInfo = StorageInfo(metadata.bucket, storagePath!!, filenames, metadata.maxDownloads, expiryDatetime)
+        val storageInfo = StorageInfo(metadata.bucket, metadata.storagePath, filenames, metadata.maxDownloads, expiryDatetime)
         return Triple(metadata, storageInfo, storageFiles)
     }
 

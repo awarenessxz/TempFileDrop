@@ -1,13 +1,10 @@
-import React, { MouseEvent, useEffect, useState } from "react";
+import React, { MouseEvent } from "react";
 import { Link, useHistory } from "react-router-dom";
 import Container from "react-bootstrap/cjs/Container";
 import Nav from "react-bootstrap/cjs/Nav";
 import Navbar from "react-bootstrap/cjs/Navbar";
-import Spinner from "../common/loading/Spinner";
-import VerticallyCenteredModal from "../common/modal/VerticallyCenteredModal";
 import { dispatchLoginUserAction, useAuthDispatch, useAuthState } from "../../utils/auth-context";
 import Data from "../../config/app.json";
-import Alert from "react-bootstrap/cjs/Alert";
 
 interface MenuItem {
     path: string | undefined;
@@ -18,15 +15,8 @@ interface MenuItem {
 
 const NavBar = () => {
     const history = useHistory();
-    const [modalShow, setModalShow] = useState(false);
-    const { loading, errorMsg, keycloak, isAuthenticated } = useAuthState();
+    const { keycloak, isAuthenticated } = useAuthState();
     const dispatch = useAuthDispatch();
-
-    useEffect(() => {
-        if (errorMsg) {
-            setModalShow(true);
-        }
-    }, [errorMsg]);
 
     const handleLogout = (e: MouseEvent) => {
         e.preventDefault();
@@ -73,8 +63,6 @@ const NavBar = () => {
                     </Nav>
                 </Container>
             </Navbar>
-            {loading && <Spinner isFullPage spinnerHeight={400} spinnerWidth={400} spinnerType="Puff" spinnerColor="#64a19d" backgroundColor="#000" />}
-            {errorMsg && <VerticallyCenteredModal title="Login Error" content={<Alert variant="danger">{ errorMsg }</Alert>} show={modalShow} onHide={() => setModalShow(false)} />}
         </div>
     );
 };

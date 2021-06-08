@@ -46,7 +46,7 @@ internal class SecurityConfig: KeycloakWebSecurityConfigurerAdapter() {
     override fun configure(http: HttpSecurity) {
         super.configure(http)
         http.authorizeRequests()
-                .antMatchers("/anonymous/**").permitAll()
+                .antMatchers("/api/storagesvc/anonymous/**").permitAll()
                 .antMatchers("/**").hasAnyRole("user", "admin") // only works for client roles in the property ${keycloak.resource}
                 .anyRequest().authenticated()
         http.csrf().disable()

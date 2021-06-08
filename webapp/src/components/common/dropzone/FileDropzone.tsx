@@ -13,7 +13,7 @@ import Spinner from "../loading/Spinner";
 import { useAuthState } from "../../../utils/auth-context";
 import { joinURLs } from "../../../utils/toolkit";
 import Data from "../../../config/app.json";
-import { FileUploadRequest, FileUploadResponse } from "../../../types/api-types"
+import { FileUploadMetadata, FileUploadResponse } from "../../../types/api-types"
 import "./FileDropzone.css";
 
 interface FileDropzoneProps {
@@ -51,19 +51,21 @@ const FileDropzone = ({
 
         // craft payload
         const formData = new FormData();
-        // @ts-ignore
-        const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
-        const metadata: FileUploadRequest = {
-            bucket: Data.bucket,
-            storagePath: isAuthenticated ? (userToken ? userToken.username : "") : "anonymous",
-            maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
-            expiryPeriod,
-            eventRoutingKey: Data.rabbitmq.routingkey,
-            eventData: JSON.stringify({ username: userToken?.username })
-        };
-        formData.append("metadata", new Blob([JSON.stringify(metadata)], {
-            type: "application/json"
-        }));
+        if (isAuthenticated) {
+            // @ts-ignore
+            const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
+            const metadata: FileUploadMetadata = {
+                bucket: Data.bucket,
+                storagePath: userToken ? userToken.username : "",
+                maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
+                expiryPeriod,
+                eventRoutingKey: Data.rabbitmq.routingkey,
+                eventData: JSON.stringify({ username: userToken?.username })
+            };
+            formData.append("metadata", new Blob([JSON.stringify(metadata)], {
+                type: "application/json"
+            }));
+        }
         acceptedFiles.forEach(file => {
             formData.append("files", file);
         });
@@ -80,7 +82,8 @@ const FileDropzone = ({
         };
 
         // send request
-        axios.post(Data.api_endpoints.storagesvc_upload, formData, options)
+        const url = isAuthenticated ? Data.api_endpoints.storagesvc_upload : Data.api_endpoints.storagesvc_upload_anonymous;
+        axios.post(url, formData, options)
             .then(res => {
                 setLoading(false);
                 if (res.status === 200) {

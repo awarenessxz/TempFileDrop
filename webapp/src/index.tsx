@@ -2,12 +2,15 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./utils/axios-interceptors";
+import { AuthProvider } from "./utils/auth-context";
 import App from './components/core/App';
 import reportWebVitals from './reportWebVitals';
 
 ReactDOM.render(
   <React.StrictMode>
-    <App />
+      <AuthProvider>
+          <App />
+      </AuthProvider>
   </React.StrictMode>,
   document.getElementById('root')
 );

@@ -1,7 +1,11 @@
 package com.tempfiledrop.storagesvc.util
 
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
+import com.tempfiledrop.storagesvc.controller.StorageUploadMetadata
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
+import org.apache.commons.fileupload.FileItemStream
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import java.nio.file.Files
@@ -10,11 +14,18 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
 object StorageUtils {
+    const val ANONYMOUS_BUCKET = "anonymous"
+
     fun processStoragePath(path: String): String? {
-        // 1. split bucket and folder path
+        // 1. Check for empty string
+        if (path.isEmpty()) {
+            return path
+        }
+
+        // 2. split bucket and folder path
         val splitPath = path.split("/")
 
-        // 2. Validate target path
+        // 3. Validate target path
         splitPath.forEach {
             if (it.trim().isEmpty()) {
                 return null
@@ -53,6 +64,22 @@ object StorageUtils {
             2 -> now.plusWeeks(1)
             3 -> now.plusMonths(1)
             else -> throw ApiException("Invalid Expiry Period!", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
+        }
+    }
+
+    fun getStorageUploadMetadata(isAnonymous: Boolean, fileItemStream: FileItemStream? = null): StorageUploadMetadata? {
+        if (isAnonymous) {
+            return StorageUploadMetadata(ANONYMOUS_BUCKET, "", 1, 1, "", "")
+        } else {
+            if (fileItemStream != null) {
+                if(fileItemStream.fieldName == "metadata") {
+                    val mapper = ObjectMapper().registerKotlinModule()
+                    val metadata = mapper.readValue(fileItemStream.openStream(), StorageUploadMetadata::class.java)
+                    val storagePath = processStoragePath(metadata.storagePath) ?: throw ApiException("Storage path is invalid", ErrorCode.UPLOAD_FAILED, HttpStatus.BAD_REQUEST)
+                    return StorageUploadMetadata(metadata.bucket, storagePath, metadata.maxDownloads, metadata.expiryPeriod, metadata.eventRoutingKey, metadata.eventData)
+                }
+            }
+            return null
         }
     }
 }
