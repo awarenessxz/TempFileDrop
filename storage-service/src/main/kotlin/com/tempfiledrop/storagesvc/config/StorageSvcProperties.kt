@@ -4,11 +4,17 @@ import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding
 
 @ConstructorBinding
-@ConfigurationProperties(prefix = "tempfiledrop.storagesvc")
+@ConfigurationProperties(prefix = "storagesvc")
 data class StorageSvcProperties(
         val storageMode: String = "object",
+        val anonymousUpload: AnonymousUploadProps,
         val fileStorage: FileStorageProps,
         val objectStorage: ObjectStorageProps
+)
+
+data class AnonymousUploadProps(
+        val enable: Boolean,
+        val maxFileSize: Long
 )
 
 data class FileStorageProps(val uploadDirectory: String)

@@ -37,30 +37,30 @@ class StorageController(
         return ResponseEntity(response, HttpStatus.OK)
     }
 
-    @Operation(summary = "Upload single or multiple files to storage service")
-    @ApiResponses(value = [
-        ApiResponse(description = "File were uploaded successfully", responseCode = "200"),
-        ApiResponse(description = "Requested upload path is invalid", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
-        ApiResponse(description = "Upload Failed", responseCode = "500", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
-    ])
-    @ExperimentalPathApi
-    @PostMapping("/upload/slow", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE], produces = ["application/json"])
-    fun uploadFiles(
-            @RequestPart("files") files: List<MultipartFile>,
-            @RequestPart("metadata", required = true) metadata: StorageUploadMetadata
-    ): ResponseEntity<StorageUploadResponse> {
-        logger.info("Receiving Request to store ${files.size} files in ${metadata.bucket}/${metadata.storagePath}")
-
-        // store files
-        val storageInfo = storageService.uploadToBucket(files, metadata)
-
-        // send an event
-        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey)
-
-        // send response
-        val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString())
-        return ResponseEntity(response, HttpStatus.OK)
-    }
+//    @Operation(summary = "Upload single or multiple files to storage service")
+//    @ApiResponses(value = [
+//        ApiResponse(description = "File were uploaded successfully", responseCode = "200"),
+//        ApiResponse(description = "Requested upload path is invalid", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
+//        ApiResponse(description = "Upload Failed", responseCode = "500", content = [Content(schema = Schema(implementation = ErrorResponse::class))]),
+//    ])
+//    @ExperimentalPathApi
+//    @PostMapping("/upload/slow", consumes = [MediaType.MULTIPART_FORM_DATA_VALUE], produces = ["application/json"])
+//    fun uploadFiles(
+//            @RequestPart("files") files: List<MultipartFile>,
+//            @RequestPart("metadata", required = true) metadata: StorageUploadMetadata
+//    ): ResponseEntity<StorageUploadResponse> {
+//        logger.info("Receiving Request to store ${files.size} files in ${metadata.bucket}/${metadata.storagePath}")
+//
+//        // store files
+//        val storageInfo = storageService.uploadToBucket(files, metadata)
+//
+//        // send an event
+//        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey)
+//
+//        // send response
+//        val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString())
+//        return ResponseEntity(response, HttpStatus.OK)
+//    }
 
     @Operation(summary = "Upload single or multiple files to storage service")
     @ApiResponses(value = [

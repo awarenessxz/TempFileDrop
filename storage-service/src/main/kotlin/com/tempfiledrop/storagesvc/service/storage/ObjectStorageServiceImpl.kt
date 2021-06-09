@@ -49,6 +49,7 @@ class ObjectStorageServiceImpl(
             // upload to bucket
             val targetFolderPath = Paths.get(storageInfo.storagePath)
             files.forEach {
+                logger.info("FILE ==> ${it.originalFilename}")
                 val fileExtension = StorageUtils.getFileExtension(it.originalFilename!!)
                 val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
                 val targetFilePath = targetFolderPath.resolve(uuidFilename)
@@ -74,41 +75,43 @@ class ObjectStorageServiceImpl(
         // process upload
         val fileuploadHandler = ServletFileUpload()
         val iterStream: FileItemIterator = fileuploadHandler.getItemIterator(request)
-        var metadata: StorageUploadMetadata? = StorageUtils.getStorageUploadMetadata(isAnonymous)
+        var metadata: StorageUploadMetadata? = null
         try {
             while(iterStream.hasNext()) {
                 val item = iterStream.next()
-                logger.info("FILES ==> ${item.name} ${item.fieldName}")
+                logger.info("FILE ==> ${item.name}")
+
+                // get metadata in first loop
                 if (metadata === null) {
                     // First multipart file should be metadata.
                     metadata = StorageUtils.getStorageUploadMetadata(isAnonymous, item) // shouldn't be anonymous anymore.
-                    if (metadata != null) {
-                        // create bucket if not available
-                        if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(metadata.bucket).build())) {
-                            minioClient.makeBucket(MakeBucketArgs.builder().bucket(metadata.bucket).build())
-                        }
-                    } else {
-                        throw ApiException("Metadata not found!", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
+                    // create bucket if not available
+                    if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(metadata.bucket).build())) {
+                        minioClient.makeBucket(MakeBucketArgs.builder().bucket(metadata.bucket).build())
                     }
+                    // continue loop if is anonymous
+                    if (!isAnonymous) {
+                        continue
+                    }
+                }
+
+                // subsequent multipart files are uploads
+                if (item.fieldName == "files") {
+                    // upload to bucket
+                    val targetFolderPath = Paths.get(metadata.storagePath)
+                    val fileExtension = StorageUtils.getFileExtension(item.name)
+                    val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
+                    val targetFilePath = targetFolderPath.resolve(uuidFilename)
+                    minioClient.putObject(PutObjectArgs.builder()
+                            .bucket(metadata.bucket)
+                            .contentType(item.contentType)
+                            .`object`(targetFilePath.toString())
+                            .stream(item.openStream(), -1, 10485760)
+                            .build()
+                    )
+                    storageFiles.add(StorageFile(metadata.bucket, metadata.storagePath, item.name!!, uuidFilename, item.contentType, -1))
                 } else {
-                    // subsequent multipart files are uploads
-                    if (item.fieldName == "files") {
-                        // upload to bucket
-                        val targetFolderPath = Paths.get(metadata.storagePath)
-                        val fileExtension = StorageUtils.getFileExtension(item.name)
-                        val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
-                        val targetFilePath = targetFolderPath.resolve(uuidFilename)
-                        minioClient.putObject(PutObjectArgs.builder()
-                                .bucket(metadata.bucket)
-                                .contentType(item.contentType)
-                                .`object`(targetFilePath.toString())
-                                .stream(item.openStream(), -1, 10485760)
-                                .build()
-                        )
-                        storageFiles.add(StorageFile(metadata.bucket, metadata.storagePath, item.name!!, uuidFilename, item.contentType, -1))
-                    } else {
-                        throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
-                    }
+                    throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
                 }
             }
         } catch (e: ApiException) {

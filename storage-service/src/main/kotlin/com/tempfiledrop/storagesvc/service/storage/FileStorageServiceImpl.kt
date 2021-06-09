@@ -7,6 +7,8 @@ import com.tempfiledrop.storagesvc.exception.ErrorCode
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
 import com.tempfiledrop.storagesvc.util.StorageUtils
+import io.minio.BucketExistsArgs
+import io.minio.MakeBucketArgs
 import org.apache.commons.fileupload.FileItemIterator
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.io.IOUtils
@@ -77,6 +79,7 @@ class FileStorageServiceImpl(
 
             // copy file into bucket
             files.forEach {
+                logger.info("FILE ==> ${it.originalFilename}")
                 val fileExtension = StorageUtils.getFileExtension(it.originalFilename!!)
                 val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
                 val filepath = bucketStoragePath.resolve(uuidFilename)
@@ -97,40 +100,45 @@ class FileStorageServiceImpl(
         // process upload
         val fileuploadHandler = ServletFileUpload()
         val iterStream: FileItemIterator = fileuploadHandler.getItemIterator(request)
-        var metadata: StorageUploadMetadata? = StorageUtils.getStorageUploadMetadata(isAnonymous)
+        var metadata: StorageUploadMetadata? = null
         var bucketPath: Path? = null
         try {
             while(iterStream.hasNext()) {
                 val item = iterStream.next()
-                if (metadata == null) {
+                logger.info("FILE ==> ${item.name}")
+
+                // get metadata in first loop
+                if (metadata === null) {
                     // First multipart file should be metadata.
                     metadata = StorageUtils.getStorageUploadMetadata(isAnonymous, item) // shouldn't be anonymous anymore.
-                    if (metadata != null) {
-                        bucketPath = root.resolve(metadata.bucket)
-                        if (!Files.exists(bucketPath!!)) {
-                            Files.createDirectory(bucketPath)
-                        }
-                    } else {
-                        throw ApiException("Metadata not found!", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
+                    // create bucket if not available
+                    bucketPath = root.resolve(metadata.bucket)
+                    if (!Files.exists(bucketPath!!)) {
+                        Files.createDirectory(bucketPath)
                     }
-                } else {
-                    if (item.fieldName == "files" && bucketPath != null) {
-                        // if path is not found, create it
-                        val fileStoragePath = Paths.get(metadata.storagePath)
-                        val bucketStoragePath = bucketPath.resolve(fileStoragePath)
-                        if (!Files.exists(bucketStoragePath)) {
-                            bucketStoragePath.createDirectories()
-                        }
+                    // continue loop if is anonymous
+                    if (!isAnonymous) {
+                        continue
+                    }
+                }
 
-                        // copy file into bucket
-                        val fileExtension = StorageUtils.getFileExtension(item.name)
-                        val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
-                        val filepath = bucketStoragePath.resolve(uuidFilename)
-                        Files.copy(item.openStream(), filepath)
-                        storageFiles.add(StorageFile(metadata.bucket, metadata.storagePath, item.name, uuidFilename, item.contentType, -1))
-                    } else {
-                        throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
+                // subsequent multipart files are uploads
+                if (item.fieldName == "files" && bucketPath != null) {
+                    // if path is not found, create it
+                    val fileStoragePath = Paths.get(metadata.storagePath)
+                    val bucketStoragePath = bucketPath.resolve(fileStoragePath)
+                    if (!Files.exists(bucketStoragePath)) {
+                        bucketStoragePath.createDirectories()
                     }
+
+                    // copy file into bucket
+                    val fileExtension = StorageUtils.getFileExtension(item.name)
+                    val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
+                    val filepath = bucketStoragePath.resolve(uuidFilename)
+                    Files.copy(item.openStream(), filepath)
+                    storageFiles.add(StorageFile(metadata.bucket, metadata.storagePath, item.name, uuidFilename, item.contentType, -1))
+                } else {
+                    throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
                 }
             }
         } catch (e: ApiException) {

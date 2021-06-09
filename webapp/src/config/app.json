@@ -24,6 +24,9 @@
         }
     ],
     "dropzone": {
+        "maxSizeInTextForAnonymous": "100MB",
+        "maxSizeInBytesForAnonymous": 104857600,
+        "maxSizeInText": "5GB",
         "maxSizeInBytes": 5368706371
     },
     "rabbitmq": {

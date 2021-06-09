@@ -1,37 +1,49 @@
 {
     "properties": [
         {
-            "name": "tempfiledrop.storagesvc.storage-mode",
+            "name": "storagesvc.storage-mode",
             "type": "java.lang.String",
             "description": "File Storage / Object Storage.",
             "defaultValue": "object"
         },
         {
-            "name": "tempfiledrop.storagesvc.file-storage.upload-directory",
+            "name": "storagesvc.file-storage.upload-directory",
             "type": "java.lang.String",
             "description": "File Upload Directory.",
             "defaultValue": "uploads"
         },
         ,
         {
-            "name": "tempfiledrop.storagesvc.object-storage.minio-endpoint",
+            "name": "storagesvc.object-storage.minio-endpoint",
             "type": "java.lang.String",
             "description": "MinIO Cluster Endpoint."
         },
         {
-            "name": "tempfiledrop.storagesvc.object-storage.minio-access-key",
+            "name": "storagesvc.object-storage.minio-access-key",
             "type": "java.lang.String",
             "description": "MinIO login credentials."
         },
         {
-            "name": "tempfiledrop.storagesvc.object-storage.minio-access-secret",
+            "name": "storagesvc.object-storage.minio-access-secret",
             "type": "java.lang.String",
             "description": "MinIO login credentials."
+        },
+        {
+            "name": "storagesvc.anonymous-upload.enable",
+            "type": "java.lang.Boolean",
+            "description": "Enable Anonymous Upload.",
+            "defaultValue": false
+        },
+        {
+            "name": "storagesvc.anonymous-upload.max-file-size",
+            "type": "java.lang.Long",
+            "description": "Maximum File Upload Size for anonymous upload.",
+            "defaultValue": 104857600
         }
     ],
     "hints": [
         {
-            "name": "tempfiledrop.storagesvc.storage-mode",
+            "name": "storagesvc.storage-mode",
             "values": [
                 {
                     "value": "file",

@@ -34,7 +34,6 @@ const DownloadPage = (props: DownloadPageProps) => {
                 ? `${Data.api_endpoints.storagesvc_storage_info}/${Data.bucket}/${props.match.params.storageId}`
                 : `${Data.api_endpoints.storagesvc_storage_info_anonymous}/${props.match.params.storageId}`;
 
-            console.log(isAuthenticated, url)
             axios.get(url)
                 .then(res => {
                     if (res.status === 200) {

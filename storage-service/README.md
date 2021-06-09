@@ -29,10 +29,20 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
 | Property Group | Property | Remarks |
 | --- | --- | --- |
 | storagesvc | storage-mode | Choice of storage mode = file / object |
+| storagesvc.anonymous-upload | enable | enable anonymous upload |
+| storagesvc.anonymous-upload | max-file-size | maximum file upload size for anonymous uploads |
 | storagesvc.file-storage | upload-directory | directory to upload files to |
 | storagesvc.object-storage | minio-endpoint | endpoint of minio cluster |
 | storagesvc.object-storage | minio-access-key | access key for minio cluster |
 | storagesvc.object-storage | minio-access-secret | access secret for minio cluster |
+
+To configure upload file size, configure the properties below. For anonymous max upload size, use the property specified 
+in the table above.
+
+| Property Group | Property | Remarks |
+| --- | --- | --- |
+| spring.servlet.multipart | max-file-size | maximum file size for each request
+| spring.servlet.multipart | max-request-size | maximum request size for a multipart/form-data
 
 ### Running the service (Locally)
 
@@ -79,6 +89,10 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
     - consumers can tagged the event with a **routingkey** such that only queues with this routing key will receive the message.
 3. **Anonymous Uploads / Download**
     - no login is required to upload and download files.
+    - Maximum upload size is 100MB 
+        - Note that logic should be handled on Frontend to prevent more than 100MB uploads as backend will throw exceptions 
+        which breaks the streaming upload. Hence, Frontend will receive Network error instead of a graceful error response.
+    - Can be toggle off
 
 #### More about StorageId
 

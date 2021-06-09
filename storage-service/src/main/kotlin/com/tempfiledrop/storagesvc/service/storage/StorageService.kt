@@ -19,6 +19,7 @@ import java.time.ZonedDateTime
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
+
 abstract class StorageService {
     companion object {
         private val logger = LoggerFactory.getLogger(StorageService::class.java)
@@ -99,12 +100,18 @@ abstract class StorageService {
     }
 
     // simple file upload
-    fun uploadToBucket(files: List<MultipartFile>, metadata: StorageUploadMetadata): StorageInfo {
+    fun uploadToBucket(files: List<MultipartFile>, metadata: StorageUploadMetadata? = null): StorageInfo {
         // process files
-        val storagePath = StorageUtils.processStoragePath(metadata.storagePath) ?: throw ApiException("Storage path is invalid", ErrorCode.UPLOAD_FAILED, HttpStatus.BAD_REQUEST)
         val filenames = files.joinToString(",") { it.originalFilename.toString() }
-        val expiryDatetime = StorageUtils.processExpiryPeriod(metadata.expiryPeriod)
-        val storageInfo = StorageInfo(metadata.bucket!!, storagePath, filenames, metadata.maxDownloads, expiryDatetime)
+        val storageInfo = if (metadata === null) {
+            val anonymousMetadata = StorageUtils.getStorageUploadMetadata(true)
+            val expiryDatetime = StorageUtils.processExpiryPeriod(anonymousMetadata.expiryPeriod)
+            StorageInfo(anonymousMetadata.bucket, "", filenames, anonymousMetadata.maxDownloads, expiryDatetime)
+        } else {
+            val storagePath = StorageUtils.processStoragePath(metadata.storagePath) ?: throw ApiException("Storage path is invalid", ErrorCode.UPLOAD_FAILED, HttpStatus.BAD_REQUEST)
+            val expiryDatetime = StorageUtils.processExpiryPeriod(metadata.expiryPeriod)
+            StorageInfo(metadata.bucket, storagePath, filenames, metadata.maxDownloads, expiryDatetime)
+        }
 
         // store files
         val storageFiles = uploadFiles(files, storageInfo) // upload file
@@ -114,7 +121,7 @@ abstract class StorageService {
         return storageInfo
     }
 
-    // upload via stream
+    // upload via apache commons fileupload streaming api
     fun uploadViaStreamToBucket(request: HttpServletRequest, isAnonymous: Boolean = false): Pair<StorageUploadMetadata, StorageInfo> {
         val isMultipart = ServletFileUpload.isMultipartContent(request)
         if (!isMultipart) {
@@ -125,7 +132,6 @@ abstract class StorageService {
         storageFileService.saveFilesInfo(storageInfo.id.toString(), storageFiles) // store file information
         return Pair(metadata, storageInfo)
     }
-
 
     private fun checkIfStorageFileIsAvailable(storageInfo: StorageInfo): Boolean {
         if (storageInfo.numOfDownloadsLeft <= 0 || storageInfo.expiryDatetime.isBefore(ZonedDateTime.now())) {

@@ -67,19 +67,17 @@ object StorageUtils {
         }
     }
 
-    fun getStorageUploadMetadata(isAnonymous: Boolean, fileItemStream: FileItemStream? = null): StorageUploadMetadata? {
+    fun getStorageUploadMetadata(isAnonymous: Boolean, fileItemStream: FileItemStream? = null): StorageUploadMetadata {
         if (isAnonymous) {
             return StorageUploadMetadata(ANONYMOUS_BUCKET, "", 1, 1, "", "")
         } else {
-            if (fileItemStream != null) {
-                if(fileItemStream.fieldName == "metadata") {
-                    val mapper = ObjectMapper().registerKotlinModule()
-                    val metadata = mapper.readValue(fileItemStream.openStream(), StorageUploadMetadata::class.java)
-                    val storagePath = processStoragePath(metadata.storagePath) ?: throw ApiException("Storage path is invalid", ErrorCode.UPLOAD_FAILED, HttpStatus.BAD_REQUEST)
-                    return StorageUploadMetadata(metadata.bucket, storagePath, metadata.maxDownloads, metadata.expiryPeriod, metadata.eventRoutingKey, metadata.eventData)
-                }
+            if(fileItemStream != null && fileItemStream.fieldName == "metadata") {
+                val mapper = ObjectMapper().registerKotlinModule()
+                val metadata = mapper.readValue(fileItemStream.openStream(), StorageUploadMetadata::class.java)
+                val storagePath = processStoragePath(metadata.storagePath) ?: throw ApiException("Storage path is invalid", ErrorCode.UPLOAD_FAILED, HttpStatus.BAD_REQUEST)
+                return StorageUploadMetadata(metadata.bucket, storagePath, metadata.maxDownloads, metadata.expiryPeriod, metadata.eventRoutingKey, metadata.eventData)
             }
-            return null
+            throw ApiException("Metadata not found!", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         }
     }
 }
