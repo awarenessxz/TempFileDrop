@@ -18,9 +18,10 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
         - [uploading files](#uploading-files)
         - [downloading files](#downloading-files)
         - [deleting files](#deleting-files)
-    - [2. RabbitMQ Queue Configuration](#rabbitmq-queue-configuration)
+    - [2. RabbitMQ Queue Configuration](#2-rabbitmq-queue-configuration)
         - [Queue creation](#queue-creation)
         - [Consuming messages](#consuming-messages)
+    - [3. Keycloak Authentication](#3-keycloak-authentication)
 
 ## Getting Started
 
@@ -126,11 +127,12 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
 
 ## How to consume Centralized Storage Service
 
-Refer to this section on how to consume the centralized storage service. There are 2 main configurations you will need to
+Refer to this section on how to consume the centralized storage service. There are 3 main configurations you will need to
 consume the centralized storage service.
 
-- **Upload / Download / Delete Request from Frontend**
-- **RabbitMQ Queue Configuration**
+- [**Upload / Download / Delete Request from Frontend**](#1-upload--download--delete-request-from-frontend)
+- [**RabbitMQ Queue Configuration**](#2-rabbitmq-queue-configuration)
+- [**Keycloak Authentication**](#3-keycloak-authentication)
 
 ### 1. Upload / Download / Delete Request from Frontend
 
@@ -260,7 +262,7 @@ axios.get(`/storagesvc/<BUCKET_NAME>/<STORAGE_ID>`, {
     .catch(err => console.log(err));
 ```
 
-### RabbitMQ Queue Configuration
+### 2. RabbitMQ Queue Configuration
 
 #### Queue Creation
 
@@ -340,3 +342,19 @@ To consume messages, follow the steps below
        val data: String            // corresponds to eventData which you passed in
    )
    ```
+
+### 3. Keycloak Authentication
+
+The centralized storage service handles authentication and authorization using Keycloak. Below is a diagram on how roles
+are designed. 
+
+![Keycloak Roles](../doc/keycloak_roles.png)
+
+To consume centralized storage service,
+- **As an application / service**
+    - Register your application as a **Client**
+    - Create **client roles** and **realm roles** using the diagram above as an example
+- **As a user**
+    - Create a user in keycloak 
+    - Assign the user your application's **realm role** which is a **composite role** that contains Storage Service 
+    **client role: user**
