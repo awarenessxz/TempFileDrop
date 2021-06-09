@@ -1,8 +1,7 @@
-package com.tempfiledrop.storagesvc.controller
+package com.tempfiledrop.storagesvc.controller.storage
 
 import com.tempfiledrop.storagesvc.config.StorageSvcProperties
 import com.tempfiledrop.storagesvc.exception.ErrorResponse
-import com.tempfiledrop.storagesvc.service.event.EventType
 import com.tempfiledrop.storagesvc.service.storage.StorageService
 import com.tempfiledrop.storagesvc.util.StorageUtils
 import io.swagger.v3.oas.annotations.Operation
@@ -13,11 +12,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.multipart.MaxUploadSizeExceededException
-import org.springframework.web.multipart.MultipartFile
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import kotlin.io.path.ExperimentalPathApi

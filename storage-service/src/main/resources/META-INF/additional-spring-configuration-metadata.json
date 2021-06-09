@@ -39,6 +39,11 @@
             "type": "java.lang.Long",
             "description": "Maximum File Upload Size for anonymous upload.",
             "defaultValue": 104857600
+        },
+        {
+            "name": "storagesvc.cors-origin",
+            "type": "java.lang.String",
+            "description": "CORS Origin."
         }
     ],
     "hints": [

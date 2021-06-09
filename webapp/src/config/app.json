@@ -1,8 +1,6 @@
 {
     "web_name": "TempFileDrop.io",
     "bucket": "tempfiledrop",
-    "user": "user1",
-    "password": "password",
     "navbar_menu": [
         {
             "path": "/developer",
@@ -37,9 +35,8 @@
         "clientRoles": ["user", "admin"]
     },
     "api_endpoints": {
-        "mock_login": "/api/user-info/login",
         "uploaded_files": "/api/users-upload-info",
-        "storagesvc_swagger": "/api/storagesvc/api-docs",
+        "storagesvc_swagger": "/swagger/storagesvc/api-docs",
         "storagesvc_upload": "/api/storagesvc/upload",
         "storagesvc_download": "/api/storagesvc/download",
         "storagesvc_storage_info": "/api/storagesvc/storageinfo",

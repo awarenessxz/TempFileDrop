@@ -36,4 +36,6 @@ docker rmi <IMAGE_NAME/ID>      # delete image
 
 ```bash
 curl -X POST -d '{"username": "user1", "password": "password" }' -H "Content-Type: application/json" http://localhost:7001/login
+
+curl -H "Access-Control-Request-Method: GET" -H "Origin: http://localhost:3000" --head localhost:8001/api-docs
 ```

@@ -1,4 +1,4 @@
-package com.tempfiledrop.storagesvc.controller
+package com.tempfiledrop.storagesvc.controller.storage
 
 import java.time.ZonedDateTime
 

@@ -1,14 +1,12 @@
 package com.tempfiledrop.storagesvc.service.storage
 
 import com.tempfiledrop.storagesvc.config.StorageSvcProperties
-import com.tempfiledrop.storagesvc.controller.StorageUploadMetadata
+import com.tempfiledrop.storagesvc.controller.storage.StorageUploadMetadata
 import com.tempfiledrop.storagesvc.exception.ApiException
 import com.tempfiledrop.storagesvc.exception.ErrorCode
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
 import com.tempfiledrop.storagesvc.util.StorageUtils
-import io.minio.BucketExistsArgs
-import io.minio.MakeBucketArgs
 import org.apache.commons.fileupload.FileItemIterator
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.io.IOUtils

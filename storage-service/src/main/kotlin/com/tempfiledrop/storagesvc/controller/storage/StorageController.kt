@@ -1,5 +1,6 @@
-package com.tempfiledrop.storagesvc.controller
+package com.tempfiledrop.storagesvc.controller.storage
 
+import com.tempfiledrop.storagesvc.controller.SecuredRestController
 import com.tempfiledrop.storagesvc.exception.ErrorResponse
 import com.tempfiledrop.storagesvc.service.event.EventType
 import com.tempfiledrop.storagesvc.service.event.RabbitMQProducer
@@ -11,10 +12,8 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
-import org.springframework.web.multipart.MultipartFile
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import kotlin.io.path.ExperimentalPathApi
@@ -24,11 +23,12 @@ import kotlin.io.path.ExperimentalPathApi
 class StorageController(
         private val storageService: StorageService,
         private val producer: RabbitMQProducer
-) {
+): SecuredRestController {
     companion object {
         private val logger = LoggerFactory.getLogger(StorageController::class.java)
     }
 
+    @Operation(summary = "Get list of storage information from bucket")
     @GetMapping("/{bucket}")
     fun getStorageInBucket(@PathVariable("bucket") bucket: String): ResponseEntity<List<StorageInfoResponse>> {
         logger.info("Receiving Request to get content inside $bucket")

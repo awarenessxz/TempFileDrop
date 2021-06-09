@@ -25,7 +25,9 @@ dependencies {
 	implementation("org.keycloak:keycloak-spring-boot-starter") // Keycloak
 
 	// Documentation
-	implementation("org.springdoc:springdoc-openapi-ui:1.5.8")
+	implementation("org.springdoc:springdoc-openapi-ui:1.5.9")
+	implementation("org.springdoc:springdoc-openapi-security:1.5.9")
+	implementation("org.springdoc:springdoc-openapi-kotlin:1.5.9")
 
 	// Database
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb") // Mongo Database

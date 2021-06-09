@@ -239,6 +239,8 @@ sudo infra/cleanup_and_restart.sh
         - [Stackoverflow -  Get opened input stream from rest template for large file processing](https://stackoverflow.com/questions/34936101/get-opened-input-stream-from-rest-template-for-large-file-processing)
     - Swagger
         - [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)
+        - [Swagger Authentication](https://sourabhparsekar.medium.com/openapi-specification-swagger-authentication-c150f86748ea)
+        - [Enable Authorize Button in Swagger UI](https://stackoverflow.com/questions/59898874/enable-authorize-button-in-springdoc-openapi-ui-for-bearer-token-authentication/60666209#60666209)
     - Spring Cloud Stream +  RabbitMQ
         - [Okta - spring cloud stream 3.0](https://developer.okta.com/blog/2020/04/15/spring-cloud-stream)
         - [Introduction to event driven microservices with spring cloud stream](https://piotrminkowski.com/2020/06/05/introduction-to-event-driven-microservices-with-spring-cloud-stream/)
