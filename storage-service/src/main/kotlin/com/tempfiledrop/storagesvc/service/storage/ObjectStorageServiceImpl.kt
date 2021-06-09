@@ -26,7 +26,7 @@ import javax.servlet.http.HttpServletResponse
 import kotlin.collections.ArrayList
 
 @Service
-@ConditionalOnProperty(prefix = "tempfiledrop.storagesvc", name = ["storage-mode"], havingValue = "object")
+@ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "object")
 class ObjectStorageServiceImpl(
         private val minioClient: MinioClient,
 ): StorageService() {

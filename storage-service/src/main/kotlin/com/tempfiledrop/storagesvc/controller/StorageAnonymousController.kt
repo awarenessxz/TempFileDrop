@@ -24,7 +24,7 @@ import kotlin.io.path.ExperimentalPathApi
 
 @RestController
 @RequestMapping("/api/storagesvc/anonymous")
-@ConditionalOnProperty(prefix = "tempfiledrop.storagesvc.anonymous-upload", name = ["enable"], havingValue = "true")
+@ConditionalOnProperty(prefix = "storagesvc.anonymous-upload", name = ["enable"], havingValue = "true")
 class StorageAnonymousController(
         private val storageService: StorageService,
         private val storagesvcProps: StorageSvcProperties

@@ -6,10 +6,10 @@
     - [First Design](#first-design)
     - [Second Design](#second-design)
         - [Event Streaming Flow](#event-streaming-flow)
+        - [Authentication with Keycloak](#authentication-with-keycloak)
     - [Design Considerations](#design-considerations)
 - [Getting Started](#getting-started)
 - [How to consume storage service](storage-service/README.md#how-to-consume-centralized-storage-service)
-- [Authentication with Keycloak](#authentication-with-keycloak)
 - [Future Works](#future-works)
 - [References](#references)
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
@@ -70,7 +70,16 @@ through the backend. Event Streaming is added to update the backend when an uplo
 
 #### Event Streaming Flow
 
+This is the rough design on how events are send to consumers.
+
 ![Event Stream](doc/event_flow_2.png)
+
+#### Authentication with Keycloak
+
+This is the rough design on how role is configured.
+
+![Keycloak Role Design](doc/keycloak_roles.png)
+
 
 ### Design Considerations
 
@@ -162,12 +171,6 @@ sudo infra/cleanup_and_restart.sh
     yarn start
     ```
    
-## Authentication with Keycloak
-
-This is the rough design on how role is configured.
-
-![Keycloak Role Design](doc/keycloak_roles.png)
-
 ## Future Works
 
 1. Implement Security
