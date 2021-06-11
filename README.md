@@ -21,9 +21,10 @@ There are 2 main purpose of this project.
     - Storage Medium will be based on either **file storage (NAS)** or **object storage (MinIO)**
     - Storage Service acts as an **abstraction layer** such that consumers do not consume the storage medium directly.
     - Features include:
-        - **Expiry datetime** for files
-        - **Max Downloads** allowed
-        - **Event Feedback** when files are uploaded / downloaded
+        - **Scheduled Cleanup** based on the following settings
+            - **Expiry datetime** for files
+            - **Max Downloads** allowed
+        - **Event Feedback** when files are uploaded / downloaded / deleted
         - **Anonymous Upload / Download**
 2. **To create a temporary file sharing application.**
     - **TempFileDrop.io** is a project that replicates [file.io](https://www.file.io/) which is a super simple file sharing application.
@@ -34,7 +35,7 @@ There are 2 main purpose of this project.
 - **Nginx** - Web server to serve website
 - **MinIO** - Object storage server
 - **Spring Boot** - API web services
-- **Apache Kafka** - Event Streaming
+- **Rabbit MQ** - Publish / Subscribe Messages
 - **Docker** - Containerization
 
 **For more details on implementation, refer to the README of the individual services**

@@ -14,10 +14,11 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
     - [Database Tables](#database-tables)
     - [API Endpoints](#api-endpoints)
 - [How to consume Centralized Storage Service](#how-to-consume-centralized-storage-service)
-    - [1. Upload / Download / Delete files from Frontend](#1-upload--download--delete-request-from-frontend)
-        - [uploading files](#uploading-files)
-        - [downloading files](#downloading-files)
-        - [deleting files](#deleting-files)
+    - [1. Configure HTTP Request](#1-configure-http-request)
+        - [Http Authorization Header](#authorization-header)
+        - [Uploading files](#uploading-files)
+        - [Downloading files](#downloading-files)
+        - [Deleting files](#deleting-files)
     - [2. RabbitMQ Queue Configuration](#2-rabbitmq-queue-configuration)
         - [Queue creation](#queue-creation)
         - [Consuming messages](#consuming-messages)
@@ -130,16 +131,25 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
 Refer to this section on how to consume the centralized storage service. There are 3 main configurations you will need to
 consume the centralized storage service.
 
-- [**Upload / Download / Delete Request from Frontend**](#1-upload--download--delete-request-from-frontend)
+- [**Configure Http Request**](#1-configure-http-request)
 - [**RabbitMQ Queue Configuration**](#2-rabbitmq-queue-configuration)
 - [**Keycloak Authentication**](#3-keycloak-authentication)
 
-### 1. Upload / Download / Delete Request from Frontend
+### 1. Configure HTTP Request
 
 For all the 3 types of request, it is necessary to provide **eventData [OPTIONAL]** and **eventRoutingKey**.
 - **eventRoutingKey**: When upload is completed, an event will be published to the message broker using this routing key.
 - **eventData**: This is an **OPTIONAL** field. When upload is completed, an event will be published to the message 
 broker. This allows you to pass data to the consumer.
+
+#### Authorization Header
+
+However before you can call the rest endpoints of centralized storage service, you will need to ensure that you include 
+the bearer token in the authorization header of the http request. An example is as follows:
+
+```javascript
+request.headers['Authorization'] = 'Bearer ' + token;
+```
 
 #### Uploading Files
 
