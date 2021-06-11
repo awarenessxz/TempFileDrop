@@ -1,8 +1,6 @@
 import React, { useState } from "react";
 import Button from "react-bootstrap/cjs/Button";
 import Container from "react-bootstrap/cjs/Container";
-import Col from "react-bootstrap/cjs/Col";
-import Row from "react-bootstrap/cjs/Row";
 import VerticallyCenteredModal from "../common/modal/VerticallyCenteredModal";
 import FileDropzone from "../common/dropzone/FileDropzone";
 import "./HomePage.css";
@@ -23,13 +21,6 @@ const HomePage = () => {
                     </div>
                 </Container>
             </header>
-            <section className="about">
-                <Container>
-                    <Row>
-                        <Col>Section to describe how to use website</Col>
-                    </Row>
-                </Container>
-            </section>
             <VerticallyCenteredModal title="Upload Files" content={<FileDropzone />} show={modalShow} onHide={() => setModalShow(false)} />
         </React.Fragment>
     );

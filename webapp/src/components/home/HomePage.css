@@ -50,12 +50,7 @@
 
 @media (min-width: 992px) {
     .masthead {
-        height: 100vh;
+        height: calc(100vh - 65px);
         padding: 0;
     }
-}
-
-.about {
-    padding: 10rem 0;
-    background-color: #f8f9fa !important;
 }
