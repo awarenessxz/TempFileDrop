@@ -172,6 +172,12 @@ docker exec -it mongo_server bash       - mongo database (login = root:1234)
 
 For active development, follow the steps below to get the environment set up
 
+#### Infrastructure
+
+#### Centralized Storage Service and TempFileDrop application
+
+![Quick Start setup](doc/kubernetes.png)
+
 #### Start Infrastructure Cluster
 
 ```bash
