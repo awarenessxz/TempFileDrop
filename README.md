@@ -155,7 +155,7 @@ Check out the following endpoints:
 
 ```bash
 # Browser
-http;//localhost:3000       - tempfiledrop web application (login = user:password)    -- ENTRY POINT
+http://localhost:3000       - tempfiledrop web application (login = user:password)    -- ENTRY POINT
 http://localhost:8080       - keycloak admin console (login = admin:admin)
 http://localhost:15672      - rabbitmq console (login = admin:admin123)
 http://localhost:9000       - minio console (login = minio:minio123)
