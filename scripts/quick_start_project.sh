@@ -7,19 +7,19 @@ ROOTPATH=$SCRIPTPATH/..
 echo "ROOT PATH = $ROOTPATH"
 
 # Clean up persistent data and restart infra services
-#$SCRIPTPATH/cleanup_and_restart_infra.sh
+$SCRIPTPATH/cleanup_and_restart_infra.sh
 
 printf "\n==================================================\n"
 printf "Clean up Docker Images...\n"
 printf "==================================================\n"
-#docker rmi -f tempfiledrop/centralized-storage-service:latest
+docker rmi -f tempfiledrop/centralized-storage-service:latest
 docker rmi -f tempfiledrop/webserver:latest
 docker rmi -f tempfiledrop/webapp:latest
 
 printf "\n==================================================\n"
 printf "Building Docker Images...\n"
 printf "==================================================\n"
-#cd $ROOTPATH && $ROOTPATH/gradlew storage-service:jibDockerBuild
+cd $ROOTPATH && $ROOTPATH/gradlew storage-service:jibDockerBuild
 cd $ROOTPATH && $ROOTPATH/gradlew webserver:jibDockerBuild
 docker build -t tempfiledrop/webapp:latest -f $ROOTPATH/webapp/Dockerfile $ROOTPATH/webapp
 yes | docker image prune --filter label=stage=builder
