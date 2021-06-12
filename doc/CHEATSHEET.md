@@ -24,7 +24,15 @@ show collections                            # list all collections
 db.<COLLECTION_NAME>.find();                # List items in Collection
 ```
 
-## Docker``
+## Curl
+
+```bash
+curl -X POST -d '{"username": "user1", "password": "password" }' -H "Content-Type: application/json" http://localhost:7001/login
+
+curl -H "Access-Control-Request-Method: GET" -H "Origin: http://localhost:3000" --head localhost:8001/api-docs
+```
+
+## Docker
 
 ```bash
 docker ps - a                   # check list of containers instance
@@ -32,10 +40,8 @@ docker rm <CONTAINER_NAME/ID>   # delete container instance
 docker rmi <IMAGE_NAME/ID>      # delete image
 ```
 
-## Curl
+## Kubernetes 
 
 ```bash
-curl -X POST -d '{"username": "user1", "password": "password" }' -H "Content-Type: application/json" http://localhost:7001/login
 
-curl -H "Access-Control-Request-Method: GET" -H "Origin: http://localhost:3000" --head localhost:8001/api-docs
 ```

@@ -5,10 +5,13 @@ services:
     hostname: keycloak
     container_name: keycloak
     image: jboss/keycloak:latest
+    networks:
+      - proxy-net
     environment:
       KEYCLOAK_USER: admin
       KEYCLOAK_PASSWORD: admin
       KEYCLOAK_IMPORT: "/tmp/storage-realm.json -Dkeycloak.profile.feature.upload_scripts=enabled"
+      PROXY_ADDRESS_FORWARDING: "true"
     ports:
       - 8080:8080
     volumes:
@@ -45,3 +48,8 @@ services:
 #      - 8080:8080
 #    depends_on:
 #      - postgres
+
+networks:
+  proxy-net:
+    external:
+      name: tempfiledrop_bridge

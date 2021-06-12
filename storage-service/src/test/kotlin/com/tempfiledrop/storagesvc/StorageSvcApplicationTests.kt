@@ -1,10 +1,10 @@
-package com.tempfiledrop.webserver
+package com.tempfiledrop.storagesvc
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest
 
 @SpringBootTest
-class WebserverApplicationTests {
+class StorageSvcApplicationTests {
 
 	@Test
 	fun contextLoads() {

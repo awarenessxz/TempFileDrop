@@ -9,6 +9,9 @@
         - [Authentication with Keycloak](#authentication-with-keycloak)
     - [Design Considerations](#design-considerations)
 - [Getting Started](#getting-started)
+    - [Quick Start](#for-quick-start)
+    - [Development](#for-development)
+    - [Deployment](#for-deployment)
 - [How to consume storage service](storage-service/README.md#how-to-consume-centralized-storage-service)
 - [Future Works](#future-works)
 - [References](#references)
@@ -81,7 +84,6 @@ This is the rough design on how role is configured.
 
 ![Keycloak Role Design](doc/keycloak_roles.png)
 
-
 ### Design Considerations
 
 1. How much space do we need for the MinIO Cluster
@@ -124,14 +126,60 @@ This is the rough design on how role is configured.
 
 ## Getting Started
 
-### Start Infrastructure Cluster
+Refer to the guides below on how to use this project
+- If you just want to start the project and view it, go to [quick start](#for-quick-start)
+- If you want to work on development, go to [development](#for-development)
+- If you want to deploy, go to [deployment](#for-development)
+
+### For Quick Start
+
+If you are just intending to run the project and test the features, run the scripts below. This will use docker-compose 
+to start up all services required to get the minimal set up running.
 
 ```bash
-# Clean up persistent data and restart the services (Fresh State)
-sudo infra/cleanup_and_restart.sh
+# Quick Start the project
+sudo scripts/quick_start_project.sh
 ```
 
-### Start Centralized Storage Service
+Once you are done, you can clean up the project using the following script
+
+```bash
+sudo scripts/purge_project.sh
+```
+
+#### Quick Start Docker-Compose Setup
+
+![Quick Start setup](doc/docker-compose.png)
+
+Check out the following endpoints:
+
+```bash
+# Browser
+http;//localhost:3000       - tempfiledrop web application (login = user:password)    -- ENTRY POINT
+http://localhost:8080       - keycloak admin console (login = admin:admin)
+http://localhost:15672      - rabbitmq console (login = admin:admin123)
+http://localhost:9000       - minio console (login = minio:minio123)
+
+# Rest Endpoints
+http://localhost:7001       - tempfiledrop web server
+http://localhost:8801       - centralized storage service
+
+# Docker Containers
+docker exec -it mongo_server bash       - mongo database (login = root:1234)
+```
+
+### For Development 
+
+For active development, follow the steps below to get the environment set up
+
+#### Start Infrastructure Cluster
+
+```bash
+# Clean up persistent data and restart the infra services (Fresh State)
+sudo scripts/cleanup_and_restart_infra.sh
+```
+
+#### Start Centralized Storage Service
 
 1. Ensure that the following services are available
     - **Minio Cluster**
@@ -148,7 +196,7 @@ sudo infra/cleanup_and_restart.sh
     ./gradlew storage-service:bootRun
     ```
 
-### Start TempFileDrop.io Service
+#### Start TempFileDrop.io Service
 
 1. Ensure that the following services are available
     - **Centralized Storage Service**
@@ -171,7 +219,11 @@ sudo infra/cleanup_and_restart.sh
     yarn install
     yarn start
     ```
-   
+
+### For Deployment
+
+To be added....
+
 ## Future Works
 
 1. Implement Security
@@ -179,12 +231,13 @@ sudo infra/cleanup_and_restart.sh
     - IAM for MinIO Cluster
     - Bucket Authorization
 2. Storage Service
-    - Upgrade to WebClient instead of RestTemplate
     - Look at Presigned Url feature that is available in S3 storage
+    - Monitoring Metrics
 3. Misc
-    - Session / Cache such that user remains login after refreshing...
+    - Upgrade to Reactive Web (use webclient instead of restTemplate)
     - Make Navbar reactive to small screen (Frontend)
     - Add websocket for dashboard and download page
+    - Viewing Nginx Logs in Docker Logs
     
 ## References
 - [Command Cheat Sheet](doc/CHEATSHEET.md)
@@ -222,8 +275,6 @@ sudo infra/cleanup_and_restart.sh
     - Forwarding request/response (Service to Service) in Spring
         - [Stackoverflow - How to send Multipart form data with restTemplate Spring-mvc](https://stackoverflow.com/questions/28408271/how-to-send-multipart-form-data-with-resttemplate-spring-mvc)
         - [Stackoverflow - How to proxy a http video stream to any number of clients](https://stackoverflow.com/questions/47277640/how-to-proxy-a-http-video-stream-to-any-amount-of-clients-through-a-spring-webse)
-    - MinIO
-        - [Deploy MinIO on Kubernetes](https://docs.min.io/docs/deploy-minio-on-docker-compose.html)
     - Exception handling
         - [Spring Template Error Handling](https://www.baeldung.com/spring-rest-template-error-handling)
         - [Log your rest template without destroying the body](https://objectpartners.com/2018/03/01/log-your-resttemplate-request-and-response-without-destroying-the-body/)
@@ -248,6 +299,11 @@ sudo infra/cleanup_and_restart.sh
         - [RabbitMQ docker-compose with default properties](https://github.com/changhuixu/rabbitmq-labs/tree/master/02_QueueProperties)
         - [Stackoverflow - Set Routing Key for Producer](https://stackoverflow.com/questions/52329361/spring-cloud-stream-reactive-how-to-set-routing-key-for-producer)
         - [Stackoverflow - Set multiple routing key for Consumer](https://stackoverflow.com/questions/50587227/multiple-bindingroutingkeys-for-a-consumer-with-spring-cloud-stream-using-rabbi)
+- MinIO
+    - [Deploy MinIO on Kubernetes](https://docs.min.io/docs/deploy-minio-on-docker-compose.html)
+- Nginx
+    - [Nginx as reverse proxy in front of keycloak](https://itnext.io/nginx-as-reverse-proxy-in-front-of-keycloak-21e4b3f8ec53)
+    - [Keycloak with Java and ReactJS](https://www.powerupcloud.com/keycloak-with-java-and-reactjs/)
 - Security
     - [Keycloak for Identity and Access Management & High Availability Deployment with Kubernetes](https://medium.com/devops-dudes/keycloak-for-identity-and-access-management-9860a994bf0)
     - [Baeldung - Spring Boot + Keycloak](https://www.baeldung.com/spring-boot-keycloak)

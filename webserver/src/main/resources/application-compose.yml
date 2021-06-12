@@ -1,0 +1,15 @@
+###############################################################################################
+# Network Configuration for Docker Compose
+###############################################################################################
+
+server.port: 8080
+
+tempfiledrop:
+  storagesvc-url: http://storage-service:8080
+
+spring:
+  data.mongodb.uri: mongodb://service_user:service_pass@mongodb:27017/webDB
+  rabbitmq.addresses: rabbitmq:5672
+
+keycloak:
+  auth-server-url: http://keycloak:8080/auth

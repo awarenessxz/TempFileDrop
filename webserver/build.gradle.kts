@@ -3,6 +3,7 @@ import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 plugins {
 	id("org.springframework.boot") version "2.4.5"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
+	id("com.google.cloud.tools.jib") version "3.1.1"
 	kotlin("jvm") version "1.4.32"
 	kotlin("plugin.spring") version "1.4.32"
 }
@@ -56,4 +57,18 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
 	useJUnitPlatform()
+}
+
+jib {
+	from {
+		image = "gcr.io/distroless/java:11"
+	}
+	to {
+		image = "tempfiledrop/webserver"
+		tags = setOf("latest")
+	}
+	container {
+		jvmFlags = listOf("-Xms512m", "-Dserver.port=8080")
+		ports = listOf("8080")
+	}
 }

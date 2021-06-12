@@ -2,9 +2,11 @@ version: '3.7'
 
 services:
   rabbitmq:
+    hostname: rabbitmq
     image: rabbitmq:3.7-management
     container_name: rabbitmq
-    network_mode: host
+    networks:
+      - proxy-net
     ports:
       - 15672:15672   # management port
       - 5672:5672     # connection port
@@ -16,8 +18,13 @@ services:
     environment:
       RABBITMQ_ERLANG_COOKIE: 'cluster_cookie'
 #      RABBITMQ_DEFAULT_USER: admin
-#      RABBITMQ_DEFAULT_PASS: 123
+#      RABBITMQ_DEFAULT_PASS: admin123
     volumes:
       - ./storage/rabbitmq-node-1:/var/lib/rabbitmq
       - ./scripts/definitions.json:/opt/definitions.json:ro
       - ./scripts/rabbitmq.conf:/etc/rabbitmq/rabbitmq.conf:ro
+
+networks:
+  proxy-net:
+    external:
+      name: tempfiledrop_bridge

@@ -14,7 +14,11 @@ export const dispatchInitKeycloak = (dispatch: Dispatch<AuthActionTypes> | null)
         throw new Error("dispatch is null....");
     }
 
-    const keycloak = Keycloak("/keycloak.json") ;
+    const keycloak = Keycloak({
+        url: process.env.REACT_APP_KEYCLOAK_AUTH_SERVER_URL,
+        realm: process.env.REACT_APP_KEYCLOAK_REALM ? process.env.REACT_APP_KEYCLOAK_REALM : "",
+        clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID ? process.env.REACT_APP_KEYCLOAK_CLIENT_ID : ""
+    });
     keycloak.init({ onLoad: "check-sso" })
         .then(authenticated => {
             window.accessToken = keycloak.token || "";

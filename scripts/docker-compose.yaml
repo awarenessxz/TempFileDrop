@@ -1,0 +1,45 @@
+version: '3.7'
+
+services:
+  storage-service:
+    hostname: storage-service
+    container_name: storage_service
+    image: tempfiledrop/centralized-storage-service:latest
+    environment:
+      - "SPRING_PROFILES_ACTIVE=compose"
+    networks:
+      - proxy-net
+    ports:
+      - 8001:8080
+  tempfiledrop-webserver:
+    hostname: tempfiledrop-webserver
+    container_name: tempfiledrop_webserver
+    image: tempfiledrop/webserver:latest
+    environment:
+      - "SPRING_PROFILES_ACTIVE=compose"
+    networks:
+      - proxy-net
+    ports:
+      - 7001:8080
+    depends_on:
+      - storage-service
+  tempfiledrop-webapp:
+    hostname: tempfiledrop-webapp
+    container_name: tempfiledrop_webapp
+    image: tempfiledrop/webapp:latest
+    networks:
+      - proxy-net
+    ports:
+      - 3000:3000
+    healthcheck:
+      test: curl --fail -s http://localhost:80 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 2
+    depends_on:
+      - tempfiledrop-webserver
+
+networks:
+  proxy-net:
+    external:
+      name: tempfiledrop_bridge

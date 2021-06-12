@@ -109,7 +109,7 @@ const DeveloperGuide = (): JSX.Element => {
             <h4>3) Configure Http Request for Upload / Download / Delete</h4>
             <p>
                 In order to perform any sorts of http requests to Centralized Storage Service, you will have to ensure that
-                you include the <b>Bearer Token</b> in the http request header. Also, ensure that you provide the <b>routing key</b>
+                you include the <b>Bearer Token</b> in the http request header. Also, ensure that you provide the <b>routing key </b>
                 in your http request if you want to receive an event feedback. For more information on the rest endpoints,
                 refer to the swagger API documentation.
             </p>

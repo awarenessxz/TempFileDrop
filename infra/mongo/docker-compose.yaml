@@ -2,8 +2,11 @@ version: '3.7'
 
 services:
   mongodb:
+    hostname: mongodb
     image: mongo:latest
     container_name: 'mongo_server'
+    networks:
+      - proxy-net
     environment:
       MONGO_INITDB_DATABASE: webDB
       MONGO_INITDB_ROOT_USERNAME: root
@@ -13,3 +16,8 @@ services:
     volumes:
       - ./scripts:/docker-entrypoint-initdb.d # scripts will not run if /data/db is not empty
       - ./storage:/data/db # for persistent storage
+
+networks:
+  proxy-net:
+    external:
+      name: tempfiledrop_bridge
