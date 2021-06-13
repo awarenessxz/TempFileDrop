@@ -13,18 +13,17 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Scope
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
+import org.springframework.security.config.annotation.web.builders.WebSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
-import org.springframework.security.core.session.SessionRegistryImpl
 import org.springframework.security.web.authentication.session.NullAuthenticatedSessionStrategy
-import org.springframework.security.web.authentication.session.RegisterSessionAuthenticationStrategy
 import org.springframework.security.web.authentication.session.SessionAuthenticationStrategy
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer
 
 @Configuration
 @EnableWebSecurity
 @ComponentScan(basePackageClasses = [KeycloakSecurityComponents::class])
-internal class SecurityConfig(
+internal class WebSecurityConfig(
         private val keycloakClientRequestFactory: KeycloakClientRequestFactory
 ): KeycloakWebSecurityConfigurerAdapter(), WebMvcConfigurer {
 
@@ -62,5 +61,10 @@ internal class SecurityConfig(
                 .antMatchers("/*").hasAnyRole("user", "admin")
                 .anyRequest().authenticated()
         http.csrf().disable()
+    }
+
+    override fun configure(web: WebSecurity?) {
+        // this allows all websocket connection to pass through which will be handled by WebSocketSecurityConfig
+        web?.ignoring()?.antMatchers("/websocket-stomp/**")
     }
 }

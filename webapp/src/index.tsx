@@ -1,19 +1,40 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux';
+import App from './components/core/App';
+import { AuthProvider } from "./utils/auth-context";
+import WebSocketManager from "./utils/WebSocketManager";
+import configureStore from "./redux/root-store";
+import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./utils/axios-interceptors";
-import { AuthProvider } from "./utils/auth-context";
-import App from './components/core/App';
-import reportWebVitals from './reportWebVitals';
 
-ReactDOM.render(
-  <React.StrictMode>
-      <AuthProvider>
-          <App />
-      </AuthProvider>
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+const reduxStore = configureStore();
+const render = (AppComponent: React.FC): void => {
+    ReactDOM.render(
+        <React.StrictMode>
+            <Provider store={reduxStore}>
+                <AuthProvider>
+                    <WebSocketManager>
+                        <AppComponent />
+                    </WebSocketManager>
+                </AuthProvider>
+            </Provider>
+        </React.StrictMode>,
+        document.getElementById('root')
+    );
+};
+
+// renders application on first load
+render(App);
+
+// webpack dev server : Hot Module Replacement
+if (module.hot) {
+    module.hot.accept('./components/core/App', () => {
+        const NextApp = require('./components/core/App').default;
+        render(NextApp);
+    });
+}
 
 // If you want to start measuring performance in your app, pass a function
 // to log results (for example: reportWebVitals(console.log))

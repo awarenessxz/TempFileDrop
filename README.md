@@ -11,7 +11,7 @@
 - [Getting Started](#getting-started)
     - [Quick Start](#for-quick-start)
     - [Development](#for-development)
-    - [Deployment](#for-deployment)
+    - [Deployment to kubernetes](#for-deployment-to-kubernetes)
 - [How to consume storage service](storage-service/README.md#how-to-consume-centralized-storage-service)
 - [Future Works](#future-works)
 - [References](#references)
@@ -129,7 +129,7 @@ This is the rough design on how role is configured.
 Refer to the guides below on how to use this project
 - If you just want to start the project and view it, go to [quick start](#for-quick-start)
 - If you want to work on development, go to [development](#for-development)
-- If you want to deploy, go to [deployment](#for-development)
+- If you want to deploy to kubernetes, go to [deployment](#for-deployment-to-kubernetes)
 
 ### For Quick Start
 
@@ -220,9 +220,9 @@ sudo scripts/cleanup_and_restart_infra.sh
     yarn start
     ```
 
-### For Deployment
+### For Deployment to Kubernetes
 
-#### Centralized Storage Service and TempFileDrop application
+#### Kubernetes Set up
 
 ![Quick Start setup](doc/kubernetes.png)
 
@@ -238,8 +238,10 @@ sudo scripts/cleanup_and_restart_infra.sh
 3. Misc
     - Upgrade to Reactive Web (use webclient instead of restTemplate)
     - Make Navbar reactive to small screen (Frontend)
-    - Add websocket for dashboard and download page
     - Viewing Nginx Logs in Docker Logs
+    - Kubernetes Deployment (Production Mode)
+        - https / wss
+    - Websocket (with security)
     
 ## References
 - [Command Cheat Sheet](doc/CHEATSHEET.md)
@@ -247,60 +249,64 @@ sudo scripts/cleanup_and_restart_infra.sh
     - [API Design Guidance: File Upload](https://tyk.io/api-design-guidance-file-upload/)
     - [Stackoverflow - How do web applications typically interact with amazon s3](https://stackoverflow.com/questions/54655279/how-do-web-applications-typically-interact-with-amazon-s3)
     - [How to gracefully store user files](https://stormpath.com/blog/how-to-gracefully-store-user-files)
-- Frontend
+- Authentication
     - [How to add login Authentication to React Applications](https://www.digitalocean.com/community/tutorials/how-to-add-login-authentication-to-react-applications)
     - [React Login Authentication using useContext and useReducer](https://soshace.com/react-user-login-authentication-using-usecontext-and-usereducer/)
-    - [React File Upload/Download Example with Spring Rest Api](https://bezkoder.com/react-file-upload-spring-boot/)
-    - [React-Dropzone.js](https://react-dropzone.js.org/)
-        - [Tutorial Example 1](https://www.digitalocean.com/community/tutorials/react-react-dropzone)
-        - [Tutorial Example 2](https://www.newline.co/@dmitryrogozhny/how-to-drag-and-drop-files-in-react-applications-with-react-dropzone--c6732c93)
-        - [CSS Tricks: Drag and drop for file uploading](https://css-tricks.com/drag-and-drop-file-uploading/)
+- Multipart upload / download
+    - React & Axios
+        - [React File Upload/Download Example with Spring Rest Api](https://bezkoder.com/react-file-upload-spring-boot/)
+        - [React File Upload/Download Example with Spring Rest Api](https://bezkoder.com/react-file-upload-spring-boot/)
+        - [React-Dropzone.js](https://react-dropzone.js.org/)
+            - [Tutorial Example 1](https://www.digitalocean.com/community/tutorials/react-react-dropzone)
+            - [Tutorial Example 2](https://www.newline.co/@dmitryrogozhny/how-to-drag-and-drop-files-in-react-applications-with-react-dropzone--c6732c93)
+            - [CSS Tricks: Drag and drop for file uploading](https://css-tricks.com/drag-and-drop-file-uploading/)
+        - [Stackoverflow - How to download files using Axios](https://stackoverflow.com/questions/41938718/how-to-download-files-using-axios)
+        - [Stackoverflow - How tp download file in reactjs](https://stackoverflow.com/questions/50694881/how-to-download-file-in-react-js)    
+    - Spring Boot
+        - Upload
+            - [Spring Boot Multipart File Upload to Folder](https://bezkoder.com/spring-boot-file-upload/)
+            - [Spring Boot Uploading and Downloading file from MinIO object store](https://blogs.ashrithgn.com/spring-boot-uploading-and-downloading-file-from-minio-object-store/)
+            - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload)
+            - [Spring Boot File Upload/Download](https://www.devglan.com/spring-boot/spring-boot-file-upload-download)
+            - [Upload Large Files with Spring Boot](https://blog.sayem.dev/2017/07/upload-large-files-spring-boot-html/)
+            - [Upload large file in Spring Boot 2 application](https://dzone.com/articles/upload-large-file-in-spring-boot-2-application-usi)
+            - [Advanced Spring File Upload](https://medium.com/swlh/advanced-spring-file-upload-6595d3c2b8f9)
+            - [Use RestTemplate cross-service large file uploads, probably 2G](https://www.programmersought.com/article/64782425852/)
+        - Download
+            - [Springboot single file download, multiple files zip package](https://www.programmersought.com/article/2688897886/)
+            - [Stackoverflow - Difference between return byte array and input stream](https://stackoverflow.com/questions/49050569/is-there-a-difference-between-returning-byte-array-or-servlet-output-stream-on-f)
+            - [Spring Rest Template Download large file](https://www.baeldung.com/spring-resttemplate-download-large-file)
+            - [Spring Boot File Download](https://o7planning.org/11765/spring-boot-file-download)
+            - [Download Server](https://github.com/nurkiewicz/download-server)
+            - [Download a file using Spring RestTemplate](https://www.javacodemonk.com/download-a-file-using-spring-resttemplate-75723d97)
+            - [Spring MVC Image Media Data](https://www.baeldung.com/spring-mvc-image-media-data)
+            - [Stackoverflow - Spring MVC Large file download (Out of Memory Issue)](https://stackoverflow.com/questions/15800565/spring-mvc-large-files-for-download-outofmemoryexception)
+            - [Bad Chunk Header mystery](https://rey5137.com/bad-chunk-header-mystery/)
+            - [Stackoverflow -  Get opened input stream from rest template for large file processing](https://stackoverflow.com/questions/34936101/get-opened-input-stream-from-rest-template-for-large-file-processing)
+        - Upload with JSON Data
+            - [RequestBody and Multipart on Spring Boot](https://blogs.perficient.com/2020/07/27/requestbody-and-multipart-on-spring-boot/)
+            - [Multiple files upload with request body using spring boot and test using Postman](https://medium.com/@pankajsingla_24995/multipart-request-with-request-body-using-spring-boot-and-test-using-postman-6ea46b71b75d)
+            - [Stackoverflow - React Multipart file and JSON data](https://stackoverflow.com/questions/59235491/react-ajax-request-with-multipart-file-and-json-data)
+            - [Spring Rest Template Multipart Upload](https://www.baeldung.com/spring-rest-template-multipart-upload)
+            - [Stackoverflow - How do I send a multipart file using spring rest template](https://stackoverflow.com/questions/55138538/how-do-i-send-a-multipartfile-using-spring-resttemplate)
+- Nginx Proxy
     - [Set up proxy to work with multiple apis in create-react-app](https://create-react-app.dev/docs/proxying-api-requests-in-development/#configuring-the-proxy-manually)
-    - [Stackoverflow - How to download files using Axios](https://stackoverflow.com/questions/41938718/how-to-download-files-using-axios)
-    - [Stackoverflow - How tp download file in reactjs](https://stackoverflow.com/questions/50694881/how-to-download-file-in-react-js)    
-- Backend
-    - Multipart Upload
-        - [Spring Boot Multipart File Upload to Folder](https://bezkoder.com/spring-boot-file-upload/)
-        - [Spring Boot Uploading and Downloading file from MinIO object store](https://blogs.ashrithgn.com/spring-boot-uploading-and-downloading-file-from-minio-object-store/)
-        - [File Upload with Spring MVC](https://www.baeldung.com/spring-file-upload)
-        - [Spring Boot File Upload/Download](https://www.devglan.com/spring-boot/spring-boot-file-upload-download)
-        - [Upload Large Files with Spring Boot](https://blog.sayem.dev/2017/07/upload-large-files-spring-boot-html/)
-        - [Upload large file in Spring Boot 2 application](https://dzone.com/articles/upload-large-file-in-spring-boot-2-application-usi)
-        - [Advanced Spring File Upload](https://medium.com/swlh/advanced-spring-file-upload-6595d3c2b8f9)
-        - [Use RestTemplate cross-service large file uploads, probably 2G](https://www.programmersought.com/article/64782425852/)
-    - Multipart request with Json
-        - [RequestBody and Multipart on Spring Boot](https://blogs.perficient.com/2020/07/27/requestbody-and-multipart-on-spring-boot/)
-        - [Multiple files upload with request body using spring boot and test using Postman](https://medium.com/@pankajsingla_24995/multipart-request-with-request-body-using-spring-boot-and-test-using-postman-6ea46b71b75d)
-        - [Stackoverflow - React Multipart file and JSON data](https://stackoverflow.com/questions/59235491/react-ajax-request-with-multipart-file-and-json-data)
-        - [Spring Rest Template Multipart Upload](https://www.baeldung.com/spring-rest-template-multipart-upload)
-        - [Stackoverflow - How do I send a multipart file using spring rest template](https://stackoverflow.com/questions/55138538/how-do-i-send-a-multipartfile-using-spring-resttemplate)
-    - Forwarding request/response (Service to Service) in Spring
-        - [Stackoverflow - How to send Multipart form data with restTemplate Spring-mvc](https://stackoverflow.com/questions/28408271/how-to-send-multipart-form-data-with-resttemplate-spring-mvc)
-        - [Stackoverflow - How to proxy a http video stream to any number of clients](https://stackoverflow.com/questions/47277640/how-to-proxy-a-http-video-stream-to-any-amount-of-clients-through-a-spring-webse)
-    - Exception handling
-        - [Spring Template Error Handling](https://www.baeldung.com/spring-rest-template-error-handling)
-        - [Log your rest template without destroying the body](https://objectpartners.com/2018/03/01/log-your-resttemplate-request-and-response-without-destroying-the-body/)
-    - Download
-        - [Springboot single file download, multiple files zip package](https://www.programmersought.com/article/2688897886/)
-        - [Stackoverflow - Difference between return byte array and input stream](https://stackoverflow.com/questions/49050569/is-there-a-difference-between-returning-byte-array-or-servlet-output-stream-on-f)
-        - [Spring Rest Template Download large file](https://www.baeldung.com/spring-resttemplate-download-large-file)
-        - [Spring Boot File Download](https://o7planning.org/11765/spring-boot-file-download)
-        - [Download Server](https://github.com/nurkiewicz/download-server)
-        - [Download a file using Spring RestTemplate](https://www.javacodemonk.com/download-a-file-using-spring-resttemplate-75723d97)
-        - [Spring MVC Image Media Data](https://www.baeldung.com/spring-mvc-image-media-data)
-        - [Stackoverflow - Spring MVC Large file download (Out of Memory Issue)](https://stackoverflow.com/questions/15800565/spring-mvc-large-files-for-download-outofmemoryexception)
-        - [Bad Chunk Header mystery](https://rey5137.com/bad-chunk-header-mystery/)
-        - [Stackoverflow -  Get opened input stream from rest template for large file processing](https://stackoverflow.com/questions/34936101/get-opened-input-stream-from-rest-template-for-large-file-processing)
-    - Swagger
-        - [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)
-        - [Swagger Authentication](https://sourabhparsekar.medium.com/openapi-specification-swagger-authentication-c150f86748ea)
-        - [Enable Authorize Button in Swagger UI](https://stackoverflow.com/questions/59898874/enable-authorize-button-in-springdoc-openapi-ui-for-bearer-token-authentication/60666209#60666209)
-    - Spring Cloud Stream +  RabbitMQ
-        - [Okta - spring cloud stream 3.0](https://developer.okta.com/blog/2020/04/15/spring-cloud-stream)
-        - [Introduction to event driven microservices with spring cloud stream](https://piotrminkowski.com/2020/06/05/introduction-to-event-driven-microservices-with-spring-cloud-stream/)
-        - [RabbitMQ docker-compose with default properties](https://github.com/changhuixu/rabbitmq-labs/tree/master/02_QueueProperties)
-        - [Stackoverflow - Set Routing Key for Producer](https://stackoverflow.com/questions/52329361/spring-cloud-stream-reactive-how-to-set-routing-key-for-producer)
-        - [Stackoverflow - Set multiple routing key for Consumer](https://stackoverflow.com/questions/50587227/multiple-bindingroutingkeys-for-a-consumer-with-spring-cloud-stream-using-rabbi)
+- Forwarding Request/Response (Service to Service in Spring)
+    - [Stackoverflow - How to send Multipart form data with restTemplate Spring-mvc](https://stackoverflow.com/questions/28408271/how-to-send-multipart-form-data-with-resttemplate-spring-mvc)
+    - [Stackoverflow - How to proxy a http video stream to any number of clients](https://stackoverflow.com/questions/47277640/how-to-proxy-a-http-video-stream-to-any-amount-of-clients-through-a-spring-webse)
+- Spring Boot Exception
+    - [Spring Template Error Handling](https://www.baeldung.com/spring-rest-template-error-handling)
+    - [Log your rest template without destroying the body](https://objectpartners.com/2018/03/01/log-your-resttemplate-request-and-response-without-destroying-the-body/)
+- Swagger
+    - [Documenting a Spring REST API Using OpenAPI 3.0](https://www.baeldung.com/spring-rest-openapi-documentation)
+    - [Swagger Authentication](https://sourabhparsekar.medium.com/openapi-specification-swagger-authentication-c150f86748ea)
+    - [Enable Authorize Button in Swagger UI](https://stackoverflow.com/questions/59898874/enable-authorize-button-in-springdoc-openapi-ui-for-bearer-token-authentication/60666209#60666209)
+- Spring Cloud Stream + RabbitMQ
+    - [Okta - spring cloud stream 3.0](https://developer.okta.com/blog/2020/04/15/spring-cloud-stream)
+    - [Introduction to event driven microservices with spring cloud stream](https://piotrminkowski.com/2020/06/05/introduction-to-event-driven-microservices-with-spring-cloud-stream/)
+    - [RabbitMQ docker-compose with default properties](https://github.com/changhuixu/rabbitmq-labs/tree/master/02_QueueProperties)
+    - [Stackoverflow - Set Routing Key for Producer](https://stackoverflow.com/questions/52329361/spring-cloud-stream-reactive-how-to-set-routing-key-for-producer)
+    - [Stackoverflow - Set multiple routing key for Consumer](https://stackoverflow.com/questions/50587227/multiple-bindingroutingkeys-for-a-consumer-with-spring-cloud-stream-using-rabbi)
 - MinIO
     - [Deploy MinIO on Kubernetes](https://docs.min.io/docs/deploy-minio-on-docker-compose.html)
 - Nginx
@@ -318,4 +324,14 @@ sudo scripts/cleanup_and_restart_infra.sh
     - [Using Spring Boot OAuth2 instead of Keycloak adapters](https://wstutorial.com/rest/spring-security-oauth2-keycloak.html)
     - [Stackoverflow - Why do Bearer-only clients exist?](https://stackoverflow.com/questions/58911507/keycloak-bearer-only-clients-why-do-they-exist)
     - [Keycloak RestTemplate with Spring Boot Security Integration](https://ramonak.io/posts/vaadin%E2%80%93keycloak%E2%80%93spring-security-integration)
+- WebSocket
+    - [Websockets with react & express](https://dev.to/ksankar/websockets-with-react-express-part-2-4n9f)
+    - [React Managing Websockets with redux and context](https://rossbulat.medium.com/react-managing-websockets-with-redux-and-context-61f9a06c125b)
+    - [Baeldung - Spring Security Websockets](https://www.baeldung.com/spring-security-websockets)
+    - [Stackoverflow - Spring Websocket authentication with spring security and keycloak](https://stackoverflow.com/questions/50573461/spring-websockets-authentication-with-spring-security-and-keycloak)
+        - [Spring web socket Keycloak](https://github.com/stakater-lab/spring-web-socket-keycloak/blob/master/application/src/main/java/io/aurora/socketapp/config/WebSocketConfig.java)
+        - [Stackoverflow - json web token jwt with Spring based sockjs stomp websocket](https://stackoverflow.com/questions/30887788/json-web-token-jwt-with-spring-based-sockjs-stomp-web-socket/39456274#39456274)
+    - [dzone.com - Build a secure app using spring boot and websocket](https://dzone.com/articles/build-a-secure-app-using-spring-boot-and-websocket)
+    - [okta - java spring websocket secure](https://developer.okta.com/blog/2019/10/09/java-spring-websocket-tutorial)
+    - [Stomp Spring Boot Websocket](https://www.toptal.com/java/stomp-spring-boot-websocket)
     

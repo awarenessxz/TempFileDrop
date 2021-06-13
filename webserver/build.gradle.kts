@@ -20,10 +20,12 @@ dependencies {
 	// Web
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
+	implementation("org.springframework.boot:spring-boot-starter-websocket") // Web Socket
 
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-security")
 	implementation("org.keycloak:keycloak-spring-boot-starter") // Keycloak
+	implementation("org.springframework.security:spring-security-messaging") // Web Socket
 
 	// Database
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb") // Mongo Database

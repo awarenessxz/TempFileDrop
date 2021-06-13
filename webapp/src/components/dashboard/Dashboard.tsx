@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { useSelector } from "react-redux";
 import axios from "axios";
 import moment from "moment";
 import { FaTrash, FaDownload } from "react-icons/fa";
@@ -15,15 +16,18 @@ import { useAuthState } from "../../utils/auth-context";
 import { extractFilenameFromContentDisposition, joinURLs } from "../../utils/toolkit";
 import Data from "../../config/app.json";
 import { UserUploadInfo } from "../../types/api-types";
+import { RootState } from "../../redux";
 import "./Dashboard.css";
 
 const Dashboard = () => {
     const [modalShow, setModalShow] = useState(false);
     const [records, setRecords] = useState<UserUploadInfo[]>([]);
-    const [reloadRecord, setReloadRecord] = useState(false);    // trigger to reload
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
     const { userToken } = useAuthState();
+    const onFilesDownloadedMsg = useSelector((state: RootState) => state.websocket.onFilesDownloadedMessage);
+    const onFilesDeletedMsg = useSelector((state: RootState) => state.websocket.onFilesDeletedMessage);
+    const onFilesUploadedMsg = useSelector((state: RootState) => state.websocket.onFilesUploadedMessage);
 
     useEffect(() => {
         if (userToken) {
@@ -35,11 +39,12 @@ const Dashboard = () => {
                     }
                 })
                 .catch(err => {
-                    setIsError(true)
+                    setIsError(true);
                     setMessage("Fail to fetch records...");
                 });
         }
-    }, [reloadRecord, userToken]);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [userToken, onFilesDeletedMsg, onFilesDownloadedMsg, onFilesUploadedMsg]);
 
     const handleDeleteRecord = (idx: number, recordId: string, storageId: string) => {
         // remove from view
@@ -78,7 +83,6 @@ const Dashboard = () => {
                 document.body.appendChild(link);
                 link.click();
                 setMessage("You have downloaded the files!");
-                setReloadRecord(!reloadRecord);
             })
             .catch(err => {
                 console.log(err);
@@ -87,7 +91,6 @@ const Dashboard = () => {
 
     const onSuccessfulUpload = () => {
         setMessage(""); // reset
-        setReloadRecord(!reloadRecord);
     };
 
     return (

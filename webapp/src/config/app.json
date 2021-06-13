@@ -44,5 +44,11 @@
         "storagesvc_download_anonymous": "/api/storagesvc/anonymous/download",
         "storagesvc_storage_info_anonymous": "/api/storagesvc/anonymous/storageinfo",
         "storagesvc": "/api/storagesvc"
+    },
+    "websocket_stomp_endpoint": "/ws/websocket-stomp",
+    "websocket_endpoints": {
+        "on_files_deleted": "/topic/onfilesdeleted",
+        "on_files_downloaded": "/topic/onfilesdownloaded",
+        "on_files_uploaded": "/topic/onfilesuploaded"
     }
 }
