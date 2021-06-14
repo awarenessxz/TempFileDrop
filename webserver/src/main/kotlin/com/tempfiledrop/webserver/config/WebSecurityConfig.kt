@@ -62,9 +62,4 @@ internal class WebSecurityConfig(
                 .anyRequest().authenticated()
         http.csrf().disable()
     }
-
-    override fun configure(web: WebSecurity?) {
-        // this allows all websocket connection to pass through which will be handled by WebSocketSecurityConfig
-        web?.ignoring()?.antMatchers("/websocket-stomp/**")
-    }
 }
