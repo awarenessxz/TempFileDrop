@@ -9,9 +9,6 @@
         - [Authentication with Keycloak](#authentication-with-keycloak)
     - [Design Considerations](#design-considerations)
 - [Getting Started](#getting-started)
-    - [Quick Start](#for-quick-start)
-    - [Development](#for-development)
-    - [Deployment to kubernetes](#for-deployment-to-kubernetes)
 - [How to consume storage service](storage-service/README.md#how-to-consume-centralized-storage-service)
 - [Future Works](#future-works)
 - [References](#references)
@@ -126,10 +123,19 @@ This is the rough design on how role is configured.
 
 ## Getting Started
 
-Refer to the guides below on how to use this project
+Ensure that you have met the prerequisites below before using the guides below to start the project
 - If you just want to start the project and view it, go to [quick start](#for-quick-start)
 - If you want to work on development, go to [development](#for-development)
 - If you want to deploy to kubernetes, go to [deployment](#for-deployment-to-kubernetes)
+
+### Prerequisites
+
+You will probably need to have the following installed
+- Java 11
+- Node 12
+- Yarn
+- Python + pip
+- Docker + docker-compose
 
 ### For Quick Start
 
@@ -137,6 +143,9 @@ If you are just intending to run the project and test the features, run the scri
 to start up all services required to get the minimal set up running.
 
 ```bash
+# Install python module is you have yet to
+pip install pika
+
 # Quick Start the project
 sudo scripts/quick_start_project.sh
 ```
