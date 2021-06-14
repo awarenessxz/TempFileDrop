@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { useSelector } from "react-redux";
 import axios from "axios";
 import moment from "moment";
 import { FaTrash, FaDownload } from "react-icons/fa";
@@ -16,7 +15,6 @@ import { useAuthState } from "../../utils/auth-context";
 import { extractFilenameFromContentDisposition, joinURLs } from "../../utils/toolkit";
 import Data from "../../config/app.json";
 import { UserUploadInfo } from "../../types/api-types";
-import { RootState } from "../../redux";
 import "./Dashboard.css";
 
 const Dashboard = () => {
@@ -24,10 +22,8 @@ const Dashboard = () => {
     const [records, setRecords] = useState<UserUploadInfo[]>([]);
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
+    const [rerender, setRerender] = useState(false);
     const { userToken } = useAuthState();
-    const onFilesDownloadedMsg = useSelector((state: RootState) => state.websocket.onFilesDownloadedMessage);
-    const onFilesDeletedMsg = useSelector((state: RootState) => state.websocket.onFilesDeletedMessage);
-    const onFilesUploadedMsg = useSelector((state: RootState) => state.websocket.onFilesUploadedMessage);
 
     useEffect(() => {
         if (userToken) {
@@ -44,7 +40,7 @@ const Dashboard = () => {
                 });
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userToken, onFilesDeletedMsg, onFilesDownloadedMsg, onFilesUploadedMsg]);
+    }, [userToken, rerender]);
 
     const handleDeleteRecord = (idx: number, recordId: string, storageId: string) => {
         // remove from view
@@ -62,6 +58,7 @@ const Dashboard = () => {
                 if (res.status === 200) {
                     setMessage("Delete Success!");
                     setIsError(false);
+                    setRerender(!rerender);
                 }
             })
             .catch(err => console.log(err));
@@ -83,6 +80,7 @@ const Dashboard = () => {
                 document.body.appendChild(link);
                 link.click();
                 setMessage("You have downloaded the files!");
+                setRerender(!rerender);
             })
             .catch(err => {
                 console.log(err);
@@ -91,6 +89,7 @@ const Dashboard = () => {
 
     const onSuccessfulUpload = () => {
         setMessage(""); // reset
+        setRerender(!rerender);
     };
 
     return (

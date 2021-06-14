@@ -1,25 +1,17 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux';
 import App from './components/core/App';
 import { AuthProvider } from "./utils/auth-context";
-import WebSocketManager from "./utils/WebSocketManager";
-import configureStore from "./redux/root-store";
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./utils/axios-interceptors";
 
-const reduxStore = configureStore();
 const render = (AppComponent: React.FC): void => {
     ReactDOM.render(
         <React.StrictMode>
-            <Provider store={reduxStore}>
-                <AuthProvider>
-                    <WebSocketManager>
-                        <AppComponent />
-                    </WebSocketManager>
-                </AuthProvider>
-            </Provider>
+            <AuthProvider>
+                    <AppComponent />
+            </AuthProvider>
         </React.StrictMode>,
         document.getElementById('root')
     );

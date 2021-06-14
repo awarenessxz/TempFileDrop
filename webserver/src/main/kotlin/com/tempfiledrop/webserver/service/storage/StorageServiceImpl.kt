@@ -11,13 +11,11 @@ import com.tempfiledrop.webserver.service.useruploads.UserUploadInfo
 import com.tempfiledrop.webserver.service.useruploads.UserUploadInfoService
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
-import org.springframework.messaging.simp.SimpMessagingTemplate
 import org.springframework.stereotype.Service
 
 @Service
 class StorageServiceImpl(
-        private val uploadedFilesRecordService: UserUploadInfoService,
-        private val simpMessagingTemplate: SimpMessagingTemplate
+        private val uploadedFilesRecordService: UserUploadInfoService
 ) : StorageService {
     companion object {
         private val logger = LoggerFactory.getLogger(StorageServiceImpl::class.java)
@@ -32,14 +30,9 @@ class StorageServiceImpl(
         logger.info("Deleting user's upload record...")
         val record = uploadedFilesRecordService.getUploadedFilesRecordById(data.recordId) ?: throw ApiException("Record not found!", ErrorCode.NO_MATCHING_RECORD, HttpStatus.INTERNAL_SERVER_ERROR)
         uploadedFilesRecordService.deleteUploadedFilesRecordById(record.id!!)
-
-        // send event to frontend using websocket
-        simpMessagingTemplate.convertAndSend("/topic/onfilesdeleted", eventMessage.storageId)
     }
 
     override fun processFilesDownloadedEvent(eventMessage: EventMessage) {
-        // send event to frontend using websocket
-        simpMessagingTemplate.convertAndSend("/topic/onfilesdownloaded", eventMessage.storageId)
     }
 
     override fun processFilesUploadedEvent(eventMessage: EventMessage) {
@@ -51,8 +44,5 @@ class StorageServiceImpl(
         logger.info("Adding <user, upload record> mapping to database -->  <${data.username}, ${eventMessage.storageId}>")
         val uploadRecord = UserUploadInfo(null, data.username, eventMessage.storageId)
         uploadedFilesRecordService.addUploadedFilesRecord(uploadRecord)
-
-        // send event to frontend using websocket
-        simpMessagingTemplate.convertAndSend("/topic/onfilesuploaded", eventMessage.storageId)
     }
 }
