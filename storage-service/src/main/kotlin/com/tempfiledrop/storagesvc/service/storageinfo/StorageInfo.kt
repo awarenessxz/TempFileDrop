@@ -12,5 +12,6 @@ data class StorageInfo(
         val filenames: String,                  // files uploaded delimited by comma
         val numOfDownloadsLeft: Int,            // number of downloads left
         val expiryDatetime: ZonedDateTime,      // expiry date time
+        val allowAnonymousDownload: Boolean,    // allow anonymous download
         @Id val id: ObjectId? = ObjectId.get()  // mongoDB ID (Storage ID)
 )

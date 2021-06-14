@@ -238,8 +238,16 @@ fun uploadFile(
 
 #### Downloading Files
 
+When downloading files, observe the download pattern below. Get a temporary download link to download your files. If you
+do not want a 2 stage download step, you can directly download using the `/api/storagesvc/download/secure/direct/{storageId}'
+endpoint.
+
+![download pattern](../doc/download_pattern.png)
+
+##### Sample Codes for downloading files
+
 ```javascript
-axios.get(`/storagesvc/<BUCKET_NAME>/<STORAGE_ID>`, {
+axios.get(`/storagesvc/download/<ENDPOINT>`, {
     responseType: "blob",
     params: {
         eventRoutingKey: "routingkey"

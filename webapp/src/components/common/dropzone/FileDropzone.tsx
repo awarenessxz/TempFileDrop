@@ -43,6 +43,7 @@ const FileDropzone = ({
     const [copiedText, setCopiedText] = useState("Copy to Clipboard");
     const [downloadLink, setDownloadLink] = useState("");
     const downloadLinkRef = useRef(null);
+    const anonDownloadRef = useRef(null);
     const selectRef = useRef(null);
 
     const handleUpload = (e: MouseEvent<HTMLButtonElement>) => {
@@ -55,11 +56,14 @@ const FileDropzone = ({
         if (isAuthenticated) {
             // @ts-ignore
             const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
+            // @ts-ignore
+            const anonDownload = anonDownloadRef.current === null ? false : anonDownloadRef.current.checked;
             const metadata: FileUploadMetadata = {
                 bucket: Data.bucket,
                 storagePath: userToken ? userToken.username : "",
                 maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
                 expiryPeriod,
+                allowAnonymousDownload: anonDownload,
                 eventRoutingKey: Data.rabbitmq.routingkey,
                 eventData: JSON.stringify({ username: userToken?.username })
             };
@@ -198,6 +202,14 @@ const FileDropzone = ({
                                 <Form.Control as="select" custom ref={selectRef}>
                                     {ExpiryPeriod.map((option, idx) => <option key={idx}>{option}</option>)}
                                 </Form.Control>
+                            </Col>
+                        </Form.Group>
+                        <Form.Group as={Row} controlId="formHorizontalAnonymousDownload" className="align-center-row">
+                            <Form.Label column sm={4}>
+                                Allow Anonymous Download?
+                            </Form.Label>
+                            <Col sm={8}>
+                                <Form.Check type="switch" label="" id="anonDownloadSwitch" ref={anonDownloadRef} />
                             </Col>
                         </Form.Group>
                     </Form>

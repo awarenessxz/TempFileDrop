@@ -48,6 +48,7 @@ class StorageInfoServiceImpl(
                 storageInfo.filenames,
                 storageInfo.numOfDownloadsLeft - 1,
                 storageInfo.expiryDatetime,
+                storageInfo.allowAnonymousDownload,
                 storageInfo.id
         )
         repository.save(newStorageInfo)

@@ -1,3 +1,7 @@
+.align-center-row {
+    align-items: center;
+}
+
 .dropzone-container {
     padding: 0;
 }

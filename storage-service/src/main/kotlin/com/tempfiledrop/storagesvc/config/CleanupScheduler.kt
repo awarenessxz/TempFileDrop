@@ -1,13 +1,13 @@
-package com.tempfiledrop.storagesvc.service.cleaner
+package com.tempfiledrop.storagesvc.config
 
 import com.tempfiledrop.storagesvc.service.storage.StorageService
 import com.tempfiledrop.storagesvc.service.storagefiles.StorageFileService
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfoService
 import org.slf4j.LoggerFactory
+import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.annotation.Scheduled
-import org.springframework.stereotype.Component
 
-@Component
+@Configuration
 class CleanupScheduler(
         private val storageInfoService: StorageInfoService,
         private val storageFileService: StorageFileService,
@@ -30,7 +30,10 @@ class CleanupScheduler(
         val storageFiles = storageFileService.getStorageFilesInfoByStorageIdBulk(storageIds)
         logger.info("Deleting ${storageInfoList.size} storageId with a total of ${storageFiles.size} files")
         if (storageFiles.isNotEmpty()) {
-            storageService.deleteFiles(storageFiles)
+            val groups = storageFiles.groupBy { it.bucketName }
+            for ((k, v) in groups) {
+                storageService.deleteFiles(v, k)
+            }
         }
         if (storageIds.isNotEmpty()) {
             storageFileService.deleteFilesInfoBulk(storageIds)

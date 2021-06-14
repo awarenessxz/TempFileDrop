@@ -8,7 +8,7 @@ import Container from "react-bootstrap/cjs/Container";
 import { extractFilenameFromContentDisposition } from "../../utils/toolkit";
 import Data from "../../config/app.json";
 import { useAuthState } from "../../utils/auth-context";
-import { StorageInfo } from "../../types/api-types";
+import { DownloadResponse } from "../../types/api-types";
 import "./DownloadPage.css";
 
 type DownloadPageRouterParams = {
@@ -25,19 +25,15 @@ const DownloadPage = (props: DownloadPageProps) => {
     const [errorMsg, setErrorMsg] = useState("");
     const [disableBtn, setDisableBtn] = useState(false);
     const [refreshToggle, setRefreshToggle] = useState(false);
-    const [downloadInfo, setDownloadInfo] = useState<StorageInfo | null>(null);
+    const [downloadInfo, setDownloadInfo] = useState<DownloadResponse | null>(null);
 
     useEffect(() => {
         if (isAuthReady) {
             // retrieve information about the download
-            const url = isAuthenticated
-                ? `${Data.api_endpoints.storagesvc_storage_info}/${Data.bucket}/${props.match.params.storageId}`
-                : `${Data.api_endpoints.storagesvc_storage_info_anonymous}/${props.match.params.storageId}`;
-
-            axios.get(url)
+            axios.get(`${Data.api_endpoints.storagesvc_get_downloadlink}/${props.match.params.storageId}`)
                 .then(res => {
                     if (res.status === 200) {
-                        const info: StorageInfo = res.data;
+                        const info: DownloadResponse = res.data;
                         setDownloadInfo(info);
                     } else {
                         setErrorMsg("Download Link is Not Available!");
@@ -54,28 +50,32 @@ const DownloadPage = (props: DownloadPageProps) => {
     const handleDownload = (e: MouseEvent<HTMLButtonElement>) => {
         setSuccessMsg("");
         setDisableBtn(true);
-        const url = isAuthenticated
-            ? `${Data.api_endpoints.storagesvc_download}/${Data.bucket}/${props.match.params.storageId}`
-            : `${Data.api_endpoints.storagesvc_download_anonymous}/${props.match.params.storageId}`;
-        axios.get(url, {
-            responseType: "blob",
-            params: isAuthenticated ? { eventRoutingKey: Data.rabbitmq.routingkey } : {}
-        })
-            .then(res => {
-                const filename = extractFilenameFromContentDisposition(res.headers);
-                const url = window.URL.createObjectURL(new Blob([res.data]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', filename);
-                document.body.appendChild(link);
-                link.click();
-                setSuccessMsg("You have downloaded the files!");
-                setDisableBtn(false);
-                setRefreshToggle(!refreshToggle);
+        if (downloadInfo !== null) {
+            axios.get(downloadInfo.downloadEndpoint, {
+                responseType: "blob",
+                params: isAuthenticated ? { eventRoutingKey: Data.rabbitmq.routingkey } : {}
             })
-            .catch(err => {
-                console.log(err);
-            });
+                .then(res => {
+                    const filename = extractFilenameFromContentDisposition(res.headers);
+                    const url = window.URL.createObjectURL(new Blob([res.data]));
+                    const link = document.createElement('a');
+                    link.href = url;
+                    link.setAttribute('download', filename);
+                    document.body.appendChild(link);
+                    link.click();
+                    setSuccessMsg("You have downloaded the files!");
+                    setDisableBtn(false);
+                    setRefreshToggle(!refreshToggle);
+                })
+                .catch(err => {
+                    console.log(err);
+                    if (err.response && err.response.status === 401) {
+                        setErrorMsg("Authentication Required!");
+                    }
+                });
+        } else {
+            setErrorMsg("Download Failed!");
+        }
     };
 
     return (
@@ -88,16 +88,20 @@ const DownloadPage = (props: DownloadPageProps) => {
                     </Alert>
                 ) : (
                     <div className="download-info-box">
-                    {downloadInfo && (
-                        <React.Fragment>
-                            <p>Click on "Download" to retrieve your files</p>
-                            <Button size="lg" onClick={handleDownload} disabled={disableBtn}>
-                                Download
-                            </Button>
-                            <Alert variant="warning">
-                                <strong>Please Note: </strong>Files will be deleted from our server after <strong>{downloadInfo.numOfDownloadsLeft}</strong> more downloads or after <strong>{moment(downloadInfo.expiryDatetime).format("DD MMM YYYY h:mma")}</strong>
-                            </Alert>
-                        </React.Fragment>
+                    {(downloadInfo && downloadInfo.requiresAuthentication && !isAuthenticated) ? (
+                        <Alert variant="danger">
+                            <strong>Authentication Required to download files</strong>
+                        </Alert>
+                    ): (
+                      <React.Fragment>
+                          <p>Click on "Download" to retrieve your files</p>
+                          <Button size="lg" onClick={handleDownload} disabled={disableBtn}>
+                              Download
+                          </Button>
+                          <Alert variant="warning">
+                              <strong>Please Note: </strong>Files will be deleted from our server after <strong>{downloadInfo?.numOfDownloadsLeft}</strong> more downloads or after <strong>{moment(downloadInfo?.expiryDatetime).format("DD MMM YYYY h:mma")}</strong>
+                          </Alert>
+                      </React.Fragment>
                     )}
                     </div>
                 )}

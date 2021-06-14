@@ -3,10 +3,12 @@ import Button from "react-bootstrap/cjs/Button";
 import Container from "react-bootstrap/cjs/Container";
 import VerticallyCenteredModal from "../common/modal/VerticallyCenteredModal";
 import FileDropzone from "../common/dropzone/FileDropzone";
+import { useAuthState } from "../../utils/auth-context";
 import "./HomePage.css";
 
 const HomePage = () => {
     const [modalShow, setModalShow] = useState(false);
+    const { isAuthenticated } = useAuthState();
 
     return (
         <React.Fragment>
@@ -21,7 +23,7 @@ const HomePage = () => {
                     </div>
                 </Container>
             </header>
-            <VerticallyCenteredModal title="Upload Files" content={<FileDropzone />} show={modalShow} onHide={() => setModalShow(false)} />
+            <VerticallyCenteredModal title="Upload Files" content={<FileDropzone showConfigs={isAuthenticated} />} show={modalShow} onHide={() => setModalShow(false)} />
         </React.Fragment>
     );
 };

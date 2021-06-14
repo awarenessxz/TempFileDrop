@@ -6,5 +6,6 @@ data class StorageInfoResponse (
         val storageId: String,
         val filenames: String,
         val numOfDownloadsLeft: Int,
-        val expiryDatetime: ZonedDateTime
+        val expiryDatetime: ZonedDateTime,
+        val allowAnonymousDownload: Boolean
 )

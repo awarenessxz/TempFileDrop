@@ -38,10 +38,10 @@
         "uploaded_files": "/api/users-upload-info",
         "storagesvc_swagger": "/swagger/storagesvc/api-docs",
         "storagesvc_upload": "/api/storagesvc/upload",
+        "storagesvc_get_downloadlink": "/api/storagesvc/download/temporarylink",
         "storagesvc_download": "/api/storagesvc/download",
         "storagesvc_storage_info": "/api/storagesvc/storageinfo",
         "storagesvc_upload_anonymous": "/api/storagesvc/anonymous/upload",
-        "storagesvc_download_anonymous": "/api/storagesvc/anonymous/download",
         "storagesvc_storage_info_anonymous": "/api/storagesvc/anonymous/storageinfo",
         "storagesvc": "/api/storagesvc"
     },

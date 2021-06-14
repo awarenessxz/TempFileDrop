@@ -122,7 +122,8 @@ class ObjectStorageServiceImpl(
 
         val filenames = storageFiles.joinToString(",") { it.originalFilename }
         val expiryDatetime = StorageUtils.processExpiryPeriod(metadata!!.expiryPeriod)
-        val storageInfo = StorageInfo(metadata.bucket, metadata.storagePath, filenames, metadata.maxDownloads, expiryDatetime)
+        val anonDownload = isAnonymous || metadata.allowAnonymousDownload
+        val storageInfo = StorageInfo(metadata.bucket, metadata.storagePath, filenames, metadata.maxDownloads, expiryDatetime, anonDownload)
         return Triple(metadata, storageInfo, storageFiles)
     }
 
@@ -149,17 +150,18 @@ class ObjectStorageServiceImpl(
         zipOut.close()
     }
 
-    override fun deleteFiles(storageFileList: List<StorageFile>) {
+    override fun deleteFiles(storageFileList: List<StorageFile>, bucket: String) {
         logger.info("DELETING ALL FILES IN MINIO Cluster.....")
-        val bucket = storageFileList[0].bucketName
-        val objects = storageFileList.map {
-            val targetFilePath = it.getFileStoragePath()
-            DeleteObject(targetFilePath)
-        }
-        val results = minioClient.removeObjects(RemoveObjectsArgs.builder().bucket(bucket).objects(objects).build())
-        for (result in results) {
-            val error = result.get()
-            logger.error("Error in deleting object ${error.objectName()}; ${error.message()}")
+        if (storageFileList.size > 0) {
+            val objects = storageFileList.map {
+                val targetFilePath = it.getFileStoragePath()
+                DeleteObject(targetFilePath)
+            }
+            val results = minioClient.removeObjects(RemoveObjectsArgs.builder().bucket(bucket).objects(objects).build())
+            for (result in results) {
+                val error = result.get()
+                logger.error("Error in deleting object ${error.objectName()}; ${error.message()}")
+            }
         }
     }
 }

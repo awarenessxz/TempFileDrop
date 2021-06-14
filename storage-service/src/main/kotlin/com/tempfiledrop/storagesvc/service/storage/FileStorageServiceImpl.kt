@@ -147,7 +147,8 @@ class FileStorageServiceImpl(
 
         val filenames = storageFiles.joinToString(",") { it.originalFilename }
         val expiryDatetime = StorageUtils.processExpiryPeriod(metadata!!.expiryPeriod)
-        val storageInfo = StorageInfo(metadata.bucket, metadata.storagePath, filenames, metadata.maxDownloads, expiryDatetime)
+        val anonDownload = isAnonymous || metadata.allowAnonymousDownload
+        val storageInfo = StorageInfo(metadata.bucket, metadata.storagePath, filenames, metadata.maxDownloads, expiryDatetime, anonDownload)
         return Triple(metadata, storageInfo, storageFiles)
     }
 
@@ -174,8 +175,8 @@ class FileStorageServiceImpl(
         zipOut.close()
     }
 
-    override fun deleteFiles(storageFileList: List<StorageFile>) {
-        logger.info("Deleting ${storageFileList.size} files...")
+    override fun deleteFiles(storageFileList: List<StorageFile>, bucket: String) {
+        logger.info("Deleting ${storageFileList.size} files from $bucket...")
         storageFileList.forEach {
             val filepath = root.resolve(it.getFullStoragePath())
             FileSystemUtils.deleteRecursively(filepath)
