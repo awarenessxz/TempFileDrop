@@ -1,45 +1,20 @@
-# Archive design
+# Archive Designs
 
-These projects are base on the old design where webserver is used to proxy the request to the centralized storage service.
+## Design 1 - Proxy
 
 ![design 1](../doc/architecture_design1.png)
 
-## Getting Started
+First design with basic implementation. The design was built around using the webserver as the main mode of communication
+between the frontend and backend. Any storage related requests will be routed (or proxied) to the centralized storage 
+service. 
+- no authentication was implemented
 
-### Start Infrastructure Cluster
+## Design 2 - Direct Consumption with Event Feedback
 
-```bash
-# Clean up persistent data and restart the services (Fresh State)
-sudo ../infra/cleanup_and_restart.sh
+![design 1](../doc/architecture_design2.png) 
 
-# Note that rabbitmq / keycloak are not required in this setup
-```
-
-### Start Centralized Storage Service
-
-1. Ensure that the following services are available
-    - **Minio Cluster**
-    - **MongoDB**
-2. Start the Storage Service
-    ```bash
-    cd <PROJECT_ROOT_DIR>
-    ./gradlew archive:storage-service:bootRun
-    ```
-
-### Start TempFileDrop.io Service
-
-1. Ensure that the following services are available
-    - **Centralized Storage Service**
-    - **MongoDB**
-2. Start the Web Server
-    ```bash
-    cd <PROJECT_ROOT_DIR>
-    ./gradlew archive:webserver:bootRun
-    ```
-3. Start the Web Application
-    ```bash
-    cd <PROJECT_ROOT_DIR>/webapp
-    yarn install
-    yarn start
-    ```
-   
+The second design is an upgrade to the first implementation. Instead of proxying the storage request, all storage request 
+will be made directly to the centralized storage service. Additional features were added to the design
+- anonymous upload / download
+- authentication with keycloak
+- event feedback with rabbitmq

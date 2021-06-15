@@ -5,5 +5,5 @@ include("webserver")
 include("storage-service")
 
 // archive files
-include("archive:webserver")
-include("archive:storage-service")
+include("archive:design1:webserver")
+include("archive:design1:storage-service")
