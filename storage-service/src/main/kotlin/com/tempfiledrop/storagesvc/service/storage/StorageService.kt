@@ -70,9 +70,9 @@ abstract class StorageService {
         return storageInfo
     }
 
-    fun downloadFilesFromBucket(storageId: String, response: HttpServletResponse, isAuth: Boolean = false): StorageInfo {
+    fun downloadFilesFromBucket(storageId: String, response: HttpServletResponse, isAuth: Boolean = false, bucket: String? = null): StorageInfo {
         // verify if files are available
-        val storageInfo = getAndValidateStorageInfo(storageId)
+        val storageInfo = getAndValidateStorageInfo(storageId, bucket)
         val storageFiles = getAndValidateStorageFiles(storageInfo)
         if (!isAuth && !storageInfo.allowAnonymousDownload) {
             throw ApiException("Download requires authentication", ErrorCode.DOWNLOAD_DENIED, HttpStatus.UNAUTHORIZED)

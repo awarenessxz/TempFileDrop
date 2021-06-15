@@ -113,15 +113,7 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
 
 ### API Endpoints
 
-| Request Type | Endpoints | Description |
-| --- | --- | --- |
-| GET | /api/storagesvc/{bucket} | get contents inside bucket |
-| POST | /api/storagesvc/upload | upload files using multi-part request |
-| POST | /api/storagesvc/uploadV2 | upload files using multi-part request using streaming |
-| DELETE | /api/storagesvc/{bucket}/{storageId} | delete files from storage using bucket name and storageId |
-| GET | /api/storagesvc/storageinfo/{bucket}/{storageId} | get storage information using bucket name and storageId |
-| POST | /api/storagesvc/storageinfo/bulk | get multiple storage information using bucket name and multiple storageId |
-| GET | /api/storagesvc/download/{bucket}/{storageId} | download files using bucket name and storageId |
+Start the application and check of the swagger API Definitions.
 
 ### Events
 

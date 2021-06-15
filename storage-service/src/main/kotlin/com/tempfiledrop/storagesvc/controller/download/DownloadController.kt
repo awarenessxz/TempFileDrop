@@ -28,12 +28,12 @@ class DownloadController(
         private val logger = LoggerFactory.getLogger(DownloadController::class.java)
     }
 
-    @Operation(summary = "Download files using storageId")
+    @Operation(summary = "Get Download Information with download key provided in download endpoint")
     @ApiResponses(value = [
         ApiResponse(description = "Successful operation", responseCode = "200"),
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ])
-    @GetMapping("/temporarylink/{storageId}")
+    @GetMapping("/temporarykey/{storageId}")
     fun getDownloadLink(@PathVariable("storageId") storageId: String): ResponseEntity<DownloadResponse> {
         logger.info("Generating Download Link for $storageId....")
         val storageInfo = storageService.getAndValidateStorageInfo(storageId)
@@ -44,7 +44,7 @@ class DownloadController(
         return ResponseEntity(response, HttpStatus.OK)
     }
 
-    @Operation(summary = "Download files")
+    @Operation(summary = "Download files using temporary download key")
     @ApiResponses(value = [
         ApiResponse(description = "Successful operation", responseCode = "200"),
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
@@ -65,7 +65,7 @@ class DownloadController(
         }
     }
 
-    @Operation(summary = "Download files with authorization header", security = [SecurityRequirement(name = "bearer-token")])
+    @Operation(summary = "Download files with authorization header using temporary download key", security = [SecurityRequirement(name = "bearer-token")])
     @ApiResponses(value = [
         ApiResponse(description = "Successful operation", responseCode = "200"),
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
@@ -85,20 +85,21 @@ class DownloadController(
         }
     }
 
-    @Operation(summary = "Download files with authentication using storageId", security = [SecurityRequirement(name = "bearer-token")])
+    @Operation(summary = "Download files with authorization header, bypassing download key usage", security = [SecurityRequirement(name = "bearer-token")])
     @ApiResponses(value = [
         ApiResponse(description = "Successful operation", responseCode = "200"),
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ])
-    @GetMapping("/secure/direct/{storageId}")
+    @GetMapping("/secure/{bucket}/{storageId}")
     fun downloadFilesAuthenticatedDirectly(
+            @PathVariable("bucket") bucket: String,
             @PathVariable("storageId") storageId: String,
             @RequestParam(required = false, defaultValue = "") eventData: String,
             @RequestParam(required = false, defaultValue = "") eventRoutingKey: String,
             response: HttpServletResponse
     ) {
-        logger.info("Downloading files from $storageId with authorization header directly")
-        val storageInfo = storageService.downloadFilesFromBucket(storageId, response, true) // download files
+        logger.info("Downloading files from $storageId with authorization header directly without using download key")
+        val storageInfo = storageService.downloadFilesFromBucket(storageId, response, true, bucket) // download files
         if (eventRoutingKey.isNotEmpty()) {
             producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageInfo, eventData, eventRoutingKey) // send an event
         }
