@@ -107,8 +107,9 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
 
 | Table | Columns | Description |
 | --- | --- | --- |
-| storage_info | **id**, bucketName, storagePath,  filenames, numOfDownloadsLeft, expiryDatetime, downloadLink | {storageId to files/object uploads} mapping. Given the **id** AKA **storageId**, the storage service will be able to identify the files uploaded and make them available for download. |
-| storage_files | id, bucketName, storagePath, filename, originalFilename, fileContentType, fileLength, storageId | Contains the uploaded files details |
+| storage_info | **id**, bucket, storagePath,  filenames, numOfDownloadsLeft, expiryDatetime, downloadLink | {storageId to files/object uploads} mapping. Given the **id** AKA **storageId**, the storage service will be able to identify the files uploaded and make them available for download. |
+| storage_files | id, bucket, storagePath, filename, originalFilename, fileContentType, fileLength, storageId | Contains the uploaded files details |
+| download_tokens | id, storageId, downloadKey, expiryDatetime | Cache for temporary download link |
 
 ### API Endpoints
 

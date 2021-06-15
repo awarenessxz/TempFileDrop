@@ -31,8 +31,6 @@ spring.servlet.multipart:
 # Mongo DB Configuration
 ###############################################################################################
 
-spring.data.mongodb:
-  uri: mongodb://service_user:service_pass@localhost:27017/webDB
-  authentication-database: webDB
+spring.data.mongodb.uri: mongodb://service_user:service_pass@localhost:27017/webDB?authSource=admin
 
 ---

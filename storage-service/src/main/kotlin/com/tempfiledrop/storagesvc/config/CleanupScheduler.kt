@@ -30,7 +30,7 @@ class CleanupScheduler(
         val storageFiles = storageFileService.getStorageFilesInfoByStorageIdBulk(storageIds)
         logger.info("Deleting ${storageInfoList.size} storageId with a total of ${storageFiles.size} files")
         if (storageFiles.isNotEmpty()) {
-            val groups = storageFiles.groupBy { it.bucketName }
+            val groups = storageFiles.groupBy { it.bucket }
             for ((k, v) in groups) {
                 storageService.deleteFiles(v, k)
             }

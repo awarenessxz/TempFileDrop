@@ -11,7 +11,7 @@ storagesvc:
     minio-endpoint: http://minio-nginx:9000
 
 spring:
-  data.mongodb.uri: mongodb://service_user:service_pass@mongodb:27017/webDB
+  data.mongodb.uri: mongodb://storage_user:storage_pass@mongodb:27017/storageDB?authSource=admin
   rabbitmq.addresses: rabbitmq:5672
 
 keycloak:

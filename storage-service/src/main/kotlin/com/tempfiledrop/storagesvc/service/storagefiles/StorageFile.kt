@@ -6,7 +6,7 @@ import java.nio.file.Paths
 
 @Document(collection="storage_files")
 data class StorageFile(
-        val bucketName: String,         // bucket_name
+        val bucket: String,         // bucket_name
         val storagePath: String,        // the directory
         val originalFilename: String,   // original file name
         val filename: String,           // UUID file name (to distinct as well as change name of file to prevent hacker from finding it)
@@ -16,7 +16,7 @@ data class StorageFile(
         @Id val id: String? = null      // mongoDB ID
 ) {
     fun getFullStoragePath(): String {
-        return Paths.get(bucketName).resolve(storagePath).resolve(filename).toString()
+        return Paths.get(bucket).resolve(storagePath).resolve(filename).toString()
     }
 
     fun getFileStoragePath(): String {

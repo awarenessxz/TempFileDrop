@@ -8,7 +8,7 @@ tempfiledrop:
   storagesvc-url: http://storage-service:8080
 
 spring:
-  data.mongodb.uri: mongodb://service_user:service_pass@mongodb:27017/webDB
+  data.mongodb.uri: mongodb://service_user:service_pass@mongodb:27017/webDB?authSource=admin
   rabbitmq.addresses: rabbitmq:5672
 
 keycloak:

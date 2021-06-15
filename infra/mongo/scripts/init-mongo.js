@@ -1,6 +1,10 @@
 // This data will be inserted into database given by 'MONGO_INITDB_DATABASE' environment variable.
 // If the environment variable is not set then it will be inserted into database name 'test'
 
+/********************************************************************************
+ * Create system wide admin account
+ *******************************************************************************/
+
 // Create an user with userAdminAnyDatabase role which grants
 // the privilege to create other users on any existing database.
 db.createUser({
@@ -9,23 +13,51 @@ db.createUser({
     roles: [{ role: "userAdminAnyDatabase", db: "admin" }]
 })
 
+/********************************************************************************
+ * Create Users
+ *******************************************************************************/
+
+db.auth('admin', '1234');
 db.createUser({
     user: "service_user",
     pwd: "service_pass",
     roles: [{ role: "readWrite", db: "webDB" }]
 });
-db.auth("service_user", "service_pass")
+db.createUser({
+    user: "storage_user",
+    pwd: "storage_pass",
+    roles: [{ role: "readWrite", db: "storageDB" }]
+});
 
-// Collections for WebServer
+/********************************************************************************
+ * Create Database for TempFileDrop WebServer
+ *******************************************************************************/
+
+// authenticate user
+db = db.getSiblingDB('admin');
+db.auth("service_user", "service_pass");
+
+// Create Collections for TempFileDrop webserver
+db = db.getSiblingDB('webDB');
 db.createCollection("users_upload_info");
 
-// Not required for new design with Key Cloak
+// for design 1
 db.createCollection("users");
 db.users.insert([
     { username: "user1", password: "password", creationDate: new Date(Date.now()) },
     { username: "user2", password: "password", creationDate: new Date(Date.now()) }
 ]);
 
-// Collections for Storage Service
+/********************************************************************************
+ * Create Database for Storage Service
+ *******************************************************************************/
+
+// authenticate user
+db = db.getSiblingDB('admin');
+db.auth("storage_user", "storage_pass");
+
+// Create Collections for Storage Service
+db = db.getSiblingDB('storageDB');
 db.createCollection("storage_info")
 db.createCollection("storage_files");
+db.createCollection("download_tokens");

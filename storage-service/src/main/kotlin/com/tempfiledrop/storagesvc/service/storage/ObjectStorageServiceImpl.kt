@@ -130,7 +130,7 @@ class ObjectStorageServiceImpl(
     override fun downloadFile(storageFile: StorageFile, response: HttpServletResponse) {
         logger.info("Downloading ${storageFile.filename} from MinIO Cluster.....")
         val filepath = storageFile.getFileStoragePath()
-        val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(storageFile.bucketName).`object`(filepath).build())
+        val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(storageFile.bucket).`object`(filepath).build())
         IOUtils.copyLarge(inputStream, response.outputStream)
     }
 
@@ -139,7 +139,7 @@ class ObjectStorageServiceImpl(
         val zipOut = ZipOutputStream(response.outputStream)
         storageFiles.forEach {
             val filepath = it.getFileStoragePath()
-            val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(it.bucketName).`object`(filepath).build())
+            val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(it.bucket).`object`(filepath).build())
             val zipEntry = ZipEntry(it.originalFilename)
             // zipEntry.size = it.fileLength
             zipOut.putNextEntry(zipEntry)

@@ -7,7 +7,7 @@ class StorageFileServiceImpl(
         private val repository: StorageFileRepository
 ): StorageFileService {
     override fun saveFilesInfo(storageId: String, files: List<StorageFile>) {
-        files.forEach { repository.save(StorageFile(it.bucketName, it.storagePath, it.originalFilename, it.filename, it.fileContentType, it.fileLength, storageId)) }
+        files.forEach { repository.save(StorageFile(it.bucket, it.storagePath, it.originalFilename, it.filename, it.fileContentType, it.fileLength, storageId)) }
     }
 
     override fun deleteFilesInfo(storageId: String) {
