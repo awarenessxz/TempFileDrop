@@ -1,0 +1,182 @@
+.align-center-row {
+    align-items: center;
+}
+
+.dropzone-container {
+    padding: 0;
+}
+
+.dropzone-box {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    position: absolute;
+    top: 50%;
+    right: 0;
+    left: 0;
+    -webkit-transform: translateY( -50% );
+    transform: translateY( -50% );
+    text-align: center;
+    height: 100%;
+    z-index: 999999;
+    background-color: #92b0b3;
+}
+
+/*******************************************
+ * DROP ZONE
+ *******************************************/
+
+.dropzone-input-box {
+    font-size: 1.25rem;
+    background-color: #c8dadf;
+    position: relative;
+    padding: 20px 20px 60px 20px;
+    outline: 2px dashed #92b0b3;
+    outline-offset: -10px;
+    -webkit-transition: outline-offset .15s ease-in-out, background-color .15s linear;
+    transition: outline-offset .15s ease-in-out, background-color .15s linear;
+}
+
+.dropzone-input-box .dropzone {
+    cursor: pointer;
+    padding-top: 60px;
+    padding-bottom: 20px;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    outline: none;
+    transition: border .24s ease-in-out;
+}
+
+.dropzone-input-box .dropzone .drop-icon {
+    width: 100%;
+    height: 80px;
+    fill: #92b0b3;
+    display: block;
+    margin-bottom: 40px;
+}
+
+.dropzone-input-box .dropzone svg {
+    fill: currentColor;
+    vertical-align: middle;
+    pointer-events: none;
+}
+
+.dropzone-input-box .action-box {
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+}
+
+.dropzone-input-box .action-box  button {
+    margin: 0 5px;
+}
+
+/*******************************************
+ * Loading
+ *******************************************/
+
+.loader {
+    align-items: stretch;
+    padding: 20px;
+}
+
+/*******************************************
+ * ERROR / MESSAGE
+ *******************************************/
+
+.message-error {
+    background-color: #f8d7da;
+    border-color: #f5c6cb;
+    color: #721c24;
+}
+
+.message-success {
+    color: #155724;
+    background-color: #d4edda;
+    border-color: #c3e6cb;
+}
+
+.dropzone-share-link {
+    width: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+}
+
+.dropzone-share-link input {
+    flex: 1 1 auto;
+    color: #383d41;
+    background-color: #e2e3e5;
+    border: 1px solid #d6d8db;
+    padding: 5px;
+    margin: 0 10px;
+}
+
+.copy-tooltip {
+    position: relative;
+    display: inline-block;
+}
+
+.copy-tooltip .copy-tooltiptext {
+    visibility: hidden;
+    width: 140px;
+    background-color: #555;
+    color: #fff;
+    text-align: center;
+    border-radius: 6px;
+    padding: 5px;
+    position: absolute;
+    z-index: 1;
+    bottom: 150%;
+    left: 50%;
+    margin-left: -75px;
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.copy-tooltip .copy-tooltiptext::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -5px;
+    border-width: 5px;
+    border-style: solid;
+    border-color: #555 transparent transparent transparent;
+}
+
+.copy-tooltip:hover .copy-tooltiptext  {
+    visibility: visible;
+    opacity: 1;
+}
+
+/*******************************************
+ * Config
+ *******************************************/
+
+.dropzone-config-box {
+    display: flex;
+    flex-direction: column;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+/*******************************************
+ * RESULTS
+ *******************************************/
+
+.dropzone-result-box {
+    display: flex;
+    margin: 10px 0;
+    padding: 10px;
+}
+
+.dropzone-result-box table {
+    margin: 0;
+}

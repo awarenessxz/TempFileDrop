@@ -1,4 +1,4 @@
-# Archive design 1
+# Design v1 - Backend Proxy
 
 This project is the very first design that I conceptualize where I used the backend webserver to proxy file storage 
 related requests to the centralized storage service. No authentication have been implemented in this design. 

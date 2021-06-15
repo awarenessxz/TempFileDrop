@@ -29,7 +29,7 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
 
 ```bash
 cd <ROOT>
-./gradlew storage-service:bootRun
+./gradlew archive:design1:storage-service:bootRun
 ```
 
 ### Deploying the service
@@ -42,7 +42,7 @@ TO BE ADDED...
 
 #### How uploads are stored and tagged
 
-![upload_design](../doc/storagesvc_design.png)
+![upload_design](../../../doc/storagesvc_upload_pattern.png)
 
 - Each upload is tag to a **storageId** which is stored in the database
 - Following S3 convention, the consumer should have a bucket available in order to upload files

@@ -24,7 +24,7 @@ to serve data, handle logins & registration and process file uploads/downloads.
 
 ```bash
 cd <ROOT>
-./gradlew webserver:bootRun
+./gradlew archive:design1:webserver:bootRun
 ```
 
 ## Documentation

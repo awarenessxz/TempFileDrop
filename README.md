@@ -50,36 +50,15 @@ There are 2 main purpose of this project.
 
 ## Architecture Design
 
-### First Design 
+### Design Sprints
 
-![design 1](doc/architecture_design1.png)
+#### Version 1 - Backend Proxy
 
-This is the first conceptualize design of the centralized storage service. Applications will upload files to their own
-backend which will then proxy the request to the storage service. (Note that the backend have some logic which processes 
-the uploaded files, hence it is necessary for the backend to be aware of the uploads instead of having the application 
-upload directly to the storage service). 
+Refer to documentation in [design 1](archive/design1)
 
-However, after developing the features, I realized that although we are proxying the upload and download from the webserver 
-via streams, the amount of hops required to upload and download files can be improved
+#### Version 2 - Direct Consumption with Event Feedback
 
-### Second Design
-
-![design 2](doc/architecture_design2.png)
-
-To further optimize the first design, the applications will directly upload to the storage service instead of proxying 
-through the backend. Event Streaming is added to update the backend when an upload / download is completed.
-
-#### Event Streaming Flow
-
-This is the rough design on how events are send to consumers.
-
-![Event Stream](doc/event_flow_2.png)
-
-#### Authentication with Keycloak
-
-This is the rough design on how role is configured.
-
-![Keycloak Role Design](doc/keycloak_roles.png)
+Refer to documentation in [archive_2](archive/design2)
 
 ### Design Considerations
 

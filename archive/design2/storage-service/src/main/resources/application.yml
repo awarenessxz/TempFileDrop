@@ -1,0 +1,83 @@
+###############################################################################################
+# Server Configuration
+###############################################################################################
+
+server.port: 8001
+
+spring:
+  profiles.active: dev
+  application.name: storage-service
+
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    enabled: false
+
+storagesvc:
+  cors:                               # required for swagger-ui-react to call api through swagger
+    enable: true
+    origins: http://localhost:3000    # use comma to add more
+  anonymous-upload:
+    enable: true
+    max-file-size: 104857600    # 1024 * 1024 * 100 (100MB)
+  storage-mode: object
+  file-storage:
+    upload-directory: uploads
+  object-storage:
+    minio-endpoint: http://localhost:9000
+    minio-access-key: minio
+    minio-access-secret: minio123
+
+---
+
+###############################################################################################
+# Servlet Configuration for Multipart File
+###############################################################################################
+
+spring.servlet.multipart:
+  enabled: false          # to use apache commons fileupload instead
+  max-file-size: 5GB      # Max file size for each request
+  max-request-size: 5GB   # Max request size for a multipart/form-data
+
+---
+
+###############################################################################################
+# Mongo DB Configuration
+###############################################################################################
+
+spring.data.mongodb.uri: mongodb://storage_user:storage_pass@localhost:27017/storageDB?authSource=admin
+
+---
+
+###############################################################################################
+# Rabbit MQ Configuration
+###############################################################################################
+
+spring:
+  rabbitmq:
+    addresses: localhost:5672
+    username: storage_publisher
+    password: storage123
+  cloud.stream:
+    rabbit.bindings:
+      storageSvcChannel-out-0.producer:
+        routing-key-expression: headers.routingkey    # Get Routing key from streambridge header
+        declare-exchange: false                       # Disable exchange creation for access control
+    bindings:
+      storageSvcChannel-out-0.destination: storageSvcExchange       # mapping cloud stream output channel to rabbitmq exchange
+
+---
+
+###############################################################################################
+# Keycloak Configuration
+###############################################################################################
+
+keycloak:
+  auth-server-url: http://localhost:8080/auth
+  realm: storage
+  resource: centralized-storage-service         # client
+  principal-attribute: preferred_username       # map the Principal name with our Keycloak username
+  bearer-only: true                             # the adapter will not attempt to authenticate users, but only verify bearer tokens.
+  public-client: false                          # this is not client side application
+  use-resource-role-mappings: true              # use client roles

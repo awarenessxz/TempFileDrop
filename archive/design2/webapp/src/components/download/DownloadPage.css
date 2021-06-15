@@ -1,0 +1,33 @@
+.download-container {
+    background-color: #88D498;
+}
+
+.download-container div:first-child {
+    height: 100%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.download-container .download-info-box {
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.download-container .download-info-box p {
+    margin-bottom: 20px;
+    color: rgba(255, 255, 255, 0.95) !important;
+    font-size: 1.2rem;
+    line-height: 1.5rem;
+}
+
+.download-container .download-info-box Button {
+    margin: 10px 0 20px 0;
+}
+
+.download-container .download-info-box p {
+    text-align: center;
+}
