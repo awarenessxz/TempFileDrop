@@ -4,8 +4,8 @@ plugins {
 	id("org.springframework.boot") version "2.4.5"
 	id("io.spring.dependency-management") version "1.0.11.RELEASE"
 	id("com.google.cloud.tools.jib") version "3.1.1"
-	kotlin("jvm") version "1.4.32"
-	kotlin("plugin.spring") version "1.4.32"
+	kotlin("jvm")
+	kotlin("plugin.spring")
 }
 
 group = "com.tempfiledrop"
