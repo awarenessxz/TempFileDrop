@@ -11,6 +11,6 @@ Browse to htpp://localhost:3000
 
 ## Sample View
 
-![Sample View](../doc/webapp_1.png)
+![Sample View](../../doc/webapp_1.png)
 
-![Upload](../doc/webapp_2.png)
+![Upload](../../doc/webapp_2.png)

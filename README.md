@@ -3,20 +3,16 @@
 **Table of Content**
 - [Overview](#overview)
 - [Architecture Design](#architecture-design)
-    - [First Design](#first-design)
-    - [Second Design](#second-design)
-        - [Event Streaming Flow](#event-streaming-flow)
-        - [Authentication with Keycloak](#authentication-with-keycloak)
-    - [Design Considerations](#design-considerations)
 - [Getting Started](#getting-started)
-- [How to consume storage service](storage-service/README.md#how-to-consume-centralized-storage-service)
+- [How to consume storage service](design3/storage-service/README.md#how-to-consume-centralized-storage-service)
+- [Design Considerations](#design-considerations)
 - [Future Works](#future-works)
 - [References](#references)
     - [Command Cheat Sheet](doc/CHEATSHEET.md)
     
 ## Overview
 
-There are 2 main purpose of this project.
+There are 3 main purpose of this project.
 1. **To design a centralized storage service.**
     - Storage Medium will be based on either **file storage (NAS)** or **object storage (MinIO)**
     - Storage Service acts as an **abstraction layer** such that consumers do not consume the storage medium directly.
@@ -29,7 +25,9 @@ There are 2 main purpose of this project.
 2. **To create a temporary file sharing application.**
     - **TempFileDrop.io** is a project that replicates [file.io](https://www.file.io/) which is a super simple file sharing application.
     - Understand **file uploads / downloads using Rest** 
-    
+3. **To experiment with having API Gateway for authentication**
+    - Use Spring Cloud Gateway and Keycloak for authentication
+
 **Technology Stack:**
 - **React** - Website Framework
 - **Nginx** - Web server to serve website
@@ -39,66 +37,32 @@ There are 2 main purpose of this project.
 - **Docker** - Containerization
 
 **For more details on implementation, refer to the README of the individual services**
-- [Website](webapp)
-- [Web Server](webserver)
-- [Storage Service](storage-service)
-- **Archive (Old Designs)**
-    - [Storage Service Client Library](archive/storage-service-client)
-    - [Storage Service](archive/storage-service)
-    - [Web Server](archive/webserver)
-    - [Website](archive/webapp)
+- [Design v1 [Archive]](archive/design1)
+- [Design v2 [Archive]](archive/design2)
+- **[Design v3 [Current]](design3)**
+    - [Website](design3/webapp)
+    - [Web Server](design3/webserver)
+    - [Storage Service](design3/storage-service)
 
 ## Architecture Design
 
-### Design Sprints
+### Version 1 - Backend Proxy
 
-#### Version 1 - Backend Proxy
+Refer to [documentation in design 1](archive/design1)
 
-Refer to documentation in [design 1](archive/design1)
+![design 1](doc/architecture_design1.png)
 
-#### Version 2 - Direct Consumption with Event Feedback
+### Version 2 - Direct Consumption with Event Feedback
 
-Refer to documentation in [archive_2](archive/design2)
+Refer to [documentation in design_2](archive/design2)
 
-### Design Considerations
+![design 2](doc/architecture_design2.png)
 
-1. How much space do we need for the MinIO Cluster
-2. API Service
-    - Batch Calls
-    - Speed of transfer
-    - Mode of transfer
-    - How much load can it handles (Out of Memory Issues)
-3. File Upload Mechanism
-    - **Option A - Direct File Upload**
-        - use HTTP `Content-Type` header on request to set the proper content
-            ```
-            PUT /profile/image HTTP/1.1
-            Content-Type: image/jpeg
-            Content-Length: 284
-            
-            raw image content...
-            ```
-        - This is a straightforward method that is recommended in most cases
-    - **Option B - Multipart HTTP request [SELECTED]**
-        - useful to support `uploading of multiple files at once` as well as supporting `different metadata` (eg combination 
-        of images and JSON) in the same request
-        - We will be using a variation of this **Mixed Multipart** which is a Multipart request with json
-    - **Option C - Two-step: Metadata + Upload**
-        - Submit meta-data first using `POST` method and return a `201 Created` with the location of where to upload the content
-        - Submit a `PUT` request to upload content
-4. Possible File Upload Vulnerabilities
-    - **Server Side Request Forgery Vulnerability**
-    - **Defend Strategies**:
-        - There should be a **whitelist** of allowed file types. This list determines the types of files that can be uploaded,
-        and rejects all files that do not match the approved types.
-        - **Client- or Server-side input validation** to ensure evasion techniques that have not been used to bypass the
-        whitelist filter. These evasion techniques could include appending a second file type to the file name 
-        (eg.. image.jph.php) or using trailing space or dots in the file name.
-        - **Maximum filename length and file size** should be set.
-        - Directory to which files are uploaded should be **outside of the website root**.
-        - All uploaded files should be **scanned by antivirus software** before they are opened. 
-        - App should not use **file names** supplied by user. Uploaded files should be renamed according to a predetermined
-        condition. This makes it harder for attacker to find their uploaded files.
+### Version 3 - Gateway Authentication (Current)
+
+Refer to [documentation in design 3](design3)
+
+![design 3](doc/architecture_design3.png)
 
 ## Getting Started
 
@@ -213,6 +177,47 @@ sudo scripts/cleanup_and_restart_infra.sh
 #### Kubernetes Set up
 
 ![Quick Start setup](doc/kubernetes.png)
+
+## Design Considerations
+
+1. How much space do we need for the MinIO Cluster
+2. API Service
+    - Batch Calls
+    - Speed of transfer
+    - Mode of transfer
+    - How much load can it handles (Out of Memory Issues)
+3. File Upload Mechanism
+    - **Option A - Direct File Upload**
+        - use HTTP `Content-Type` header on request to set the proper content
+            ```
+            PUT /profile/image HTTP/1.1
+            Content-Type: image/jpeg
+            Content-Length: 284
+            
+            raw image content...
+            ```
+        - This is a straightforward method that is recommended in most cases
+    - **Option B - Multipart HTTP request [SELECTED]**
+        - useful to support `uploading of multiple files at once` as well as supporting `different metadata` (eg combination 
+        of images and JSON) in the same request
+        - We will be using a variation of this **Mixed Multipart** which is a Multipart request with json
+    - **Option C - Two-step: Metadata + Upload**
+        - Submit meta-data first using `POST` method and return a `201 Created` with the location of where to upload the content
+        - Submit a `PUT` request to upload content
+4. Possible File Upload Vulnerabilities
+    - **Server Side Request Forgery Vulnerability**
+    - **Defend Strategies**:
+        - There should be a **whitelist** of allowed file types. This list determines the types of files that can be uploaded,
+        and rejects all files that do not match the approved types.
+        - **Client- or Server-side input validation** to ensure evasion techniques that have not been used to bypass the
+        whitelist filter. These evasion techniques could include appending a second file type to the file name 
+        (eg.. image.jph.php) or using trailing space or dots in the file name.
+        - **Maximum filename length and file size** should be set.
+        - Directory to which files are uploaded should be **outside of the website root**.
+        - All uploaded files should be **scanned by antivirus software** before they are opened. 
+        - App should not use **file names** supplied by user. Uploaded files should be renamed according to a predetermined
+        condition. This makes it harder for attacker to find their uploaded files.
+
 
 ## Future Works
 

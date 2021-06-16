@@ -9,7 +9,6 @@ to serve data, handle logins & registration and process file uploads/downloads.
 - [Documentation](#documentation)
     - [API Endpoints](#api-endpoints)
     - [Database Tables](#database-tables)
-    - [Testing File Uploads](#testing-file-uploads-api)
 
 ## Usage
 

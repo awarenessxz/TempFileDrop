@@ -67,13 +67,13 @@ TO BE ADDED...
 
 Ensure `mongoDB`, `minIO` and `rabbitmq` is up. To test uploading of files, use `Postman` and use the settings below
 
-![Test Webserver Upload](../doc/postman_webserver_upload.png)
+![Test Webserver Upload](../../doc/postman_webserver_upload.png)
 
 ## Documentation
 
 ### Storage Service Design
 
-![storagesvc_design](../doc/storagesvc_design.png)
+![storagesvc_design](../../doc/storagesvc_design.png)
 
 The centralized storage service is an abstraction layer over **storage medium** where the bulk of the exploration is based
 on **Object Storage** with **MinIO**. Below are some of the key features available in the centralized storage service:
@@ -98,7 +98,7 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
 
 #### More about StorageId
 
-![upload_pattern](../doc/storagesvc_upload_pattern.png)
+![upload_pattern](../../doc/storagesvc_upload_pattern.png)
 
 - Each upload is tag to a **storageId** which is stored as **metadata** in the database
 - Following S3 convention, the consumer should have a **bucket** available in order to upload files
@@ -117,7 +117,7 @@ Start the application and check of the swagger API Definitions.
 
 ### Events
 
-![event flow](../doc/event_flow_2.png)
+![event flow](../../doc/event_flow_2.png)
 
 ## How to consume Centralized Storage Service
 
@@ -235,7 +235,7 @@ When downloading files, observe the download pattern below. Get a temporary down
 do not want a 2 stage download step, you can directly download using the `/api/storagesvc/download/secure/direct/{storageId}'
 endpoint.
 
-![download pattern](../doc/download_pattern.png)
+![download pattern](../../doc/download_pattern.png)
 
 ##### Sample Codes for downloading files
 
@@ -359,7 +359,7 @@ To consume messages, follow the steps below
 The centralized storage service handles authentication and authorization using Keycloak. Below is a diagram on how roles
 are designed. 
 
-![Keycloak Roles](../doc/keycloak_roles.png)
+![Keycloak Roles](../../doc/keycloak_roles.png)
 
 To consume centralized storage service,
 - **As an application / service**

@@ -1,8 +1,8 @@
 rootProject.name = "TempFileDrop"
 
 // order does matters
-include("webserver")
-include("storage-service")
+include("design3:webserver")
+include("design3:storage-service")
 
 // archive files
 include("archive:design1:webserver")
