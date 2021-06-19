@@ -2,7 +2,7 @@
 # Server Configuration
 ###############################################################################################
 
-server.port: 7001
+server.port: 7002
 
 spring:
   profiles.active: dev
