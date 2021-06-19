@@ -13,6 +13,8 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
         - [StorageId](#more-about-storageid)
     - [Database Tables](#database-tables)
     - [API Endpoints](#api-endpoints)
+    - [Event Streaming using RabbitMQ](#event-streaming-using-rabbitmq)
+    - [Keycloak Roles](#keycloak-roles)
 - [How to consume Centralized Storage Service](#how-to-consume-centralized-storage-service)
     - [1. Configure HTTP Request](#1-configure-http-request)
         - [Http Authorization Header](#authorization-header)
@@ -56,7 +58,7 @@ cd <ROOT>
 python infra/rabbitmq/scripts/init_storagesvc.py --create-exchange -e storageSvcExchange
 
 # Start the service
-./gradlew storage-service:bootRun
+./gradlew archive:design2:storage-service:bootRun
 ```
 
 ### Deploying the service
@@ -113,11 +115,19 @@ on **Object Storage** with **MinIO**. Below are some of the key features availab
 
 ### API Endpoints
 
-Start the application and check of the swagger API Definitions.
+Start the webapp and check out the swagger API Definitions.
 
-### Events
+### Event Streaming using RabbitMQ
+
+This is the rough design on how events are send to consumers.
 
 ![event flow](../../doc/event_flow_2.png)
+
+### Keycloak Roles
+
+Below is a diagram on how roles are designed. 
+
+![Keycloak Roles](../../doc/keycloak_roles.png)
 
 ## How to consume Centralized Storage Service
 
@@ -356,12 +366,7 @@ To consume messages, follow the steps below
 
 ### 3. Keycloak Authentication
 
-The centralized storage service handles authentication and authorization using Keycloak. Below is a diagram on how roles
-are designed. 
-
-![Keycloak Roles](../../doc/keycloak_roles.png)
-
-To consume centralized storage service,
+The centralized storage service handles authentication and authorization using Keycloak. To consume centralized storage service,
 - **As an application / service**
     - Register your application as a **Client**
     - Create **client roles** and **realm roles** using the diagram above as an example

@@ -4,20 +4,19 @@ import com.tempfiledrop.webserver.exception.ApiException
 import com.tempfiledrop.webserver.exception.ErrorCode
 import com.tempfiledrop.webserver.model.StorageInfoBulkRequest
 import com.tempfiledrop.webserver.model.StorageInfoBulkResponse
-import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
+import org.springframework.web.client.RestTemplate
 
 @RestController
 @RequestMapping("/api/users-upload-info")
 class UserUploadInfoController(
         @Value("\${tempfiledrop.bucket-name}") private val tempfiledropBucket: String,
         @Value("\${tempfiledrop.storagesvc-url}") private val storageServiceUrl: String,
-        private val uploadedFilesRecordService: UserUploadInfoService,
-        private val restTemplate: KeycloakRestTemplate
+        private val uploadedFilesRecordService: UserUploadInfoService
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(UserUploadInfoController::class.java)
@@ -34,6 +33,7 @@ class UserUploadInfoController(
             // get information from storage service
             val storageIds = records.map { it.storageId }
             val request = StorageInfoBulkRequest(tempfiledropBucket, storageIds)
+            val restTemplate = RestTemplate()
             val response = restTemplate.postForEntity("$storageServiceUrl/api/storagesvc/storageinfo/bulk", request, StorageInfoBulkResponse::class.java)
             val storageInfoList = response.body?.storageInfoList
 

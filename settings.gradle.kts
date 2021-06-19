@@ -3,6 +3,7 @@ rootProject.name = "TempFileDrop"
 // order does matters
 include("design3:webserver")
 include("design3:storage-service")
+include("infra:gateway")
 
 // archive files
 include("archive:design1:webserver")

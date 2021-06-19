@@ -11,6 +11,20 @@ spring:
 tempfiledrop:
   bucket-name: tempfiledrop
   storagesvc-url: http://localhost:8001
+
+storagelib:
+  jwt-parser-keycloak:
+    resource: storage-gateway           # Client
+    use-resource-role-mappings: true    # use client role
+    public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjBbNUOPhBZVCssoky2C5S3WnmiR0a492J+KU7Z6yLrwgmTfyo1ZZjEDup3DvF/GLMaaDF3QJMwY33cefMV+UzFt+xy7Usc6cI2+6mo1ZZjgy0LP/+t5RXKRCPNW69wEfWSXfb6CGrv+bklhmut0M3SqnsV3JJentRl0geZ9WC8aOzIuyHXP67fSgkGzRW6yhFKHsIoN06A5hD6gzvb64pt31Eycs/rmnNgtAmyQmUls3imdjMrbs0fM1/xNQh7qLb/mR1UT+WErgxCn/VDrDTqgC5QLvNMdp1sdf5lpYBjd+Y90NQgyj2pTNSuJZuLXFBad5lfaVAP6w6oF3nmfmFwIDAQAB
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.web.HttpLogging: DEBUG
+    org.springframework.security: DEBUG
+
 ---
 
 ###############################################################################################
@@ -45,16 +59,3 @@ spring:
           destination: storageSvcExchange     # mapping cloud stream output channel to rabbitmq exchange
           group: tempfiledrop                 # only 1 instance in consumer group will receive message (should be unique to your app)
 ---
-
-###############################################################################################
-# Keycloak Configuration
-###############################################################################################
-
-keycloak:
-  auth-server-url: http://localhost:8080/auth
-  realm: storage
-  resource: tempfiledrop-webserver              # client
-  principal-attribute: preferred_username       # map the Principal name with our Keycloak username
-  bearer-only: true                             # the adapter will not attempt to authenticate users, but only verify bearer tokens.
-  public-client: false                          # this is not client side application
-  use-resource-role-mappings: true              # use client roles

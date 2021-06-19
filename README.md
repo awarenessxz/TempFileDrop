@@ -43,6 +43,7 @@ There are 3 main purpose of this project.
     - [Website](design3/webapp)
     - [Web Server](design3/webserver)
     - [Storage Service](design3/storage-service)
+    - [API Gateway](design3/gateway)
 
 ## Architecture Design
 
@@ -129,6 +130,9 @@ For active development, follow the steps below to get the environment set up
 ```bash
 # Clean up persistent data and restart the infra services (Fresh State)
 sudo scripts/cleanup_and_restart_infra.sh
+
+# Start Gateway
+./gradlew design3:gateway:bootRun
 ```
 
 #### Start Centralized Storage Service
@@ -138,6 +142,7 @@ sudo scripts/cleanup_and_restart_infra.sh
     - **RabbitMQ**
     - **MongoDB**
     - **Keycloak**
+    - **Gateway**
 2. Ensure that Exchange have been created
    ```bash
    # Create exchange if not created
@@ -145,7 +150,7 @@ sudo scripts/cleanup_and_restart_infra.sh
    ```    
 3. Start the Storage Service
     ```bash
-    ./gradlew storage-service:bootRun
+    ./gradlew design3:storage-service:bootRun
     ```
 
 #### Start TempFileDrop.io Service
@@ -155,6 +160,7 @@ sudo scripts/cleanup_and_restart_infra.sh
     - **RabbitMQ**
     - **MongoDB**
     - **Keycloak**
+    - **Gateway**
 2. Ensure that Queue binds to Exchange
     ```bash
     # Bind Queue to Exchange if not configured
@@ -163,7 +169,7 @@ sudo scripts/cleanup_and_restart_infra.sh
     ```
 3. Start the Web Server
     ```bash
-    ./gradlew webserver:bootRun
+    ./gradlew design3:webserver:bootRun
     ```
 4. Start the Web Application
     ```bash
@@ -245,6 +251,21 @@ sudo scripts/cleanup_and_restart_infra.sh
 - Authentication
     - [How to add login Authentication to React Applications](https://www.digitalocean.com/community/tutorials/how-to-add-login-authentication-to-react-applications)
     - [React Login Authentication using useContext and useReducer](https://soshace.com/react-user-login-authentication-using-usecontext-and-usereducer/)
+    - [Stackoverflow - where to store access token in Reactjs](https://stackoverflow.com/questions/48983708/where-to-store-access-token-in-react-js)
+        - [Getting token authentication right in a stateless single page application](https://medium.com/lightrail/getting-token-authentication-right-in-a-stateless-single-page-application-57d0c6474e3)
+    - [Please stop using local storage](https://dev.to/rdegges/please-stop-using-local-storage-1i04)
+    - [Best practises of using JWT in frontend](https://hasura.io/blog/best-practices-of-using-jwt-with-graphql/#jwt_vs_session)
+    - [Authentication and Authorization in microservices, and how to implement it](https://medium.com/swlh/authentication-and-authorization-in-microservices-how-to-implement-it-5d01ed683d6f)
+    - [Understanding Spring Security](https://www.marcobehler.com/guides/spring-security)
+    - [Rest Security with JWT (Spring Security)](https://www.toptal.com/java/rest-security-with-jwt-spring-security-and-java)
+        - [Github Sample](https://github.com/szerhusenBC/jwt-spring-security-demo)
+- API Gateway
+    - [API Gateway Pattern](https://www.nginx.com/blog/choosing-the-right-api-gateway-pattern/)
+    - [Okta - spring gateway patterns](https://developer.okta.com/blog/2020/08/14/spring-gateway-patterns)
+    - [Logging Filter](https://www.borischistov.com/articles/2)
+    - [UI Gateway](https://sdoxsee.github.io/blog/2019/12/17/merry-microservices-part2-ui-gateway.html)
+    - [Spring Cloud gateway Oauth2 with Keycloak](https://piotrminkowski.com/2020/10/09/spring-cloud-gateway-oauth2-with-keycloak/)
+    - [Microservices authentication and authorization with Keycloak at Gateway level](https://javatodev.com/microservices-authentication-and-authorization-with-keycloak/)
 - Multipart upload / download
     - React & Axios
         - [React File Upload/Download Example with Spring Rest Api](https://bezkoder.com/react-file-upload-spring-boot/)

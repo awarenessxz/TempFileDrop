@@ -1,0 +1,85 @@
+###############################################################################################
+# Server Configuration
+###############################################################################################
+
+server.port: 9090
+
+spring:
+  profiles.active: dev
+  application.name: apigateway
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.web.HttpLogging: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.cloud.gateway: DEBUG
+
+gateway:
+  whitelist:
+    - /api/storagesvc/anonymous/**
+    - /api/storagesvc/download/**
+    - /swagger/storagesvc/api-docs
+
+---
+
+###############################################################################################
+# Auth Flow Configuration
+###############################################################################################
+
+spring.security.oauth2:
+  client:
+    registration:
+      storage-gateway:
+        provider: keycloak
+        client-id: storage-gateway
+        client-secret: a7fb42ed-4b5c-48b8-b2e5-5174dddc56df
+        scope: openid,profile,email
+    provider:
+      keycloak: # use keycloak as registration id
+        issuer-uri: http://localhost:8080/auth/realms/storage
+        user-name-attribute: preferred_username
+  resourceserver:
+    jwt.issuer-uri: http://localhost:8080/auth/realms/storage
+
+---
+
+###############################################################################################
+# Gateway Configuration
+###############################################################################################
+
+spring.cloud.gateway:
+#  globalcors:
+#    corsConfigurations:
+#      '[/**]':
+#        allowedOrigins: "*"
+#        allowedMethods:
+#          - GET
+#          - POST
+  default-filters:
+    - TokenRelay
+  routes:
+    ####################################### Restful API Endpoints
+    - id: auth
+      uri: http://localhost:8080/
+      predicates:
+        - Path=/auth/**
+    ######################################## Swagger Routes
+    - id: swaggerStorageService
+      uri: http://localhost:8001/
+      predicates:
+        - Method=GET
+        - Path=/swagger/storagesvc/api-docs
+      filters:
+        - RewritePath=/swagger/storagesvc(?<segment>/?.*), $\{segment}   # /swagger/storagesvc/api-docs --becomes--> /api-docs
+    ####################################### Restful API Endpoints
+    - id: storageService
+      uri: http://localhost:8001/
+      predicates:
+        - Path=/api/storagesvc/**
+    - id: tempfiledropWebServer
+      uri: http://localhost:7001/
+      predicates:
+        - Path=/api/**

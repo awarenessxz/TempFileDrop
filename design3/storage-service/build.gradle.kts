@@ -21,14 +21,16 @@ dependencies {
 	implementation("org.springframework.boot:spring-boot-starter-web")
 	implementation("org.springframework.boot:spring-boot-starter-actuator")
 
-	// Security
-	implementation("org.springframework.boot:spring-boot-starter-security")
-	implementation("org.keycloak:keycloak-spring-boot-starter") // Keycloak
-
 	// Documentation
 	implementation("org.springdoc:springdoc-openapi-ui:1.5.9")
 	implementation("org.springdoc:springdoc-openapi-security:1.5.9")
 	implementation("org.springdoc:springdoc-openapi-kotlin:1.5.9")
+
+	// Security Token
+	implementation("org.springframework.boot:spring-boot-starter-security") // adding authentication filter
+	implementation("io.jsonwebtoken:jjwt:0.9.1") // parsing jwt token
+	implementation("javax.xml.bind:jaxb-api:2.3.1") // parsing jwt token
+	implementation("org.keycloak:keycloak-core") // using Keycloak interfaces
 
 	// Database
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb") // Mongo Database

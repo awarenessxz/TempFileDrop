@@ -33,7 +33,7 @@ python infra/rabbitmq/scripts/init_storagesvc.py --create-queue -q storageSvcExc
 python infra/rabbitmq/scripts/init_storagesvc.py --bind-queue -e storageSvcExchange -q storageSvcExchange.tempfiledrop -r tempfiledrop
 
 # Start the service
-./gradlew webserver:bootRun
+./gradlew archive/design2/webserver:bootRun
 ```
 
 ## Documentation
