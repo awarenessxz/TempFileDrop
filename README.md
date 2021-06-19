@@ -64,8 +64,9 @@ a proxy for user's upload/download request. Below is the list of available imple
 
 ![design 2](doc/architecture_design2.png)
 
-This design was built upon the first implementation. In additional to the implementations above, I added a few more 
-implementations below. Refer to the [design 2's documentation](archive/design2) for more information.
+This design was built upon the first implementation. Instead of relaying the http request, consumers will make request to 
+the centralized storage service, and an event will be published when the request is completed. In additional to the 
+implementations above, I have added the implementations below. Refer to the [design 2's documentation](archive/design2) for more information.
 - **Event Feedback** when file upload / download / delete event occur
 - **Anonymous uploads / downloads**
 - **Streaming Upload**
@@ -75,10 +76,11 @@ implementations below. Refer to the [design 2's documentation](archive/design2) 
 
 ![design 3](doc/architecture_design3.png)
 
-This design was built upon the second implementation. In additional to the implementations above, I added a few more 
+This design was built upon the second implementation. Instead of registering each backend services as a keycloak client,
+I used an API Gateway to manage authentication. In additional to the implementations above, I added a few more 
 implementations below. Refer to the [design 3's documentation](design3) for more information.
 - **API Gateway** with **Centralized Authentication**
-- **Storage Admin Console**
+- **Storage Console**
 
 ## Design Considerations
 
