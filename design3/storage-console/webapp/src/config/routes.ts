@@ -2,7 +2,7 @@ import React from "react";
 import { RouteProps } from "react-router-dom";
 
 const Dashboard = React.lazy(() => import("../components/Dashboard"));
-const ServiceConsole = React.lazy(() => import("../components/ServiceConsole"));
+const ConsumerConsole = React.lazy(() => import("../components/ConsumerConsole"));
 const BucketConsole = React.lazy(() => import("../components/BucketConsole"));
 
 const routes: RouteProps[] = [
@@ -13,8 +13,8 @@ const routes: RouteProps[] = [
     },
     {
         exact: true,
-        component: ServiceConsole,
-        path: "/services"
+        component: ConsumerConsole,
+        path: "/consumers"
     },
     {
         exact: true,

@@ -1,5 +1,6 @@
 package com.tempfiledrop.storagesvc.service.event
 
+import com.tempfiledrop.storagesvc.service.eventdata.EventDataService
 import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.stream.function.StreamBridge
@@ -9,7 +10,8 @@ import org.springframework.stereotype.Component
 
 @Component
 class RabbitMQProducer(
-        private val streamBridge: StreamBridge
+        private val streamBridge: StreamBridge,
+        private val eventDataService: EventDataService,
 ) {
     companion object {
         private const val STORAGE_SERVICE_CHANNEL = "storageSvcChannel-out-0"
@@ -20,6 +22,7 @@ class RabbitMQProducer(
         logger.info("Publishing Event ($eventType.name) to $STORAGE_SERVICE_CHANNEL")
         val message = EventMessage(eventType.name, storageInfo.id.toString(), storageInfo.storagePath, storageInfo.filenames, storageInfo.bucket, data)
         streamBridge.send(STORAGE_SERVICE_CHANNEL, message)
+        eventDataService.writeToDB(message)
     }
 
     fun sendEventwithHeader(eventType: EventType, storageInfo: StorageInfo, data: String, routingKey: String) {
@@ -29,5 +32,6 @@ class RabbitMQProducer(
                 message,
                 MessageHeaders(mutableMapOf(Pair<String, Any>("routingkey", routingKey)))
         ))
+        eventDataService.writeToDB(message)
     }
 }

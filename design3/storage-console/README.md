@@ -1,46 +1,50 @@
-# Getting Started with Create React App
+# Storage Console
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Storage Console is a platform for managing centralized storage service. It allows administrators to grant access, create 
+message queues, etc... Consumers can use this to manage their uploads.
 
-## Available Scripts
+## Getting Started
 
-In the project directory, you can run:
+Ensure that **Centralized Storage Service** is running...
 
-### `yarn start`
+```bash
+# Start the Web Server
+./gradlew design3:storage-console:webserver:bootrun
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+# Start the Web App
+yarn install
+yarn start
+```
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+## Implementation Details
 
-### `yarn test`
+### Features
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+#### Common
 
-### `yarn build`
+1. Login using keycloak
+2. Get all buckets tagged to consumer
+    - List all files inside bucket
+    - Delete files action available
+3. Get all services tagged to consumer
+    - show routing key / bucket tagged to service
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+#### Admin
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+1. Create consumer's service
+    - Create dedicated message queue
+    - Populate consumer information to database
+2. View all services / buckets
+    - Delete services
+    - Delete files / buckets
+    - Edit consumer details
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+**Note: Keycloak roles will have to be added using Keycloak UI**
 
-### `yarn eject`
+### Data Source
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
+| Data | Source | Remarks |
+| --- | --- | --- |
+| consumer's info | data_consumer_info (DB) | list services / buckets tagged to consumer |
+| bucket info | storage service (REST) | list of files inside bucket |
+| events | data_events (DB) | list of events tagged to consumer |
