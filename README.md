@@ -3,7 +3,7 @@
 **Table of Content**
 - [Overview](#overview)
 - [Architecture Design](#architecture-design)
-- [Getting Started](#getting-started)
+- [Getting Started](design3)
 - [How to consume storage service](design3/storage-service/README.md#how-to-consume-centralized-storage-service)
 - [Design Considerations](#design-considerations)
 - [Future Works](#future-works)
@@ -49,140 +49,35 @@ There are 3 main purpose of this project.
 
 ### Version 1 - Backend Proxy
 
-Refer to [documentation in design 1](archive/design1)
-
 ![design 1](doc/architecture_design1.png)
+
+This is the first conceptualized design of the centralized storage service where I use the consumer's backend to act as
+a proxy for user's upload/download request. Below is the list of available implementations. Refer to the 
+[design 1's documentation](archive/design1) for more information.
+- **Object Storage** based on s3 bucket concepts
+- Basic **multipart upload / download / delete / list files**
+- Scheduled Clean up based on **maximum download count / expiry Period**
+- File Storage in either **Local File Storage** or **MinIO docker cluster**
 
 ### Version 2 - Direct Consumption with Event Feedback
 
-Refer to [documentation in design_2](archive/design2)
-
 ![design 2](doc/architecture_design2.png)
+
+This design was built upon the first implementation. In additional to the implementations above, I added a few more 
+implementations below. Refer to the [design 2's documentation](archive/design2) for more information.
+- **Event Feedback** when file upload / download / delete event occur
+- **Anonymous uploads / downloads**
+- **Streaming Upload**
+- **Keycloak authentication**
 
 ### Version 3 - Gateway Authentication (Current)
 
-Refer to [documentation in design 3](design3)
-
 ![design 3](doc/architecture_design3.png)
 
-## Getting Started
-
-Ensure that you have met the prerequisites below before using the guides below to start the project
-- If you just want to start the project and view it, go to [quick start](#for-quick-start)
-- If you want to work on development, go to [development](#for-development)
-- If you want to deploy to kubernetes, go to [deployment](#for-deployment-to-kubernetes)
-
-### Prerequisites
-
-You will probably need to have the following installed
-- Java 11
-- Node 12
-- Yarn
-- Python + pip
-- Docker + docker-compose
-
-### For Quick Start
-
-If you are just intending to run the project and test the features, run the scripts below. This will use docker-compose 
-to start up all services required to get the minimal set up running.
-
-```bash
-# Install python module is you have yet to
-pip install pika
-
-# Quick Start the project
-sudo scripts/quick_start_project.sh
-```
-
-Once you are done, you can clean up the project using the following script
-
-```bash
-sudo scripts/purge_project.sh
-```
-
-#### Quick Start Docker-Compose Setup
-
-![Quick Start setup](doc/docker-compose.png)
-
-Check out the following endpoints:
-
-```bash
-# Browser
-http://localhost:3000       - tempfiledrop web application (login = user:password)    -- ENTRY POINT
-http://localhost:8080       - keycloak admin console (login = admin:admin)
-http://localhost:15672      - rabbitmq console (login = admin:admin123)
-http://localhost:9000       - minio console (login = minio:minio123)
-
-# Rest Endpoints
-http://localhost:7001       - tempfiledrop web server
-http://localhost:8801       - centralized storage service
-
-# Docker Containers
-docker exec -it mongo_server bash       - mongo database (login = root:1234)
-```
-
-### For Development 
-
-For active development, follow the steps below to get the environment set up
-
-#### Start Infrastructure Cluster
-
-```bash
-# Clean up persistent data and restart the infra services (Fresh State)
-sudo scripts/cleanup_and_restart_infra.sh
-
-# Start Gateway
-./gradlew design3:gateway:bootRun
-```
-
-#### Start Centralized Storage Service
-
-1. Ensure that the following services are available
-    - **Minio Cluster**
-    - **RabbitMQ**
-    - **MongoDB**
-    - **Keycloak**
-    - **Gateway**
-2. Ensure that Exchange have been created
-   ```bash
-   # Create exchange if not created
-   python infra/rabbitmq/scripts/init_storagesvc.py --create-exchange -e storageSvcExchange
-   ```    
-3. Start the Storage Service
-    ```bash
-    ./gradlew design3:storage-service:bootRun
-    ```
-
-#### Start TempFileDrop.io Service
-
-1. Ensure that the following services are available
-    - **Centralized Storage Service**
-    - **RabbitMQ**
-    - **MongoDB**
-    - **Keycloak**
-    - **Gateway**
-2. Ensure that Queue binds to Exchange
-    ```bash
-    # Bind Queue to Exchange if not configured
-    python infra/rabbitmq/scripts/init_storagesvc.py --create-queue -q storageSvcExchange.tempfiledrop
-    python infra/rabbitmq/scripts/init_storagesvc.py --bind-queue -e storageSvcExchange -q storageSvcExchange.tempfiledrop -r tempfiledrop
-    ```
-3. Start the Web Server
-    ```bash
-    ./gradlew design3:webserver:bootRun
-    ```
-4. Start the Web Application
-    ```bash
-    cd webapp
-    yarn install
-    yarn start
-    ```
-
-### For Deployment to Kubernetes
-
-#### Kubernetes Set up
-
-![Quick Start setup](doc/kubernetes.png)
+This design was built upon the second implementation. In additional to the implementations above, I added a few more 
+implementations below. Refer to the [design 3's documentation](design3) for more information.
+- **API Gateway** with **Centralized Authentication**
+- **Storage Admin Console**
 
 ## Design Considerations
 
@@ -223,7 +118,12 @@ sudo scripts/cleanup_and_restart_infra.sh
         - All uploaded files should be **scanned by antivirus software** before they are opened. 
         - App should not use **file names** supplied by user. Uploaded files should be renamed according to a predetermined
         condition. This makes it harder for attacker to find their uploaded files.
-
+5. OAuth2 Pattern - We will make use of three common OAuth2 patterns, using Keycloak as the authorization server
+    - **OpenID Connection Authentication** - pattern used for end-user authentication
+    - **Token Relay** when a OAuth2 consumer service / application like the API gateway acts as a client and forwards the 
+    incoming token to outgoing resource requests
+    - **Client Credentials Grant** - the pattern to use when the authorized requestor is another service. In this case, 
+    service to service authorization.
 
 ## Future Works
 
