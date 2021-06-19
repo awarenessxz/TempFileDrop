@@ -1,10 +1,10 @@
 package com.tempstorage.storagesvc.controller.storage
 
-import com.tempfiledrop.storagesvc.controller.SecuredRestController
-import com.tempfiledrop.storagesvc.exception.ErrorResponse
-import com.tempfiledrop.storagesvc.service.event.EventType
-import com.tempfiledrop.storagesvc.service.event.RabbitMQProducer
-import com.tempfiledrop.storagesvc.service.storage.StorageService
+import com.tempstorage.storagesvc.controller.SecuredRestController
+import com.tempstorage.storagesvc.exception.ErrorResponse
+import com.tempstorage.storagesvc.service.event.EventType
+import com.tempstorage.storagesvc.service.event.RabbitMQProducer
+import com.tempstorage.storagesvc.service.storage.StorageService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema

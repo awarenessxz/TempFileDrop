@@ -1,8 +1,8 @@
 package com.tempstorage.storagesvc.service.cleaner
 
-import com.tempfiledrop.storagesvc.service.storage.StorageService
-import com.tempfiledrop.storagesvc.service.storagefiles.StorageFileService
-import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfoService
+import com.tempstorage.storagesvc.service.storage.StorageService
+import com.tempstorage.storagesvc.service.storagefiles.StorageFileService
+import com.tempstorage.storagesvc.service.storageinfo.StorageInfoService
 import org.slf4j.LoggerFactory
 import org.springframework.scheduling.annotation.Scheduled
 import org.springframework.stereotype.Component

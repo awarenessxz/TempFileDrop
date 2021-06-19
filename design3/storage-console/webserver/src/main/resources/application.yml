@@ -1,0 +1,61 @@
+###############################################################################################
+# Server Configuration
+###############################################################################################
+
+server.port: 7001
+
+spring:
+  profiles.active: dev
+  application.name: storage-console-webserver
+
+tempfiledrop:
+  bucket-name: tempfiledrop
+  storagesvc-url: http://localhost:8001
+
+storagelib:
+  jwt-parser-keycloak:
+    resource: storage-gateway           # Client
+    use-resource-role-mappings: true    # use client role
+    public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjBbNUOPhBZVCssoky2C5S3WnmiR0a492J+KU7Z6yLrwgmTfyo1ZZjEDup3DvF/GLMaaDF3QJMwY33cefMV+UzFt+xy7Usc6cI2+6mo1ZZjgy0LP/+t5RXKRCPNW69wEfWSXfb6CGrv+bklhmut0M3SqnsV3JJentRl0geZ9WC8aOzIuyHXP67fSgkGzRW6yhFKHsIoN06A5hD6gzvb64pt31Eycs/rmnNgtAmyQmUls3imdjMrbs0fM1/xNQh7qLb/mR1UT+WErgxCn/VDrDTqgC5QLvNMdp1sdf5lpYBjd+Y90NQgyj2pTNSuJZuLXFBad5lfaVAP6w6oF3nmfmFwIDAQAB
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.web.HttpLogging: DEBUG
+    org.springframework.security: DEBUG
+
+---
+
+###############################################################################################
+# Mongo DB Configuration
+###############################################################################################
+
+spring.data.mongodb.uri: mongodb://service_user:service_pass@localhost:27017/webDB?authSource=admin
+
+---
+
+###############################################################################################
+# Rabbit MQ Configuration
+###############################################################################################
+
+spring:
+  rabbitmq:
+    addresses: localhost:5672
+    username: storage_subscriber
+    password: storage123
+  cloud:
+    function:
+      definition: storageSvcChannel
+    stream:
+      rabbit.bindings:
+        storageSvcChannel-in-0.consumer:
+          binding-routing-key-delimiter: ","
+          binding-routing-key: tempfiledrop
+          bind-queue: false                   # Disable queue binding for access control
+          declare-exchange: false             # Disable exchange creation for access control
+      bindings:
+        storageSvcChannel-in-0:               # queue name = destination.group = storageSvcExchange.tempfiledrop
+          destination: storageSvcExchange     # mapping cloud stream output channel to rabbitmq exchange
+          group: tempfiledrop                 # only 1 instance in consumer group will receive message (should be unique to your app)
+---

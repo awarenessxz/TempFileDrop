@@ -1,7 +1,7 @@
 package com.tempstorage.tempfiledrop.webserver.config
 
-import com.tempfiledrop.webserver.util.ZonedDateTimeReadConverter
-import com.tempfiledrop.webserver.util.ZonedDateTimeWriteConverter
+import com.tempstorage.tempfiledrop.webserver.util.ZonedDateTimeReadConverter
+import com.tempstorage.tempfiledrop.webserver.util.ZonedDateTimeWriteConverter
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.core.convert.converter.Converter

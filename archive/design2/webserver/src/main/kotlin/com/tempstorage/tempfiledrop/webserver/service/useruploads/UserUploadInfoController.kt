@@ -1,9 +1,9 @@
 package com.tempstorage.tempfiledrop.webserver.service.useruploads
 
-import com.tempfiledrop.webserver.exception.ApiException
-import com.tempfiledrop.webserver.exception.ErrorCode
-import com.tempfiledrop.webserver.model.StorageInfoBulkRequest
-import com.tempfiledrop.webserver.model.StorageInfoBulkResponse
+import com.tempstorage.tempfiledrop.webserver.exception.ApiException
+import com.tempstorage.tempfiledrop.webserver.exception.ErrorCode
+import com.tempstorage.tempfiledrop.webserver.model.StorageInfoBulkRequest
+import com.tempstorage.tempfiledrop.webserver.model.StorageInfoBulkResponse
 import org.keycloak.adapters.springsecurity.client.KeycloakRestTemplate
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

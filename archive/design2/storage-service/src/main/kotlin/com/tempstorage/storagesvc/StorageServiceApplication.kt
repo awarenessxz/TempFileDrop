@@ -1,7 +1,7 @@
 package com.tempstorage.storagesvc
 
-import com.tempfiledrop.storagesvc.config.StorageSvcProperties
-import com.tempfiledrop.storagesvc.service.storage.StorageService
+import com.tempstorage.storagesvc.config.StorageSvcProperties
+import com.tempstorage.storagesvc.service.storage.StorageService
 import io.swagger.v3.oas.annotations.OpenAPIDefinition
 import io.swagger.v3.oas.annotations.info.Info
 import org.springframework.boot.CommandLineRunner

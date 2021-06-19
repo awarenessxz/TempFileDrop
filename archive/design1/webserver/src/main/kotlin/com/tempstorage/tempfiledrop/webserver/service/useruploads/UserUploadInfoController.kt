@@ -1,9 +1,9 @@
 package com.tempstorage.tempfiledrop.webserver.service.useruploads
 
-import com.tempfiledrop.webserver.exception.ApiException
-import com.tempfiledrop.webserver.exception.ErrorCode
-import com.tempfiledrop.webserver.service.storagesvcclient.StorageSvcClient
-import com.tempfiledrop.webserver.service.userinfo.UserInfoService
+import com.tempstorage.tempfiledrop.webserver.exception.ApiException
+import com.tempstorage.tempfiledrop.webserver.exception.ErrorCode
+import com.tempstorage.tempfiledrop.webserver.service.storagesvcclient.StorageSvcClient
+import com.tempstorage.tempfiledrop.webserver.service.userinfo.UserInfoService
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.http.HttpStatus

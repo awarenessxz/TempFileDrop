@@ -1,6 +1,6 @@
 package com.tempstorage.storagesvc.service.eventdata
 
-import com.tempfiledrop.storagesvc.service.event.EventMessage
+import com.tempstorage.storagesvc.service.event.EventMessage
 import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 

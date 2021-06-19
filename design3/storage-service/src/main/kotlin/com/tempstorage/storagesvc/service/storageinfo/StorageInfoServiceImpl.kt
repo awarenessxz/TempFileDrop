@@ -1,7 +1,7 @@
 package com.tempstorage.storagesvc.service.storageinfo
 
-import com.tempfiledrop.storagesvc.exception.ApiException
-import com.tempfiledrop.storagesvc.exception.ErrorCode
+import com.tempstorage.storagesvc.exception.ApiException
+import com.tempstorage.storagesvc.exception.ErrorCode
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service

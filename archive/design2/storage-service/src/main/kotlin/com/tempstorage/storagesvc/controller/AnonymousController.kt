@@ -1,9 +1,9 @@
 package com.tempstorage.storagesvc.controller
 
-import com.tempfiledrop.storagesvc.config.StorageSvcProperties
-import com.tempfiledrop.storagesvc.controller.storage.StorageUploadResponse
-import com.tempfiledrop.storagesvc.exception.ErrorResponse
-import com.tempfiledrop.storagesvc.service.storage.StorageService
+import com.tempstorage.storagesvc.config.StorageSvcProperties
+import com.tempstorage.storagesvc.controller.storage.StorageUploadResponse
+import com.tempstorage.storagesvc.exception.ErrorResponse
+import com.tempstorage.storagesvc.service.storage.StorageService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema

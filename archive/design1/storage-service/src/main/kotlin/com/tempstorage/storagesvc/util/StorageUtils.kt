@@ -1,7 +1,7 @@
 package com.tempstorage.storagesvc.util
 
-import com.tempfiledrop.storagesvc.exception.ApiException
-import com.tempfiledrop.storagesvc.exception.ErrorCode
+import com.tempstorage.storagesvc.exception.ApiException
+import com.tempstorage.storagesvc.exception.ErrorCode
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import java.nio.file.Files

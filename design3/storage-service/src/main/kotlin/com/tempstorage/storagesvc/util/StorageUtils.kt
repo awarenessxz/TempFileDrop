@@ -2,9 +2,9 @@ package com.tempstorage.storagesvc.util
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.tempfiledrop.storagesvc.controller.storage.StorageUploadMetadata
-import com.tempfiledrop.storagesvc.exception.ApiException
-import com.tempfiledrop.storagesvc.exception.ErrorCode
+import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
+import com.tempstorage.storagesvc.exception.ApiException
+import com.tempstorage.storagesvc.exception.ErrorCode
 import org.apache.commons.fileupload.FileItemStream
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType

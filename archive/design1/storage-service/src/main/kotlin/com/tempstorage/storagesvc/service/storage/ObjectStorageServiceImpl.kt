@@ -1,10 +1,10 @@
 package com.tempstorage.storagesvc.service.storage
 
-import com.tempfiledrop.storagesvc.exception.ApiException
-import com.tempfiledrop.storagesvc.exception.ErrorCode
-import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
-import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
-import com.tempfiledrop.storagesvc.util.StorageUtils
+import com.tempstorage.storagesvc.exception.ApiException
+import com.tempstorage.storagesvc.exception.ErrorCode
+import com.tempstorage.storagesvc.service.storagefiles.StorageFile
+import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
+import com.tempstorage.storagesvc.util.StorageUtils
 import io.minio.*
 import io.minio.messages.DeleteObject
 import org.apache.commons.io.IOUtils

@@ -1,12 +1,12 @@
 package com.tempstorage.storagesvc.service.storage
 
-import com.tempfiledrop.storagesvc.controller.storage.StorageUploadMetadata
-import com.tempfiledrop.storagesvc.exception.ApiException
-import com.tempfiledrop.storagesvc.exception.ErrorCode
-import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
-import com.tempfiledrop.storagesvc.service.storagefiles.StorageFileService
-import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
-import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfoService
+import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
+import com.tempstorage.storagesvc.exception.ApiException
+import com.tempstorage.storagesvc.exception.ErrorCode
+import com.tempstorage.storagesvc.service.storagefiles.StorageFile
+import com.tempstorage.storagesvc.service.storagefiles.StorageFileService
+import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
+import com.tempstorage.storagesvc.service.storageinfo.StorageInfoService
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired

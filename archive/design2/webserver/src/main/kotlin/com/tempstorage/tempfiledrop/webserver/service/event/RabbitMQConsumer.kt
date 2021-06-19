@@ -1,6 +1,6 @@
 package com.tempstorage.tempfiledrop.webserver.service.event
 
-import com.tempfiledrop.webserver.service.storage.StorageService
+import com.tempstorage.tempfiledrop.webserver.service.storage.StorageService
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration

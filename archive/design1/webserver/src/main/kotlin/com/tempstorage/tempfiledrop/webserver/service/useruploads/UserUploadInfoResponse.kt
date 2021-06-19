@@ -1,6 +1,6 @@
 package com.tempstorage.tempfiledrop.webserver.service.useruploads
 
-import com.tempfiledrop.webserver.service.storagesvcclient.StorageInfoResponse
+import com.tempstorage.tempfiledrop.webserver.service.storagesvcclient.StorageInfoResponse
 
 data class UserUploadInfoResponse(
         val id: String?,

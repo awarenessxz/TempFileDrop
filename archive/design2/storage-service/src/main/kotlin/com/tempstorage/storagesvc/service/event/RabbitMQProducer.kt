@@ -1,6 +1,6 @@
 package com.tempstorage.storagesvc.service.event
 
-import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
+import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.stream.function.StreamBridge
 import org.springframework.messaging.MessageHeaders

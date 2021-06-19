@@ -1,9 +1,9 @@
 package com.tempstorage.tempfiledrop.webserver.service.storagesvcclient
 
-import com.tempfiledrop.webserver.config.StorageSvcClientProperties
-import com.tempfiledrop.webserver.exception.ApiException
-import com.tempfiledrop.webserver.util.StreamResponseExtractor
-import com.tempfiledrop.webserver.util.StreamResourceReader
+import com.tempstorage.tempfiledrop.webserver.config.StorageSvcClientProperties
+import com.tempstorage.tempfiledrop.webserver.exception.ApiException
+import com.tempstorage.tempfiledrop.webserver.util.StreamResponseExtractor
+import com.tempstorage.tempfiledrop.webserver.util.StreamResourceReader
 import org.slf4j.LoggerFactory
 import org.springframework.http.*
 import org.springframework.stereotype.Service

@@ -1,8 +1,8 @@
 package com.tempstorage.tempfiledrop.webserver.config
 
-import com.tempfiledrop.webserver.util.JwtAccessDeniedHandler
-import com.tempfiledrop.webserver.util.JwtAuthenticationEntryPoint
-import com.tempfiledrop.webserver.util.JwtAuthenticationFilter
+import com.tempstorage.tempfiledrop.webserver.util.JwtAccessDeniedHandler
+import com.tempstorage.tempfiledrop.webserver.util.JwtAuthenticationEntryPoint
+import com.tempstorage.tempfiledrop.webserver.util.JwtAuthenticationFilter
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity

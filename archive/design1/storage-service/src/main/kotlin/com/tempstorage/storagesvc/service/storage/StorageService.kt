@@ -1,7 +1,7 @@
 package com.tempstorage.storagesvc.service.storage
 
-import com.tempfiledrop.storagesvc.service.storagefiles.StorageFile
-import com.tempfiledrop.storagesvc.service.storageinfo.StorageInfo
+import com.tempstorage.storagesvc.service.storagefiles.StorageFile
+import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import org.springframework.web.multipart.MultipartFile
 import javax.servlet.http.HttpServletResponse
 
