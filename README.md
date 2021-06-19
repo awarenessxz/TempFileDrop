@@ -40,10 +40,11 @@ There are 3 main purpose of this project.
 - [Design v1 [Archive]](archive/design1)
 - [Design v2 [Archive]](archive/design2)
 - **[Design v3 [Current]](design3)**
-    - [Website](design3/webapp)
-    - [Web Server](design3/webserver)
-    - [Storage Service](design3/storage-service)
-    - [API Gateway](design3/gateway)
+    - [TempFileDrop Website](design3/webapp)
+    - [TempFileDrop Web Server](design3/webserver)
+    - [Storage Admin Console](design3/admin-console)
+    - [Storage Microservice](design3/storage-service)
+    - [API Gateway](infra/gateway)
 
 ## Architecture Design
 
