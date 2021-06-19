@@ -1,7 +1,7 @@
 rootProject.name = "TempFileDrop"
 
 // order does matters
-include("design3:webserver")
+include("design3:tempfiledrop:webserver")
 include("design3:storage-service")
 include("infra:gateway")
 include("design3:storage-console:backend")

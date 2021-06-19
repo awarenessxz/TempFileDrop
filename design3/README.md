@@ -114,11 +114,11 @@ sudo scripts/cleanup_and_restart_infra.sh
     ```
 3. Start the Web Server
     ```bash
-    ./gradlew design3:webserver:bootRun
+    ./gradlew design3:tempfiledrop:webserver:bootRun
     ```
 4. Start the Web Application
     ```bash
-    cd webapp
+    cd tempfiledrop/webapp
     yarn install
     yarn start
     ```
