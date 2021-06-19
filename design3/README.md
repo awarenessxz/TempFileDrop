@@ -9,6 +9,7 @@ and [storage admin console documentation](storage-console).
 **Table of Content**
 - [Getting Started](#getting-started)
 - [Authentication with Keycloak](#authentication-with-keycloak)
+- [Event Feedback with RabbitMQ](#event-feedback-with-rabbitmq)
 
 ## Getting Started
 
@@ -134,3 +135,11 @@ sudo scripts/cleanup_and_restart_infra.sh
 The design is based on centralized authentication at gateway level and roles authorization at microservice level.
 
 ![Gateway Pattern](../doc/gateway_pattern1.png)
+
+### Roles
+
+![Keycloak Roles](../doc/keycloak_roles_gateway.png)
+
+## Event Feedback with RabbitMQ
+
+![Event Feedback](../doc/event_flow_2.png)

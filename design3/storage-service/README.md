@@ -374,3 +374,7 @@ The centralized storage service handles authentication and authorization using K
     - Create a user in keycloak 
     - Assign the user your application's **realm role** which is a **composite role** that contains Storage Service 
     **client role: user**
+
+#### Roles
+
+![Keycloak Roles](../../doc/keycloak_roles_gateway.png)
