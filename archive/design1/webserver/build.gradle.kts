@@ -7,7 +7,7 @@ plugins {
 	kotlin("plugin.spring")
 }
 
-group = "com.tempfiledrop"
+group = "com.tempstorage"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 

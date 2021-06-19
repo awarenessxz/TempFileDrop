@@ -8,7 +8,7 @@ plugins {
 	kotlin("plugin.spring")
 }
 
-group = "com.tempfiledrop"
+group = "com.tempstorage"
 version = "0.0.1-SNAPSHOT"
 java.sourceCompatibility = JavaVersion.VERSION_11
 
@@ -64,7 +64,7 @@ jib {
 		image = "gcr.io/distroless/java:11"
 	}
 	to {
-		image = "tempfiledrop/webserver"
+		image = "tempstorage/tempfiledrop/webserver"
 		tags = setOf("latest")
 	}
 	container {
