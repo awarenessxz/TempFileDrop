@@ -6,11 +6,7 @@ server.port: 7001
 
 spring:
   profiles.active: dev
-  application.name: tempfiledrop-webserver
-
-tempfiledrop:
-  bucket-name: tempfiledrop
-  storagesvc-url: http://localhost:8001
+  application.name: storage-console-webserver
 
 storagelib:
   jwt-parser-keycloak:
@@ -31,31 +27,6 @@ logging:
 # Mongo DB Configuration
 ###############################################################################################
 
-spring.data.mongodb.uri: mongodb://service_user:service_pass@localhost:27017/webDB?authSource=admin
+spring.data.mongodb.uri: mongodb://storage_user:storage_pass@localhost:27017/storageDB?authSource=admin
 
----
-
-###############################################################################################
-# Rabbit MQ Configuration
-###############################################################################################
-
-spring:
-  rabbitmq:
-    addresses: localhost:5672
-    username: storage_subscriber
-    password: storage123
-  cloud:
-    function:
-      definition: storageSvcChannel
-    stream:
-      rabbit.bindings:
-        storageSvcChannel-in-0.consumer:
-          binding-routing-key-delimiter: ","
-          binding-routing-key: tempfiledrop
-          bind-queue: false                   # Disable queue binding for access control
-          declare-exchange: false             # Disable exchange creation for access control
-      bindings:
-        storageSvcChannel-in-0:               # queue name = destination.group = storageSvcExchange.tempfiledrop
-          destination: storageSvcExchange     # mapping cloud stream output channel to rabbitmq exchange
-          group: tempfiledrop                 # only 1 instance in consumer group will receive message (should be unique to your app)
 ---

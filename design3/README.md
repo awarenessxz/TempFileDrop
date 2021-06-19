@@ -3,8 +3,8 @@
 ![design 3](../doc/architecture_design3.png)
 
 This design is an upgrade to the first and second implementation. Additional features such as **api gateway** and 
-**storage admin console** was added. For more details, check out the [centralized storage service documentation](storage-service)
-and [storage admin console documentation](admin-console).
+**storage console** was added. For more details, check out the [centralized storage service documentation](storage-service)
+and [storage admin console documentation](storage-console).
 
 **Table of Content**
 - [Getting Started](#getting-started)
