@@ -7,7 +7,7 @@ import Toolbar from "@material-ui/core/Toolbar";
 import ServiceIcon from '@material-ui/icons/AccountTree';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import StorageIcon from "@material-ui/icons/Unarchive";
-import MuiLinkListItem from "../util/MuiLinkListItem";
+import MuiLinkListItem from "../../util/MuiLinkListItem";
 
 interface SideBarProps {
     isOpen: boolean;

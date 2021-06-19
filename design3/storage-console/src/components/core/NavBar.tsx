@@ -8,8 +8,8 @@ import IconButton from "@material-ui/core/IconButton";
 import Typography from "@material-ui/core/Typography";
 import MenuIcon from '@material-ui/icons/Menu';
 import ChevronLeftIcon from '@material-ui/icons/ChevronLeft';
-import { useAuthState } from "../util/auth-context";
-import Data from "../config/app.json";
+import { useAuthState } from "../../util/auth-context";
+import Data from "../../config/app.json";
 
 interface NavBarProps {
     isOpen: boolean;

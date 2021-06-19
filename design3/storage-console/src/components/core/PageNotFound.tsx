@@ -1,6 +1,6 @@
 import React from 'react';
 import { createStyles, makeStyles } from '@material-ui/core/styles';
-import Error from "../assets/error.jpg";
+import Error from "../../assets/error.jpg";
 
 const useStyles = makeStyles(() =>
     createStyles({

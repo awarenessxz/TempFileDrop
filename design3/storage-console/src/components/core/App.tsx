@@ -6,8 +6,8 @@ import NavBar from "./NavBar";
 import SideBar from "./SideBar";
 import PageNotAuthorized from "./PageNotAuthorized";
 import PageNotFound from "./PageNotFound";
-import routes from "../config/routes";
-import { useAuthState } from "../util/auth-context";
+import routes from "../../config/routes";
+import { useAuthState } from "../../util/auth-context";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
