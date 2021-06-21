@@ -8,6 +8,7 @@ import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import com.tempstorage.storagesvc.util.StorageUtils
 import io.minio.*
 import io.minio.messages.DeleteObject
+import io.minio.messages.Item
 import org.apache.commons.fileupload.FileItemIterator
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.io.IOUtils
@@ -24,6 +25,7 @@ import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import kotlin.collections.ArrayList
+
 
 @Service
 @ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "object")
@@ -150,9 +152,19 @@ class ObjectStorageServiceImpl(
         zipOut.close()
     }
 
+    override fun getAllFileSizeInBucket(bucket: String, storageFiles: List<StorageFile>): List<StorageFile> {
+        logger.info("List all files and folders in Bucket - $bucket...")
+        val results: Iterable<Result<Item>> = minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).recursive(true).build())
+        val objectSizeMapper = results.map { it.get().objectName() to it.get().size() }.toMap()
+        return storageFiles.map {
+            val fileSize = objectSizeMapper[it.getFileStoragePath()] ?: 0
+            StorageFile(it.bucket, it.storagePath, it.originalFilename, it.filename, it.fileContentType, fileSize, it.storageId, it.id)
+        }
+    }
+
     override fun deleteFiles(storageFileList: List<StorageFile>, bucket: String) {
         logger.info("DELETING ALL FILES IN MINIO Cluster.....")
-        if (storageFileList.size > 0) {
+        if (storageFileList.isNotEmpty()) {
             val objects = storageFileList.map {
                 val targetFilePath = it.getFileStoragePath()
                 DeleteObject(targetFilePath)

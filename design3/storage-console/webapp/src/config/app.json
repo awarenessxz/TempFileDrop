@@ -1,3 +1,6 @@
 {
-    "app_name": "Storage Console"
+    "app_name": "Storage Console",
+    "api_endpoints": {
+        "storagesvc": "/api/storagesvc"
+    }
 }

@@ -175,6 +175,10 @@ class FileStorageServiceImpl(
         zipOut.close()
     }
 
+    override fun getAllFileSizeInBucket(bucket: String, storageFiles: List<StorageFile>): List<StorageFile> {
+        TODO("Not yet implemented")
+    }
+
     override fun deleteFiles(storageFileList: List<StorageFile>, bucket: String) {
         logger.info("Deleting ${storageFileList.size} files from $bucket...")
         storageFileList.forEach {

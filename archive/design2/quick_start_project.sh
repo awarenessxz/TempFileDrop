@@ -12,16 +12,16 @@ $ROOTPATH/scripts/cleanup_and_restart_infra.sh
 printf "\n==================================================\n"
 printf "Clean up Docker Images...\n"
 printf "==================================================\n"
-docker rmi -f tempfiledrop/centralized-storage-service:latest
-docker rmi -f tempfiledrop/webserver:latest
-docker rmi -f tempfiledrop/webapp:latest
+docker rmi -f tempstorage/centralized-storage-service:latest
+docker rmi -f tempstorage/tempfiledrop/webserver:latest
+docker rmi -f tempstorage/tempfiledrop/webapp:latest
 
 printf "\n==================================================\n"
 printf "Building Docker Images...\n"
 printf "==================================================\n"
 cd $ROOTPATH && $ROOTPATH/gradlew archive:design2:storage-service:jibDockerBuild
 cd $ROOTPATH && $ROOTPATH/gradlew archive:design2:webserver:jibDockerBuild
-docker build -t tempfiledrop/webapp:latest -f $ROOTPATH/archive/design2/webapp/Dockerfile $ROOTPATH/archive/design2/webapp
+docker build -t tempstorage/tempfiledrop/webapp:latest -f $ROOTPATH/archive/design2/webapp/Dockerfile $ROOTPATH/archive/design2/webapp
 yes | docker image prune --filter label=stage=builder
 
 printf "\n==================================================\n"

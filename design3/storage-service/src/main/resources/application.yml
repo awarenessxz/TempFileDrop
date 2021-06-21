@@ -17,7 +17,7 @@ springdoc:
 storagesvc:
   cors:                               # required for swagger-ui-react to call api through swagger
     enable: true
-    origins: http://localhost:3000    # use comma to add more
+    origins: http://localhost:3000,http://localhost:3001    # use comma to add more
   anonymous-upload:
     enable: true
     max-file-size: 104857600    # 1024 * 1024 * 100 (100MB)
@@ -34,6 +34,13 @@ storagelib:
     resource: storage-gateway           # Client
     use-resource-role-mappings: true    # use client role
     public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjBbNUOPhBZVCssoky2C5S3WnmiR0a492J+KU7Z6yLrwgmTfyo1ZZjEDup3DvF/GLMaaDF3QJMwY33cefMV+UzFt+xy7Usc6cI2+6mo1ZZjgy0LP/+t5RXKRCPNW69wEfWSXfb6CGrv+bklhmut0M3SqnsV3JJentRl0geZ9WC8aOzIuyHXP67fSgkGzRW6yhFKHsIoN06A5hD6gzvb64pt31Eycs/rmnNgtAmyQmUls3imdjMrbs0fM1/xNQh7qLb/mR1UT+WErgxCn/VDrDTqgC5QLvNMdp1sdf5lpYBjd+Y90NQgyj2pTNSuJZuLXFBad5lfaVAP6w6oF3nmfmFwIDAQAB
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: INFO
+    org.springframework.web.HttpLogging: DEBUG
+    org.springframework.security: DEBUG
 
 ---
 

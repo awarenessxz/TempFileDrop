@@ -5,6 +5,7 @@ import com.tempstorage.storagesvc.exception.ErrorResponse
 import com.tempstorage.storagesvc.service.event.EventType
 import com.tempstorage.storagesvc.service.event.RabbitMQProducer
 import com.tempstorage.storagesvc.service.storage.StorageService
+import com.tempstorage.storagesvc.service.storage.FileSystemNode
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -27,13 +28,12 @@ class StorageController(
         private val logger = LoggerFactory.getLogger(StorageController::class.java)
     }
 
-    @Operation(summary = "Get list of storage information from bucket")
+    @Operation(summary = "Get all files and folders inside bucket in folder like structure")
     @GetMapping("/{bucket}")
-    fun getStorageInBucket(@PathVariable("bucket") bucket: String): ResponseEntity<List<StorageInfoResponse>> {
+    fun getStorageFromBucket(@PathVariable("bucket") bucket: String): ResponseEntity<FileSystemNode> {
         logger.info("Receiving Request to get content inside $bucket")
-        val storageInfoList = storageService.getAllStorageInfoFromBucket(bucket)
-        val response = storageInfoList.map { StorageInfoResponse(it.id.toString(), it.filenames, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload) }
-        return ResponseEntity(response, HttpStatus.OK)
+        val filesystemNode = storageService.listFilesAndFoldersInBucket(bucket)
+        return ResponseEntity(filesystemNode, HttpStatus.OK)
     }
 
     @Operation(summary = "Upload single or multiple files to storage service")
@@ -68,7 +68,7 @@ class StorageController(
             @PathVariable("bucket") bucket: String,
             @PathVariable("storageId") storageId: String,
             @RequestParam(required = false, defaultValue = "") eventData: String,
-            @RequestParam(defaultValue = "#") eventRoutingKey: String,
+            @RequestParam(required = false, defaultValue = "") eventRoutingKey: String,
     ): ResponseEntity<String> {
         logger.info("Deleting Storage ID = $storageId in Bucket $bucket")
 
@@ -80,6 +80,15 @@ class StorageController(
 
         // send response
         return ResponseEntity("Files deleted successfully", HttpStatus.OK)
+    }
+
+    @Operation(summary = "Get list of storage information from bucket")
+    @GetMapping("/storageinfo/{bucket}")
+    fun getAllStorageInfoInBucket(@PathVariable("bucket") bucket: String): ResponseEntity<List<StorageInfoResponse>> {
+        logger.info("Receiving Request to get all StorageInfo inside $bucket")
+        val storageInfoList = storageService.getAllStorageInfoFromBucket(bucket)
+        val response = storageInfoList.map { StorageInfoResponse(it.id.toString(), it.filenames, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload) }
+        return ResponseEntity(response, HttpStatus.OK)
     }
 
     @Operation(summary = "Get Storage Information of uploaded files using bucket name and storageId")

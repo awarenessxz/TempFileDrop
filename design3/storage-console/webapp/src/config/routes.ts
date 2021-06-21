@@ -3,7 +3,7 @@ import { RouteProps } from "react-router-dom";
 
 const Dashboard = React.lazy(() => import("../components/Dashboard"));
 const ConsumerConsole = React.lazy(() => import("../components/ConsumerConsole"));
-const BucketConsole = React.lazy(() => import("../components/BucketConsole"));
+const BucketConsole = React.lazy(() => import("../components/buckets/BucketConsole"));
 
 const routes: RouteProps[] = [
     {

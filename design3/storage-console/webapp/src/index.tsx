@@ -2,8 +2,9 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import './index.css';
 import App from './components/core/App';
-import { AuthProvider } from "./util/auth-context";
 import reportWebVitals from './reportWebVitals';
+import { AuthProvider } from "./util/auth-context";
+import "./util/axios-interceptors";
 
 ReactDOM.render(
   <React.StrictMode>

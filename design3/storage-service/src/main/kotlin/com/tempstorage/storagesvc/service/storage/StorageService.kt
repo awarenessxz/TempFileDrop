@@ -7,6 +7,7 @@ import com.tempstorage.storagesvc.service.storagefiles.StorageFile
 import com.tempstorage.storagesvc.service.storagefiles.StorageFileService
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfoService
+import com.tempstorage.storagesvc.util.StorageUtils
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
@@ -15,7 +16,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.web.multipart.MultipartFile
 import java.time.ZonedDateTime
-import java.util.*
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
@@ -30,6 +30,7 @@ abstract class StorageService {
     abstract fun deleteFiles(storageFileList: List<StorageFile>, bucket: String)
     abstract fun downloadFile(storageFile: StorageFile, response: HttpServletResponse)
     abstract fun downloadFilesAsZip(storageFiles: List<StorageFile>, response: HttpServletResponse)
+    abstract fun getAllFileSizeInBucket(bucket: String, storageFiles: List<StorageFile>): List<StorageFile>
 
     private lateinit var storageInfoService: StorageInfoService
     private lateinit var storageFileService: StorageFileService
@@ -47,6 +48,20 @@ abstract class StorageService {
     fun getAllStorageInfoFromBucket(bucket: String): List<StorageInfo> {
         val allStorageInfoList = storageInfoService.getStorageInfosInBucket(bucket)
         return allStorageInfoList.filter { checkIfStorageFileIsAvailable(it) }
+    }
+
+    // convert list of all storage in bucket into folder like structure
+    fun listFilesAndFoldersInBucket(bucket: String): FileSystemNode {
+        val storageInfoList = getAllStorageInfoFromBucket(bucket)
+        val storageIds = storageInfoList.map { it.id.toString() }
+        val storageFiles = storageFileService.getStorageFilesInfoByStorageIdBulk(storageIds)
+        val storageFilesWithFileSize = getAllFileSizeInBucket(bucket, storageFiles)
+
+        val filesystemNodes = storageInfoList.map { storageInfo ->
+            val storageSize = storageFilesWithFileSize.filter { it.storageId == storageInfo.id.toString() }.sumBy { it.fileLength.toInt() }
+            FileSystemNode(true, storageInfo.filenames, "${storageInfo.storagePath}/${storageInfo.filenames}", storageInfo.bucket, storageInfo.id.toString(), storageSize, storageInfo.numOfDownloadsLeft, storageInfo.expiryDatetime)
+        }
+        return StorageUtils.buildFolderTreeStructure(bucket, filesystemNodes)
     }
 
     fun getStorageInfoFromBucket(bucket: String, storageId: String): StorageInfo {

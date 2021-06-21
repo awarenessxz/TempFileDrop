@@ -5,7 +5,9 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
+import com.tempstorage.storagesvc.service.storage.FileSystemNode
 import org.apache.commons.fileupload.FileItemStream
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import java.nio.file.Files
@@ -14,9 +16,10 @@ import java.time.ZoneOffset
 import java.time.ZonedDateTime
 
 object StorageUtils {
-    const val ANONYMOUS_BUCKET = "anonymous"
+    private const val ANONYMOUS_BUCKET = "anonymous"
+    private val logger = LoggerFactory.getLogger(StorageUtils::class.java)
 
-    fun processStoragePath(path: String): String? {
+    private fun processStoragePath(path: String): String? {
         // 1. Check for empty string
         if (path.isEmpty()) {
             return path
@@ -78,6 +81,33 @@ object StorageUtils {
                 return StorageUploadMetadata(metadata.bucket, storagePath, metadata.maxDownloads, metadata.expiryPeriod, metadata.allowAnonymousDownload, metadata.eventRoutingKey, metadata.eventData)
             }
             throw ApiException("Metadata not found!", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
+        }
+    }
+
+    fun buildFolderTreeStructure(bucket: String, fileSystemNodes: List<FileSystemNode>): FileSystemNode {
+        val root = FileSystemNode(false, bucket, "/$bucket", bucket)
+        for (fileSystemNode in fileSystemNodes) {
+            buildTree(fileSystemNode.storageFullPath, fileSystemNode, root)
+        }
+        return root
+    }
+
+    private fun buildTree(path: String, file: FileSystemNode, parent: FileSystemNode) {
+        if (path.contains("/")) {
+            val currentPath = path.substring(0, path.indexOf("/"))
+            val newPath = path.substring(currentPath.length + 1)
+            if (parent.containsPath(currentPath)) {
+                buildTree(newPath, file, parent.getFileSystemNode(currentPath)!!)
+            } else {
+                val newFolder = FileSystemNode(false, currentPath, "${parent.storageFullPath}/$currentPath", parent.storageBucket)
+                parent.children.add(newFolder)
+                buildTree(newPath, file, newFolder)
+            }
+        } else {
+            if (!parent.containsPath(path)) {
+                val newFile = FileSystemNode(true, file.label, file.storageFullPath, file.storageBucket, file.storageId, file.storageSize, file.storageDownloadLeft, file.storageExpiryDatetime)
+                parent.children.add(newFile)
+            }
         }
     }
 }

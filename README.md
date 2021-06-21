@@ -80,6 +80,7 @@ This design was built upon the second implementation. Instead of registering eac
 I used an API Gateway to manage authentication. In additional to the implementations above, I added a few more 
 implementations below. Refer to the [design 3's documentation](design3) for more information.
 - **API Gateway** with **Centralized Authentication**
+    - Extract **Client/Realm Role Attributes** from keycloak token for validating routing keys / bucket in client's request
 - **Storage Console**
 
 ## Design Considerations
@@ -241,6 +242,10 @@ implementations below. Refer to the [design 3's documentation](design3) for more
     - [Using Spring Boot OAuth2 instead of Keycloak adapters](https://wstutorial.com/rest/spring-security-oauth2-keycloak.html)
     - [Stackoverflow - Why do Bearer-only clients exist?](https://stackoverflow.com/questions/58911507/keycloak-bearer-only-clients-why-do-they-exist)
     - [Keycloak RestTemplate with Spring Boot Security Integration](https://ramonak.io/posts/vaadin%E2%80%93keycloak%E2%80%93spring-security-integration)
+    - [Stackoverflow - Custom Realm / Client Role attributes with script mapper](https://stackoverflow.com/questions/55702315/accessing-keycloak-roles-users-attributes-from-java-api)
+        - [Add to Claims](https://gist.github.com/webdeb/d8a99df9023f01b78e3e8ff580abe10b)
+        - [Expose Realm Attributes](https://lists.jboss.org/pipermail/keycloak-user/2019-February/017122.html)
+        - [Using ## as delimiter for multiple values in attributes](https://stackoverflow.com/questions/60767085/keycloak-map-multiple-user-attributes)
 - WebSocket
     - [Websockets with react & express](https://dev.to/ksankar/websockets-with-react-express-part-2-4n9f)
     - [React Managing Websockets with redux and context](https://rossbulat.medium.com/react-managing-websockets-with-redux-and-context-61f9a06c125b)
@@ -251,4 +256,8 @@ implementations below. Refer to the [design 3's documentation](design3) for more
     - [dzone.com - Build a secure app using spring boot and websocket](https://dzone.com/articles/build-a-secure-app-using-spring-boot-and-websocket)
     - [okta - java spring websocket secure](https://developer.okta.com/blog/2019/10/09/java-spring-websocket-tutorial)
     - [Stomp Spring Boot Websocket](https://www.toptal.com/java/stomp-spring-boot-websocket)
+- Misc
+    - [Stackoverflow - Algorithm for folder structure](https://stackoverflow.com/questions/7433414/help-to-write-an-algorithm-for-folders-structure)
+    - [Stackoverflow - Spring Security 403 for POST/DELETE but ok for GET](https://stackoverflow.com/questions/19468209/spring-security-403-error)
+    
     
