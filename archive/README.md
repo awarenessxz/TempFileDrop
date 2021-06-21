@@ -27,3 +27,7 @@ Additionally, the following features were added to the design:
 
 Check out the [design 2 readme](design2) and [centralized storage service documentation for design 2](design2/storage-service) 
 for more details...
+
+## Roles Authorization
+
+Archived an implementation of storage service to document how to parse JWT Token to authorize keycloak roles using spring security.

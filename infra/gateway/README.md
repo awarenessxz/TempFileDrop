@@ -21,6 +21,11 @@ be more relevant my design
 
 ![Gateway Pattern 1](../../doc/gateway_pattern1.png)
 
+**Update**: Instead of letting microservices handle roles authorization, we will instead let API Gateway handle both
+authentication and authorization. This way we will let the microservices focus on business logic. For security reason, 
+the microservices will have to be in a private network or a secured namespace where the microservices can only be reached
+via the api gateway.
+
 ### Routing Gateway with Token Relay
 
 ![Gateway Pattern 2](../../doc/gateway_pattern2.png)

@@ -259,5 +259,5 @@ implementations below. Refer to the [design 3's documentation](design3) for more
 - Misc
     - [Stackoverflow - Algorithm for folder structure](https://stackoverflow.com/questions/7433414/help-to-write-an-algorithm-for-folders-structure)
     - [Stackoverflow - Spring Security 403 for POST/DELETE but ok for GET](https://stackoverflow.com/questions/19468209/spring-security-403-error)
-    
+    - [How microservies communicate](https://medium.com/geekculture/microservices-apis-a7b43ce850ee)
     
