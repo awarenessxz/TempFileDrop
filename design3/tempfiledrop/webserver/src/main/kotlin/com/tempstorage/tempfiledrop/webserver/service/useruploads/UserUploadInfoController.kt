@@ -6,6 +6,8 @@ import com.tempstorage.tempfiledrop.webserver.model.StorageInfoBulkRequest
 import com.tempstorage.tempfiledrop.webserver.model.StorageInfoBulkResponse
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value
+import org.springframework.http.HttpEntity
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -23,7 +25,10 @@ class UserUploadInfoController(
     }
 
     @GetMapping("/{username}")
-    fun getUploadedFilesRecords(@PathVariable("username") username: String): ResponseEntity<List<UserUploadInfoResponse>> {
+    fun getUploadedFilesRecords(
+            @PathVariable("username") username: String,
+            @RequestHeader("Authorization") authHeader: String
+    ): ResponseEntity<List<UserUploadInfoResponse>> {
         logger.info("Retrieving records for $username")
         val records = uploadedFilesRecordService.getUploadedFilesRecordsForUser(username)
 
@@ -33,8 +38,11 @@ class UserUploadInfoController(
             // get information from storage service
             val storageIds = records.map { it.storageId }
             val request = StorageInfoBulkRequest(tempfiledropBucket, storageIds)
+            val httpHeader = HttpHeaders()
+            httpHeader.set("Authorization", authHeader)
+            val entity = HttpEntity(request, httpHeader)
             val restTemplate = RestTemplate()
-            val response = restTemplate.postForEntity("$storageServiceUrl/api/storagesvc/storageinfo/bulk", request, StorageInfoBulkResponse::class.java)
+            val response = restTemplate.postForEntity("$storageServiceUrl/api/storagesvc/storageinfo/bulk", entity, StorageInfoBulkResponse::class.java)
             val storageInfoList = response.body?.storageInfoList
 
             if (!response.statusCode.is2xxSuccessful || storageInfoList === null) {

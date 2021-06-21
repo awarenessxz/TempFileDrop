@@ -152,6 +152,7 @@ implementations below. Refer to the [design 3's documentation](design3) for more
     - [API Design Guidance: File Upload](https://tyk.io/api-design-guidance-file-upload/)
     - [Stackoverflow - How do web applications typically interact with amazon s3](https://stackoverflow.com/questions/54655279/how-do-web-applications-typically-interact-with-amazon-s3)
     - [How to gracefully store user files](https://stormpath.com/blog/how-to-gracefully-store-user-files)
+    - [Stateful vs Stateless Web Services](https://nordicapis.com/defining-stateful-vs-stateless-web-services/)
 - Authentication
     - [How to add login Authentication to React Applications](https://www.digitalocean.com/community/tutorials/how-to-add-login-authentication-to-react-applications)
     - [React Login Authentication using useContext and useReducer](https://soshace.com/react-user-login-authentication-using-usecontext-and-usereducer/)
@@ -246,6 +247,7 @@ implementations below. Refer to the [design 3's documentation](design3) for more
         - [Add to Claims](https://gist.github.com/webdeb/d8a99df9023f01b78e3e8ff580abe10b)
         - [Expose Realm Attributes](https://lists.jboss.org/pipermail/keycloak-user/2019-February/017122.html)
         - [Using ## as delimiter for multiple values in attributes](https://stackoverflow.com/questions/60767085/keycloak-map-multiple-user-attributes)
+    - [Securing inter service communication in microservice architecture](https://medium.com/@radutoev/securing-inter-service-communication-in-a-microservice-architecture-f413937012d4)
 - WebSocket
     - [Websockets with react & express](https://dev.to/ksankar/websockets-with-react-express-part-2-4n9f)
     - [React Managing Websockets with redux and context](https://rossbulat.medium.com/react-managing-websockets-with-redux-and-context-61f9a06c125b)
