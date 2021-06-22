@@ -5,6 +5,20 @@ related requests to the centralized storage service. No authentication have been
 
 ![design 1](../../doc/architecture_design1.png)
 
+## Features
+
+- Multipart File Upload
+    - Single / Multiple Files
+    - Set metadata such as max downloads or expiry period
+- Download 
+    - Single / Multiple Files (zip)
+    - Prevents download if file expired or have reached maximum downloads
+- Delete Files
+- Scheduled File Clean up
+- Abstraction over Storage Medium
+    - File Storage
+    - Object Storage (MinIO)
+
 ## Getting Started
 
 ### Start Infrastructure Cluster

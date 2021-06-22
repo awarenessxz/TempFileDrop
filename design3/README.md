@@ -7,9 +7,39 @@ This design is an upgrade to the first and second implementation. Additional fea
 and [storage admin console documentation](storage-console).
 
 **Table of Content**
+- [Features](#features)
 - [Getting Started](#getting-started)
 - [Authentication with Keycloak](#authentication-with-keycloak)
 - [Event Feedback with RabbitMQ](#event-feedback-with-rabbitmq)
+
+## Features
+
+- Multipart File Upload
+    - Single / Multiple Files
+    - Set metadata such as max downloads / expiry period
+    - Streaming uploads with apache file upload library
+    - Anonymous Upload
+- Download 
+    - Single / Multiple Files (zip)
+    - Prevents download if file expired or have reached maximum downloads
+    - Anonymous Download
+- Delete Files
+- Scheduled File Clean up
+- Abstraction over Storage Medium
+    - File Storage
+    - Object Storage (MinIO)
+- Event Feedback with RabbitMQ
+    - Include event data & routing key when uploading/downloading/deleting files to trigger events to be published to 
+    message queues.
+    - Consumers subscribe to message queues to get event feedback
+- Keycloak Authentication
+- API Gateway
+    - Centralized Authentication
+    - Reverse Proxy
+    - Rate Limiting
+- Storage Console
+    - View / Delete files in bucket
+    - View list of events
 
 ## Getting Started
 

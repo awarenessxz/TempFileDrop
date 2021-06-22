@@ -5,6 +5,28 @@
 This design is an upgrade to the first implementation. Additional features such as **keycloak authentication** and 
 **event feedback using rabbitmq** was added. For more details, check out the [centralized storage service documentation](storage-service).
 
+## Features
+
+- Multipart File Upload
+    - Single / Multiple Files
+    - Set metadata such as max downloads / expiry period
+    - Streaming uploads with apache file upload library
+    - Anonymous Upload
+- Download 
+    - Single / Multiple Files (zip)
+    - Prevents download if file expired or have reached maximum downloads
+    - Anonymous Download
+- Delete Files
+- Scheduled File Clean up
+- Abstraction over Storage Medium
+    - File Storage
+    - Object Storage (MinIO)
+- Event Feedback with RabbitMQ
+    - Include event data & routing key when uploading/downloading/deleting files to trigger events to be published to 
+    message queues.
+    - Consumers subscribe to message queues to get event feedback
+- Keycloak Authentication
+
 ## Getting Started
 
 Ensure that you have met the prerequisites below before using the guides below to start the project

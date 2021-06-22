@@ -135,9 +135,14 @@ implementations below. Refer to the [design 3's documentation](design3) for more
     - TLS (HTTPS) 
     - IAM for MinIO Cluster
     - Bucket Authorization
+    - Access Control of Storage Service
 2. Storage Service
     - Look at Presigned Url feature that is available in S3 storage
     - Monitoring Metrics
+    - File upload with Tus.io protocol (chunk based file upload)
+        - Upgrade Storage Service
+        - Upgrade TempFileDrop
+    - Rate Limiting of API Gateway
 3. Misc
     - Upgrade to Reactive Web (use webclient instead of restTemplate)
     - Make Navbar reactive to small screen (Frontend)
