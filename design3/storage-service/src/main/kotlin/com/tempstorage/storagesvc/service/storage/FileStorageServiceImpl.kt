@@ -25,7 +25,7 @@ import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
 import java.util.*
-import java.util.stream.Stream
+import java.util.stream.Collectors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletRequest
@@ -47,10 +47,12 @@ class FileStorageServiceImpl(
     private val root: Path = Paths.get(properties.fileStorage.uploadDirectory)
 
     override fun initStorage() {
-        deleteAllFilesInFolder()
+        // deleteAllFilesInFolder()
         try {
             logger.info("INITIALIZING FOLDER.....")
-            Files.createDirectory(root)
+            if (!Files.exists(root)) {
+                Files.createDirectory(root)
+            }
         } catch (e: IOException) {
             throw RuntimeException("Could not initialize folder for upload!")
         }
@@ -176,7 +178,17 @@ class FileStorageServiceImpl(
     }
 
     override fun getAllFileSizeInBucket(bucket: String, storageFiles: List<StorageFile>): List<StorageFile> {
-        TODO("Not yet implemented")
+        logger.info("List all files and folders in Bucket - $bucket...")
+        try {
+            val results = Files.walk(root).filter(Files::isRegularFile).collect(Collectors.toList())
+            val objectSizeMapper = results.map { it.fileName.toString() to Files.size(it) }.toMap()
+            return storageFiles.map {
+                val fileSize = objectSizeMapper[it.filename] ?: 0
+                StorageFile(it.bucket, it.storagePath, it.originalFilename, it.filename, it.fileContentType, fileSize, it.storageId, it.id)
+            }
+        } catch (e: IOException) {
+            throw RuntimeException("Could not load the files!")
+        }
     }
 
     override fun deleteFiles(storageFileList: List<StorageFile>, bucket: String) {
@@ -190,13 +202,5 @@ class FileStorageServiceImpl(
     fun deleteAllFilesInFolder() {
         logger.info("DELETING ALL FILES IN FOLDER STORAGE.....")
         FileSystemUtils.deleteRecursively(root.toFile())
-    }
-
-    fun loadAllFilesFromFolder(): Stream<Path> {
-        try {
-            return Files.walk(root, 1).filter { path -> path != root }.map(root::relativize)
-        } catch (e: IOException) {
-            throw RuntimeException("Could not load the files!")
-        }
     }
 }
