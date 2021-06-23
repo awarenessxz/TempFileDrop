@@ -6,8 +6,9 @@ import NavBar from "./NavBar";
 import SideBar from "./SideBar";
 import PageNotAuthorized from "./PageNotAuthorized";
 import PageNotFound from "./PageNotFound";
-import routes from "../../config/routes";
+import ProtectedRoute from "../../util/ProtectedRoute";
 import { useAuthState } from "../../util/auth-context";
+import routes from "../../config/routes";
 
 const useStyles = makeStyles((theme: Theme) =>
     createStyles({
@@ -51,7 +52,13 @@ const App = () => {
                     <div className={classes.toolbar} />
                     <React.Suspense fallback="Loading...">
                         <Switch>
-                            { routes.map((r, idx) => <Route key={idx} exact={r.exact} path={r.path} component={r.component} /> )}
+                            {routes.map((r, idx) => {
+                                const { isPrivate, ...routerProps } = r;
+                                if (isPrivate) {
+                                    return <ProtectedRoute key={idx} {...routerProps} />
+                                }
+                                return <Route key={idx} exact={r.exact} path={r.path} component={r.component} />
+                            })}
                             <Route path="*" component={PageNotFound}/>
                         </Switch>
                     </React.Suspense>

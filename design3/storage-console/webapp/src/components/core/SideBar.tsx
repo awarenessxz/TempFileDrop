@@ -64,7 +64,7 @@ const SideBar = (props: SideBarProps) => {
             <List>
                 <MuiLinkListItem primary="Dashboard" to="/" icon={<DashboardIcon />} />
                 <MuiLinkListItem primary="Buckets" to="/buckets" icon={<StorageIcon />} />
-                <MuiLinkListItem primary="Consumers" to="/consumers" icon={<ServiceIcon />} />
+                <MuiLinkListItem primary="Services" to="/services" icon={<ServiceIcon />} />
             </List>
         </Drawer>
     )

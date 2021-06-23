@@ -1,7 +1,7 @@
 import React from "react";
 
-const ConsumerConsole = () => {
+const ServiceConsole = () => {
     return <div>ServiceConsole Page</div>;
 };
 
-export default ConsumerConsole;
+export default ServiceConsole;

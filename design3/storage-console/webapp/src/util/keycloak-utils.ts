@@ -7,6 +7,7 @@ import { KeycloakTokenParsed } from "keycloak-js";
 interface StorageClientAttributes {
     buckets: string[];
     routingkeys: string[];
+    subscribers: string[];
 }
 
 // additional types which are not available in the original type definition provided

@@ -28,6 +28,9 @@ storagesvc:
     minio-endpoint: http://localhost:9000
     minio-access-key: minio
     minio-access-secret: minio123
+  authorized-roles:
+    - storagesvc_admin
+    - storagesvc_user_tempfiledrop
 
 storagelib:
   jwt-parser-keycloak:

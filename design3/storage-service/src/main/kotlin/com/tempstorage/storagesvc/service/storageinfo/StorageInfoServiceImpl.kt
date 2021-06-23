@@ -2,6 +2,7 @@ package com.tempstorage.storagesvc.service.storageinfo
 
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
+import org.springframework.data.mongodb.core.MongoTemplate
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
@@ -9,7 +10,8 @@ import java.time.ZonedDateTime
 
 @Service
 class StorageInfoServiceImpl(
-        private val repository: StorageInfoRepository
+        private val repository: StorageInfoRepository,
+        private val mongoTemplate: MongoTemplate
 ): StorageInfoService {
     override fun addStorageInfo(storageInfo: StorageInfo) {
         repository.save(storageInfo)
@@ -52,5 +54,12 @@ class StorageInfoServiceImpl(
                 storageInfo.id
         )
         repository.save(newStorageInfo)
+    }
+
+    override fun getBuckets(): List<String> {
+        return mongoTemplate.query(StorageInfo::class.java)
+                .distinct("bucket")
+                .`as`(String::class.java)
+                .all()
     }
 }

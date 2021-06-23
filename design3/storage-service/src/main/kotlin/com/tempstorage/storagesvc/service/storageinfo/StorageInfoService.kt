@@ -9,4 +9,5 @@ interface StorageInfoService {
     fun getBulkStorageInfoById(storageIds: List<String>): List<StorageInfo>
     fun getExpiredStorageInfoList(): List<StorageInfo>
     fun reduceDownloadCountById(storageId: String)
+    fun getBuckets(): List<String>
 }

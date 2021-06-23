@@ -2,25 +2,32 @@ import React from "react";
 import { RouteProps } from "react-router-dom";
 
 const Dashboard = React.lazy(() => import("../components/Dashboard"));
-const ConsumerConsole = React.lazy(() => import("../components/ConsumerConsole"));
-const BucketConsole = React.lazy(() => import("../components/buckets/BucketConsole"));
+const ServiceConsole = React.lazy(() => import("../components/ServiceConsole"));
+const BucketConsole = React.lazy(() => import("../components/BucketConsole"));
 
-const routes: RouteProps[] = [
+export interface AppRouteProps extends RouteProps {
+    isPrivate: boolean;
+}
+
+const routes: AppRouteProps[] = [
     {
         exact: true,
         component: Dashboard,
-        path: "/"
+        path: "/",
+        isPrivate: false
     },
     {
         exact: true,
-        component: ConsumerConsole,
-        path: "/consumers"
+        component: ServiceConsole,
+        path: "/services",
+        isPrivate: false
     },
     {
         exact: true,
         component: BucketConsole,
-        path: "/buckets"
-    },
+        path: "/buckets",
+        isPrivate: false
+    }
 ];
 
 export default routes;
