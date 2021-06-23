@@ -65,8 +65,16 @@ a proxy for user's upload/download request. Below is the list of available imple
 ![design 2](doc/architecture_design2.png)
 
 This design was built upon the first implementation. Instead of relaying the http request, consumers will make request to 
-the centralized storage service, and an event will be published when the request is completed. In additional to the 
-implementations above, I have added the implementations below. Refer to the [design 2's documentation](archive/design2) for more information.
+the centralized storage service, and an event will be published when the request is completed. Previously, the following
+features were implemented:
+
+- **Object Storage** based on s3 bucket concepts
+- Basic **multipart upload / download / delete / list files**
+- Scheduled Clean up based on **maximum download count / expiry Period**
+- File Storage in either **Local File Storage** or **MinIO docker cluster**
+
+In additional to the implementations above, I have added the implementations below. Refer to the [design 2's documentation](archive/design2) 
+for more information.
 - **Event Feedback** when file upload / download / delete event occur
 - **Anonymous uploads / downloads**
 - **Streaming Upload**
@@ -77,11 +85,23 @@ implementations above, I have added the implementations below. Refer to the [des
 ![design 3](doc/architecture_design3.png)
 
 This design was built upon the second implementation. Instead of registering each backend services as a keycloak client,
-I used an API Gateway to manage authentication. In additional to the implementations above, I added a few more 
-implementations below. Refer to the [design 3's documentation](design3) for more information.
+I used an API Gateway to manage authentication. Previously, the following features were implemented:
+
+- **Object Storage** based on s3 bucket concepts
+- Basic **multipart upload / download / delete / list files**
+- Scheduled Clean up based on **maximum download count / expiry Period**
+- File Storage in either **Local File Storage** or **MinIO docker cluster**
+- **Event Feedback** when file upload / download / delete event occur
+- **Anonymous uploads / downloads**
+- **Streaming Upload**
+- **Keycloak authentication**
+
+In additional to the implementations above, I added a few more implementations below. Refer to the [design 3's documentation](design3) 
+for more information.
 - **API Gateway** with **Centralized Authentication**
-    - Extract **Client/Realm Role Attributes** from keycloak token for validating routing keys / bucket in client's request
-- **Storage Console**
+    - Role Authorization using **Storage Gateway Client Roles**
+    - API request validation by extracting **Client/Realm Role Attributes** (buckets, routingkeys, subscribers) from keycloak token
+- **Storage Console** to view storage and events
 
 ## Design Considerations
 
@@ -134,15 +154,16 @@ implementations below. Refer to the [design 3's documentation](design3) for more
 1. Implement Security
     - TLS (HTTPS) 
     - IAM for MinIO Cluster
-    - Bucket Authorization
     - Access Control of Storage Service
 2. Storage Service
-    - Look at Presigned Url feature that is available in S3 storage
-    - Monitoring Metrics
+    - Monitoring Metrics with Grafana
     - File upload with Tus.io protocol (chunk based file upload)
         - Upgrade Storage Service
         - Upgrade TempFileDrop
     - Rate Limiting of API Gateway
+    - Storage Service Javascript Client (NPM)
+    - Storage Service Security Starter Library
+    - Understand Logging
 3. Misc
     - Upgrade to Reactive Web (use webclient instead of restTemplate)
     - Make Navbar reactive to small screen (Frontend)
