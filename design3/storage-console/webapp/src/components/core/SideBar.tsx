@@ -4,7 +4,6 @@ import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import Drawer from '@material-ui/core/Drawer';
 import List from '@material-ui/core/List';
 import Toolbar from "@material-ui/core/Toolbar";
-import ServiceIcon from '@material-ui/icons/AccountTree';
 import DashboardIcon from '@material-ui/icons/Dashboard';
 import StorageIcon from "@material-ui/icons/Unarchive";
 import MuiLinkListItem from "../../util/MuiLinkListItem";
@@ -64,7 +63,6 @@ const SideBar = (props: SideBarProps) => {
             <List>
                 <MuiLinkListItem primary="Dashboard" to="/" icon={<DashboardIcon />} />
                 <MuiLinkListItem primary="Buckets" to="/buckets" icon={<StorageIcon />} />
-                <MuiLinkListItem primary="Services" to="/services" icon={<ServiceIcon />} />
             </List>
         </Drawer>
     )

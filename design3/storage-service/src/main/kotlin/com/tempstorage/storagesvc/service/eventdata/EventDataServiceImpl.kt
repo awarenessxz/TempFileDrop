@@ -12,4 +12,12 @@ class EventDataServiceImpl(
         val eventData = EventData(eventMsg.bucket, eventMsg.storageId, eventMsg.storageFiles, eventMsg.eventType, ZonedDateTime.now())
         repository.save(eventData)
     }
+
+    override fun getAllEventsFromDB(): List<EventData> {
+        return repository.findAll()
+    }
+
+    override fun getEventsByBucket(bucket: String): List<EventData> {
+        return repository.findByBucket(bucket)
+    }
 }

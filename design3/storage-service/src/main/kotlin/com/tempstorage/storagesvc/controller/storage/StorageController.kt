@@ -4,6 +4,8 @@ import com.tempstorage.storagesvc.controller.SecuredRestController
 import com.tempstorage.storagesvc.exception.ErrorResponse
 import com.tempstorage.storagesvc.service.event.EventType
 import com.tempstorage.storagesvc.service.event.RabbitMQProducer
+import com.tempstorage.storagesvc.service.eventdata.EventData
+import com.tempstorage.storagesvc.service.eventdata.EventDataService
 import com.tempstorage.storagesvc.service.storage.StorageService
 import com.tempstorage.storagesvc.service.storage.FileSystemNode
 import io.swagger.v3.oas.annotations.Operation
@@ -22,10 +24,19 @@ import kotlin.io.path.ExperimentalPathApi
 @RequestMapping("/api/storagesvc")
 class StorageController(
         private val storageService: StorageService,
+        private val eventDataService: EventDataService,
         private val producer: RabbitMQProducer
 ): SecuredRestController {
     companion object {
         private val logger = LoggerFactory.getLogger(StorageController::class.java)
+    }
+
+    @Operation(summary = "Get number of files in bucket")
+    @GetMapping("/{bucket}/count")
+    fun getNumberOfFilesInBucket(@PathVariable("bucket") bucket: String): ResponseEntity<Int> {
+        logger.info("Receiving Request to get number of files inside $bucket")
+        val count = storageService.getAllStorageInfo(bucket).size
+        return ResponseEntity(count, HttpStatus.OK)
     }
 
     @Operation(summary = "Get all files and folders inside bucket in folder like structure")
@@ -86,7 +97,7 @@ class StorageController(
     @GetMapping("/storageinfo/{bucket}")
     fun getAllStorageInfoInBucket(@PathVariable("bucket") bucket: String): ResponseEntity<List<StorageInfoResponse>> {
         logger.info("Receiving Request to get all StorageInfo inside $bucket")
-        val storageInfoList = storageService.getAllStorageInfoFromBucket(bucket)
+        val storageInfoList = storageService.getAllStorageInfo(bucket)
         val response = storageInfoList.map { StorageInfoResponse(it.id.toString(), it.filenames, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload) }
         return ResponseEntity(response, HttpStatus.OK)
     }
@@ -116,5 +127,13 @@ class StorageController(
         val result = storageInfoList.map { StorageInfoResponse(it.id.toString(), it.filenames, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload) }
         val response = StorageInfoBulkResponse(result)
         return ResponseEntity(response, HttpStatus.OK)
+    }
+
+    @Operation(summary = "Get all events that were published to message queue for bucket")
+    @GetMapping("/events/{bucket}")
+    fun getAllEvents(@PathVariable("bucket") bucket: String): ResponseEntity<List<EventData>> {
+        logger.info("Receiving Request to get all events that were published to message queue for $bucket")
+        val events = eventDataService.getEventsByBucket(bucket)
+        return ResponseEntity(events, HttpStatus.OK)
     }
 }

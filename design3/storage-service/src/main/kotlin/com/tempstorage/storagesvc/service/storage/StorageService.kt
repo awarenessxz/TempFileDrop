@@ -45,14 +45,21 @@ abstract class StorageService {
         this.storageFileService = storageFileService
     }
 
-    fun getAllStorageInfoFromBucket(bucket: String): List<StorageInfo> {
-        val allStorageInfoList = storageInfoService.getStorageInfosInBucket(bucket)
+    fun getAllBuckets(): List<String> {
+        return storageInfoService.getBuckets()
+    }
+
+    fun getAllStorageInfo(bucket: String? = null): List<StorageInfo> {
+        var allStorageInfoList = storageInfoService.getAllStorageInfo()
+        if (bucket != null) {
+            allStorageInfoList = allStorageInfoList.filter { it.bucket == bucket }
+        }
         return allStorageInfoList.filter { checkIfStorageFileIsAvailable(it) }
     }
 
     // convert list of all storage in bucket into folder like structure
     fun listFilesAndFoldersInBucket(bucket: String): FileSystemNode {
-        val storageInfoList = getAllStorageInfoFromBucket(bucket)
+        val storageInfoList = getAllStorageInfo(bucket)
         val storageIds = storageInfoList.map { it.id.toString() }
         val storageFiles = storageFileService.getStorageFilesInfoByStorageIdBulk(storageIds)
         val storageFilesWithFileSize = getAllFileSizeInBucket(bucket, storageFiles)

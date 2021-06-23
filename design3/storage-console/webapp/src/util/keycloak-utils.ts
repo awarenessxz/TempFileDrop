@@ -24,6 +24,7 @@ export interface UserToken {
     roles: string[];
     buckets: string[];
     routingKeys: string[];
+    subscribers: string[];
     isAdmin: boolean;
 }
 
@@ -40,7 +41,8 @@ export const extractUserToken = (token: KeycloakTokenParsed | undefined): UserTo
             roles: ntoken.roles,
             isAdmin: ntoken.roles?.includes("admin"),
             buckets: ntoken.storage_client_attr.buckets,
-            routingKeys: ntoken.storage_client_attr.routingkeys
+            routingKeys: ntoken.storage_client_attr.routingkeys,
+            subscribers: ntoken.storage_client_attr.subscribers
         };
     }
     return null;

@@ -10,4 +10,5 @@ interface StorageInfoService {
     fun getExpiredStorageInfoList(): List<StorageInfo>
     fun reduceDownloadCountById(storageId: String)
     fun getBuckets(): List<String>
+    fun getAllStorageInfo(): List<StorageInfo>
 }

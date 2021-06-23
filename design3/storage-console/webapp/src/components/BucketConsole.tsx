@@ -57,6 +57,7 @@ const BucketConsole = () => {
     const [currentDir, setCurrentDir] = useState<FileSystemNode|null>(null);
 
     const createFileSystemTree = (bucketFileSystemNodes: FileSystemNode[]) => {
+        console.log(bucketFileSystemNodes);
         const rootDir: FileSystemNode = {
             children: [],
             label: "ROOT",
@@ -182,7 +183,7 @@ const BucketConsole = () => {
                                                     >
                                                         {fileSystemNode.label}
                                                     </TableCell>
-                                                    <TableCell align="center">{fileSystemNode.isFile &&  fileSystemNode.storageId}</TableCell>
+                                                    <TableCell align="center">{fileSystemNode.isFile && fileSystemNode.storageId}</TableCell>
                                                     <TableCell align="center">{fileSystemNode.isFile && humanFileSize(fileSystemNode.storageSize, false, 2)}</TableCell>
                                                     <TableCell align="center">{fileSystemNode.isFile && fileSystemNode.storageDownloadLeft}</TableCell>
                                                     <TableCell align="center">{fileSystemNode.isFile && moment(fileSystemNode.storageExpiryDatetime).format("DD MMM YYYY h:mma")}</TableCell>

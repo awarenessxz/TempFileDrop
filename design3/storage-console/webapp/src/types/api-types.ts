@@ -6,6 +6,8 @@ export interface StorageInfo {
     expiryDatetime: Moment;
     storageId: string;
     allowAnonymousDownload: boolean;
+    bucket: string;
+    storagePath: string;
 }
 
 export interface FileSystemNode {
@@ -18,4 +20,12 @@ export interface FileSystemNode {
     storageDownloadLeft: number;
     storageExpiryDatetime?: Moment | null;
     children: FileSystemNode[];
+}
+
+export interface EventData {
+    bucket: string;
+    storageId: string;
+    storageFiles: string;
+    eventType: string;
+    publishedDateTime: Moment;
 }

@@ -29,6 +29,10 @@ class StorageInfoServiceImpl(
         return repository.findByBucket(bucket)
     }
 
+    override fun getAllStorageInfo(): List<StorageInfo> {
+        return repository.findAll()
+    }
+
     override fun getStorageInfoById(storageId: String): StorageInfo? {
         return repository.findByIdOrNull(storageId)
     }
