@@ -11,7 +11,7 @@ application. The underlying http client used is **axios**.
 yarn add storage-js-client axios moment
 ```
 
-### Functions
+### Examples
 
 Below are examples on how to use some of the functions available.
 
@@ -106,6 +106,23 @@ StorageClient.download({
     },
     onSuccess(): void {
         console.log("You have downloaded the files!");
+    }
+});
+```
+
+#### Delete
+
+```javascript
+StorageClient.deleteStorageId({
+    url: "/api/storagesvc/<BUCKET_NAME>/<STORAGE_ID>",
+    headers: { 'Authorization': 'Bearer ' + token },
+    eventRoutingKey: "OPTIONAL Routing Key",
+    eventData: "OPTIONAL Event Data",
+    onSuccess: () => {
+        console.log("Storage Deleted!");
+    },
+    onError: (err) => {
+        console.error(err)
     }
 });
 ```

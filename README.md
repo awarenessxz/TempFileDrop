@@ -42,6 +42,7 @@ There are 3 main purpose of this project.
 - **[Design v3 [Current]](design3)**
     - [TempFileDrop Website](design3/tempfiledrop/webapp)
     - [TempFileDrop Web Server](design3/tempfiledrop/webserver)
+    - [storage-js-client](design3/storage-js-client)
     - [Storage Admin Console](design3/storage-console)
     - [Storage Microservice](design3/storage-service)
     - [API Gateway](infra/gateway)
