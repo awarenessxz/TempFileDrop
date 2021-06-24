@@ -35,6 +35,7 @@ There are 3 main purpose of this project.
 - **Spring Boot** - API web services
 - **Rabbit MQ** - Publish / Subscribe Messages
 - **Docker** - Containerization
+- **Keycloak** - Authentication
 
 **For more details on implementation, refer to the README of the individual services**
 - [Design v1 [Archive]](archive/design1)
