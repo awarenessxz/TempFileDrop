@@ -2,6 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import moment from "moment";
+import StorageClient from "storage-js-client";
 import { FaTrash, FaDownload } from "react-icons/fa";
 import Alert from "react-bootstrap/cjs/Alert";
 import Button from "react-bootstrap/cjs/Button";
@@ -12,7 +13,7 @@ import Table from "react-bootstrap/cjs/Table";
 import VerticallyCenteredModal from "../common/modal/VerticallyCenteredModal";
 import FileDropzone from "../common/dropzone/FileDropzone";
 import { useAuthState } from "../../utils/auth-context";
-import { extractFilenameFromContentDisposition, joinURLs } from "../../utils/toolkit";
+import { joinURLs } from "../../utils/toolkit";
 import Data from "../../config/app.json";
 import { UserUploadInfo } from "../../types/api-types";
 import "./Dashboard.css";
@@ -48,43 +49,37 @@ const Dashboard = () => {
         setRecords([...records]);
 
         // call backend
-        axios.delete(`${Data.api_endpoints.storagesvc}/${Data.bucket}/${storageId}`, {
-            params: {
-                eventData: JSON.stringify({ recordId: recordId }),
-                eventRoutingKey: Data.rabbitmq.routingkey
+        const token = window.accessToken ? window.accessToken : "dummy_token";
+        StorageClient.deleteStorageId({
+            url: `${Data.api_endpoints.storagesvc}/${Data.bucket}/${storageId}`,
+            headers: { 'Authorization': 'Bearer ' + token },
+            eventData: JSON.stringify({ recordId: recordId }),
+            eventRoutingKey: Data.rabbitmq.routingkey,
+            onSuccess: () => {
+                setMessage("Delete Success!");
+                setIsError(false);
+                setRerender(!rerender);
+            },
+            onError: (err) => {
+                console.error(err)
             }
-        })
-            .then(res => {
-                if (res.status === 200) {
-                    setMessage("Delete Success!");
-                    setIsError(false);
-                    setRerender(!rerender);
-                }
-            })
-            .catch(err => console.log(err));
+        });
     };
 
     const handleDownloadRecord = (storageId: string) => {
-        axios.get(`${Data.api_endpoints.storagesvc_download}/secure/direct/${storageId}`, {
-            responseType: "blob",
-            params: {
-                eventRoutingKey: Data.rabbitmq.routingkey
-            }
-        })
-            .then(res => {
-                const filename = extractFilenameFromContentDisposition(res.headers);
-                const url = window.URL.createObjectURL(new Blob([res.data]));
-                const link = document.createElement('a');
-                link.href = url;
-                link.setAttribute('download', filename);
-                document.body.appendChild(link);
-                link.click();
+        const token = window.accessToken ? window.accessToken : "dummy_token";
+        StorageClient.download({
+            url: `${Data.api_endpoints.storagesvc_download}/secure/${Data.bucket}/${storageId}`,
+            eventRoutingKey: Data.rabbitmq.routingkey,
+            headers: { 'Authorization': 'Bearer ' + token },
+            onError(err: any): void {
+                console.log(err);
+            },
+            onSuccess(): void {
                 setMessage("You have downloaded the files!");
                 setRerender(!rerender);
-            })
-            .catch(err => {
-                console.log(err);
-            });
+            }
+        });
     };
 
     const onSuccessfulUpload = () => {

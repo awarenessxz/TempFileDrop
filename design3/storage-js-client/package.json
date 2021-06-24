@@ -1,0 +1,25 @@
+{
+  "name": "storage-js-client",
+  "version": "1.0.0",
+  "description": "JS client for communicating with storage service",
+  "main": "./lib/index.js",
+  "types": "./lib/index.d.ts",
+  "scripts": {
+    "build": "tsc",
+    "lint": "eslint . --ext .ts"
+  },
+  "license": "MIT",
+  "devDependencies": {
+    "@typescript-eslint/eslint-plugin": "^4.28.0",
+    "@typescript-eslint/parser": "^4.28.0",
+    "eslint": "^7.29.0",
+    "prettier": "^2.3.1",
+    "typescript": "^4.3.4",
+    "axios": "^0.21.1",
+    "moment": "^2.29.1"
+  },
+  "peerDependencies": {
+    "axios": "^0.21.1",
+    "moment": "^2.29.1"
+  }
+}

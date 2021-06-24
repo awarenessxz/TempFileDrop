@@ -40,6 +40,7 @@ and [storage admin console documentation](storage-console).
 - Storage Console
     - View / Delete files in bucket
     - View list of events
+- storage-js-client
 
 ## Getting Started
 

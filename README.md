@@ -1,4 +1,4 @@
-# TempFileDrop
+# Storage Service Research
 
 **Table of Content**
 - [Overview](#overview)
@@ -26,7 +26,6 @@ There are 3 main purpose of this project.
     - **TempFileDrop.io** is a project that replicates [file.io](https://www.file.io/) which is a super simple file sharing application.
     - Understand **file uploads / downloads using Rest** 
 3. **To experiment with having API Gateway for authentication**
-    - Use Spring Cloud Gateway and Keycloak for authentication
 
 **Technology Stack:**
 - **React** - Website Framework
@@ -103,6 +102,7 @@ for more information.
     - Role Authorization using **Storage Gateway Client Roles**
     - API request validation by extracting **Client/Realm Role Attributes** (buckets, routingkeys, subscribers) from keycloak token
 - **Storage Console** to view storage and events
+- **storage-js-client** is a javascript client for web applications to communicate with storage service
 
 ## Design Considerations
 
@@ -285,8 +285,9 @@ for more information.
     - [dzone.com - Build a secure app using spring boot and websocket](https://dzone.com/articles/build-a-secure-app-using-spring-boot-and-websocket)
     - [okta - java spring websocket secure](https://developer.okta.com/blog/2019/10/09/java-spring-websocket-tutorial)
     - [Stomp Spring Boot Websocket](https://www.toptal.com/java/stomp-spring-boot-websocket)
+- React / Javascript
+    - [Eslint for Typescript](https://khalilstemmler.com/blogs/typescript/eslint-for-typescript/)
 - Misc
     - [Stackoverflow - Algorithm for folder structure](https://stackoverflow.com/questions/7433414/help-to-write-an-algorithm-for-folders-structure)
     - [Stackoverflow - Spring Security 403 for POST/DELETE but ok for GET](https://stackoverflow.com/questions/19468209/spring-security-403-error)
     - [How microservies communicate](https://medium.com/geekculture/microservices-apis-a7b43ce850ee)
-    

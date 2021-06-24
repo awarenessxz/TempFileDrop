@@ -10,7 +10,7 @@ const render = (AppComponent: React.FC): void => {
     ReactDOM.render(
         <React.StrictMode>
             <AuthProvider>
-                    <AppComponent />
+                <AppComponent />
             </AuthProvider>
         </React.StrictMode>,
         document.getElementById('root')

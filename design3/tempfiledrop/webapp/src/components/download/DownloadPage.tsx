@@ -1,14 +1,12 @@
-import axios from "axios";
 import moment from "moment";
 import React, { MouseEvent, useEffect, useState } from "react";
 import { RouteComponentProps } from 'react-router-dom';
+import StorageClient, { DownloadInfo } from "storage-js-client";
 import Alert from "react-bootstrap/cjs/Alert";
 import Button from "react-bootstrap/cjs/Button";
 import Container from "react-bootstrap/cjs/Container";
-import { extractFilenameFromContentDisposition } from "../../utils/toolkit";
 import Data from "../../config/app.json";
 import { useAuthState } from "../../utils/auth-context";
-import { DownloadResponse } from "../../types/api-types";
 import "./DownloadPage.css";
 
 type DownloadPageRouterParams = {
@@ -25,24 +23,21 @@ const DownloadPage = (props: DownloadPageProps) => {
     const [errorMsg, setErrorMsg] = useState("");
     const [disableBtn, setDisableBtn] = useState(false);
     const [refreshToggle, setRefreshToggle] = useState(false);
-    const [downloadInfo, setDownloadInfo] = useState<DownloadResponse | null>(null);
+    const [downloadInfo, setDownloadInfo] = useState<DownloadInfo | null>(null);
 
     useEffect(() => {
         if (isAuthReady) {
             // retrieve information about the download
-            axios.get(`${Data.api_endpoints.storagesvc_get_downloadlink}/${props.match.params.storageId}`)
-                .then(res => {
-                    if (res.status === 200) {
-                        const info: DownloadResponse = res.data;
-                        setDownloadInfo(info);
-                    } else {
-                        setErrorMsg("Download Link is Not Available!");
-                    }
-                })
-                .catch(err => {
+            StorageClient.getDownloadLink({
+                url: `${Data.api_endpoints.storagesvc_get_downloadlink}/${props.match.params.storageId}`,
+                onSuccess: (downloadInfo: DownloadInfo) => {
+                    setDownloadInfo(downloadInfo);
+                },
+                onError: (err) => {
                     console.log(err);
                     setErrorMsg("Download Link is no longer available!");
-                });
+                }
+            });
         }
         // eslint-disable-next-line
     }, [refreshToggle, isAuthenticated, isAuthReady]);
@@ -51,28 +46,23 @@ const DownloadPage = (props: DownloadPageProps) => {
         setSuccessMsg("");
         setDisableBtn(true);
         if (downloadInfo !== null) {
-            axios.get(downloadInfo.downloadEndpoint, {
-                responseType: "blob",
-                params: isAuthenticated ? { eventRoutingKey: Data.rabbitmq.routingkey } : {}
-            })
-                .then(res => {
-                    const filename = extractFilenameFromContentDisposition(res.headers);
-                    const url = window.URL.createObjectURL(new Blob([res.data]));
-                    const link = document.createElement('a');
-                    link.href = url;
-                    link.setAttribute('download', filename);
-                    document.body.appendChild(link);
-                    link.click();
-                    setSuccessMsg("You have downloaded the files!");
-                    setDisableBtn(false);
-                    setRefreshToggle(!refreshToggle);
-                })
-                .catch(err => {
+            const token = window.accessToken ? window.accessToken : "dummy_token";
+            StorageClient.download({
+                url: downloadInfo.downloadEndpoint,
+                eventRoutingKey: isAuthenticated ? Data.rabbitmq.routingkey : "",
+                headers: downloadInfo.requiresAuthentication ? { 'Authorization': 'Bearer ' + token } : {},
+                onError(err: any): void {
                     console.log(err);
                     if (err.response && err.response.status === 401) {
                         setErrorMsg("Authentication Required!");
                     }
-                });
+                },
+                onSuccess(): void {
+                    setSuccessMsg("You have downloaded the files!");
+                    setDisableBtn(false);
+                    setRefreshToggle(!refreshToggle);
+                }
+            });
         } else {
             setErrorMsg("Download Failed!");
         }

@@ -1,7 +1,7 @@
 import React, { MouseEvent, useState, useRef } from "react";
-import axios from "axios";
 import { FaCopy } from "react-icons/fa";
 import { useDropzone } from 'react-dropzone'
+import StorageClient, { FileUploadMetadata, FileUploadResponse } from "storage-js-client";
 import Button from "react-bootstrap/cjs/Button";
 import Col from "react-bootstrap/cjs/Col";
 import Container from "react-bootstrap/cjs/Container";
@@ -13,7 +13,6 @@ import Spinner from "../loading/Spinner";
 import { useAuthState } from "../../../utils/auth-context";
 import { joinURLs } from "../../../utils/toolkit";
 import Data from "../../../config/app.json";
-import { FileUploadMetadata, FileUploadResponse } from "../../../types/api-types"
 import "./FileDropzone.css";
 
 interface FileDropzoneProps {
@@ -51,8 +50,17 @@ const FileDropzone = ({
         setUploadPercentage(0);
         setLoading(true);
 
-        // craft payload
-        const formData = new FormData();
+        const handleUploadSuccess = (uploadRes: FileUploadResponse) => {
+            setLoading(false);
+            setDownloadLink(joinURLs(window.location.origin, "download", uploadRes.storageId));
+            setUploadRes(uploadRes);
+        };
+
+        const handleUploadFailure = (err: any) => {
+            setLoading(false);
+            setErrorMsg("Upload Failed!");
+        };
+
         if (isAuthenticated) {
             // @ts-ignore
             const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
@@ -67,43 +75,27 @@ const FileDropzone = ({
                 eventRoutingKey: Data.rabbitmq.routingkey,
                 eventData: JSON.stringify({ username: userToken?.username })
             };
-            formData.append("metadata", new Blob([JSON.stringify(metadata)], {
-                type: "application/json"
-            }));
-        }
-        acceptedFiles.forEach(file => {
-            formData.append("files", file);
-        });
-
-        // set upload percentage
-        const options = {
-            onUploadProgress: (progressEvent: any) => {
-                const {loaded, total} = progressEvent;
-                const percent = Math.floor((loaded * 100) / total);
-                if (percent <= 100) {
-                    setUploadPercentage(percent);
-                }
-            }
-        };
-
-        // send request
-        const url = isAuthenticated ? Data.api_endpoints.storagesvc_upload : Data.api_endpoints.storagesvc_upload_anonymous;
-        axios.post(url, formData, options)
-            .then(res => {
-                setLoading(false);
-                if (res.status === 200) {
-                    const fileUploadResponse: FileUploadResponse = res.data;
-                    setDownloadLink(joinURLs(window.location.origin, "download", fileUploadResponse.storageId));
-                    setUploadRes(fileUploadResponse);
-                    onSuccessfulUploadCallback();
-                } else {
-                    setErrorMsg("Upload Failed!");
-                }
-            })
-            .catch(() => {
-                setLoading(false);
-                setErrorMsg("Upload Failed!");
+            const token = window.accessToken ? window.accessToken : "dummy_token";
+            StorageClient.upload({
+                url: Data.api_endpoints.storagesvc_upload,
+                files: acceptedFiles,
+                metadata: metadata,
+                headers: {
+                    'Authorization': 'Bearer ' + token
+                },
+                onUploadPercentage: (percentage) => setUploadPercentage(percentage),
+                onError: handleUploadFailure,
+                onSuccess: handleUploadSuccess,
             });
+        } else {
+            StorageClient.uploadAnonymously({
+                url: Data.api_endpoints.storagesvc_upload_anonymous,
+                files: acceptedFiles,
+                onUploadPercentage: (percentage) => setUploadPercentage(percentage),
+                onError: handleUploadFailure,
+                onSuccess: handleUploadSuccess,
+            });
+        }
     };
 
     const copyToClipboard = (e: MouseEvent<HTMLButtonElement>) => {
