@@ -1,0 +1,22 @@
+.App {
+  text-align: center;
+}
+
+.full-page {
+  background-color: #f2f2f2;
+  display: flex;
+  justify-content: center;
+  flex-flow: column;
+  align-items: center;
+  height: calc(100vh - 65px);
+  width: 100%;
+}
+
+.app-header {
+  height: 65px;
+  background-color: #88D498;
+}
+
+.navbar {
+  padding: 1vh 0;
+}

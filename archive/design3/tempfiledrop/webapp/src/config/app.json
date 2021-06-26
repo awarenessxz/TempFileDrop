@@ -1,0 +1,54 @@
+{
+    "web_name": "TempFileDrop.io",
+    "bucket": "tempfiledrop",
+    "navbar_menu": [
+        {
+            "path": "/developer",
+            "label": "Developers"
+        },
+        {
+            "label": "Login",
+            "login_required": false,
+            "hide_when_login": true
+        },
+        {
+            "path": "/dashboard",
+            "label": "My Dashboard",
+            "login_required": true
+        },
+        {
+            "label": "Logout",
+            "login_required": true
+        }
+    ],
+    "dropzone": {
+        "maxSizeInTextForAnonymous": "100MB",
+        "maxSizeInBytesForAnonymous": 104857600,
+        "maxSizeInText": "5GB",
+        "maxSizeInBytes": 5368706371
+    },
+    "rabbitmq": {
+        "routingkey": "tempfiledrop"
+    },
+    "keycloak": {
+        "realmRoles": ["tempfiledrop-user", "tempfiledrop-admin"],
+        "clientRoles": ["user", "admin"]
+    },
+    "api_endpoints": {
+        "uploaded_files": "/api/users-upload-info",
+        "storagesvc_swagger": "/swagger/storagesvc/api-docs",
+        "storagesvc_upload": "/api/storagesvc/upload",
+        "storagesvc_get_downloadlink": "/api/storagesvc/download/temporarykey",
+        "storagesvc_download": "/api/storagesvc/download",
+        "storagesvc_storage_info": "/api/storagesvc/storageinfo",
+        "storagesvc_upload_anonymous": "/api/storagesvc/anonymous/upload",
+        "storagesvc_storage_info_anonymous": "/api/storagesvc/anonymous/storageinfo",
+        "storagesvc": "/api/storagesvc"
+    },
+    "websocket_stomp_endpoint": "/ws/websocket-stomp",
+    "websocket_endpoints": {
+        "on_files_deleted": "/topic/onfilesdeleted",
+        "on_files_downloaded": "/topic/onfilesdownloaded",
+        "on_files_uploaded": "/topic/onfilesuploaded"
+    }
+}

@@ -39,19 +39,20 @@ There are 3 main purpose of this project.
 **For more details on implementation, refer to the README of the individual services**
 - [Design v1 [Archive]](archive/design1)
 - [Design v2 [Archive]](archive/design2)
-- **[Design v3 [Current]](design3)**
-    - [TempFileDrop Website](design3/tempfiledrop/webapp)
-    - [TempFileDrop Web Server](design3/tempfiledrop/webserver)
-    - [storage-js-client](design3/storage-js-client)
-    - [Storage Admin Console](design3/storage-console)
-    - [Storage Microservice](design3/storage-service)
+- [Design v3 [Archive]](archive/design3)
+- **[Design v4 [Current]](design4)**
+    - [TempFileDrop Website](design4/tempfiledrop/webapp)
+    - [TempFileDrop Web Server](design4/tempfiledrop/webserver)
+    - [storage-js-client](design4/storage-js-client)
+    - [Storage Admin Console](design4/storage-console)
+    - [Storage Microservice](design4/storage-service)
     - [API Gateway](infra/gateway)
 
 ## Architecture Design
 
 ### Version 1 - Backend Proxy
 
-![design 1](doc/architecture_design1.png)
+![design 1](doc/architecture_design1b.png)
 
 This is the first conceptualized design of the centralized storage service where I use the consumer's backend to act as
 a proxy for user's upload/download request. Below is the list of available implementations. Refer to the 
@@ -63,9 +64,9 @@ a proxy for user's upload/download request. Below is the list of available imple
 
 ### Version 2 - Direct Consumption with Event Feedback
 
-![design 2](doc/architecture_design2.png)
+![design 2](doc/architecture_design2b.png)
 
-This design was built upon the first implementation. Instead of relaying the http request, consumers will make request to 
+This design is built upon the first implementation. Instead of relaying the http request, consumers will make request to 
 the centralized storage service, and an event will be published when the request is completed. Previously, the following
 features were implemented:
 
@@ -81,11 +82,11 @@ for more information.
 - **Streaming Upload**
 - **Keycloak authentication**
 
-### Version 3 - Gateway Authentication (Current)
+### Version 3 - Gateway Authentication
 
-![design 3](doc/architecture_design3.png)
+![design 3](doc/architecture_design3b.png)
 
-This design was built upon the second implementation. Instead of registering each backend services as a keycloak client,
+This design is built upon the second implementation. Instead of registering each backend services as a keycloak client,
 I used an API Gateway to manage authentication. Previously, the following features were implemented:
 
 - **Object Storage** based on s3 bucket concepts
@@ -97,13 +98,39 @@ I used an API Gateway to manage authentication. Previously, the following featur
 - **Streaming Upload**
 - **Keycloak authentication**
 
-In additional to the implementations above, I added a few more implementations below. Refer to the [design 3's documentation](design3) 
+In additional to the implementations above, I added a few more implementations below. Refer to the [design 3's documentation](archive/design3) 
 for more information.
 - **API Gateway** with **Centralized Authentication**
     - Role Authorization using **Storage Gateway Client Roles**
     - API request validation by extracting **Client/Realm Role Attributes** (buckets, routingkeys, subscribers) from keycloak token
 - **Storage Console** to view storage and events
 - **storage-js-client** is a javascript client for web applications to communicate with storage service
+
+### Version 4 - Gateway Authentication V2 [Current]
+
+![design 4](doc/architecture_design4.png)
+
+This design is built upon the third implementation. Instead of registering the frontend web applications as keycloak client, 
+I placed the webservers which are serving frontend resources behind the gateway. This provides a cleaner architecture where
+authentication & authorization is handled purely by the gateway. Previously, the following features were implemented:
+
+- **Object Storage** based on s3 bucket concepts
+- Basic **multipart upload / download / delete / list files**
+- Scheduled Clean up based on **maximum download count / expiry Period**
+- File Storage in either **Local File Storage** or **MinIO docker cluster**
+- **Event Feedback** when file upload / download / delete event occur
+- **Anonymous uploads / downloads**
+- **Streaming Upload**
+- **Keycloak authentication**
+- **API Gateway** with **Centralized Authentication**
+    - Role Authorization using **Storage Gateway Client Roles**
+    - API request validation by extracting **Client/Realm Role Attributes** (buckets, routingkeys, subscribers) from keycloak token
+- **Storage Console** to view storage and events
+- **storage-js-client** is a javascript client for web applications to communicate with storage service
+
+In additional to the implementations above, I added a few more implementations below. Refer to the design 4's documentation(design4)
+for more information.
+- **Open Policy Agent (OPA)** for authorization
 
 ## Design Considerations
 

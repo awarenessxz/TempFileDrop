@@ -1,0 +1,11 @@
+{
+    "compilerOptions": {
+        "target": "es5", /* build package with browser compatibility */
+        "module": "commonjs", /* use commonjs for compatibility */
+        "declaration": true, /* export type definitions with the compiled javascript code */
+        "outDir": "./lib", /* javascript will be compiled to the lib folder */
+        "strict": true
+    },
+    "include": ["src"],
+    "exclude": ["node_modules"] /* don't transpile node_modules */
+}

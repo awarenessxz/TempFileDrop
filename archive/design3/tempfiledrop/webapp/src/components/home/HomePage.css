@@ -1,0 +1,56 @@
+.masthead {
+    position: relative;
+    width: 100%;
+    height: auto;
+    min-height: 35rem;
+    padding: 15rem 0;
+    background-color: #88D498;
+}
+
+.masthead div:first-child {
+    height: 100%;
+    align-items: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.masthead h3 {
+    color: rgba(255, 255, 255, 0.9) !important;
+}
+
+.masthead button {
+    box-shadow: 0 0.1875rem 0.1875rem 0 #ccc !important;
+    padding: 1.25rem 2rem;
+    font-family: "Varela Round", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 80%;
+    text-transform: uppercase;
+    letter-spacing: 0.15rem;
+    border: 0;
+    color: #000;
+    background-color: #FFCAB1;
+    margin: 2rem auto;
+}
+
+.masthead button:focus {
+    color: #000;
+    background-color: #FFCAB1;
+    border-color: #FFCAB1;
+}
+
+.masthead button:active {
+    background-color: #64a19d !important;
+    color: #fff !important;
+}
+
+.masthead button:hover {
+    background-color: #64a19d;
+    color: #fff;
+}
+
+@media (min-width: 992px) {
+    .masthead {
+        height: calc(100vh - 65px);
+        padding: 0;
+    }
+}

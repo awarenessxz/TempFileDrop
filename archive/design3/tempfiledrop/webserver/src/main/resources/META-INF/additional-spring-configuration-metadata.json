@@ -1,0 +1,14 @@
+{
+    "properties": [
+        {
+            "name": "tempfiledrop.bucket-name",
+            "type": "java.lang.String",
+            "description": "Name of the Bucket to store in Storage service."
+        },
+        {
+            "name": "tempfiledrop.storagesvc-url",
+            "type": "java.lang.String",
+            "description": "url of storage service."
+        }
+    ]
+}

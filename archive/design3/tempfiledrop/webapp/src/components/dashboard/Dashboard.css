@@ -1,0 +1,15 @@
+.dashboard-container {
+    padding-top: 2rem;
+}
+
+.align-right {
+    text-align: right;
+}
+
+.action-btn {
+    margin-right: 5px;
+}
+
+.action-btn-group {
+    display: flex;
+}
