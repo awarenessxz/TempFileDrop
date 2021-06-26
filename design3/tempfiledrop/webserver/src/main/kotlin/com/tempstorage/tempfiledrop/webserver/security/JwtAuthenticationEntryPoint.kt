@@ -1,4 +1,4 @@
-package com.tempstorage.storagesvc.util
+package com.tempstorage.tempfiledrop.webserver.security
 
 import org.springframework.security.core.AuthenticationException
 import org.springframework.security.web.AuthenticationEntryPoint

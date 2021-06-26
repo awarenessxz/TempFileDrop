@@ -26,7 +26,6 @@ import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 import kotlin.collections.ArrayList
 
-
 @Service
 @ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "object")
 class ObjectStorageServiceImpl(
@@ -43,6 +42,8 @@ class ObjectStorageServiceImpl(
 
         val storageFiles = ArrayList<StorageFile>()
         try {
+            // validate bucket
+            StorageUtils.validateBucketWithJwtToken(storageInfo.bucket)
             // create bucket if not available
             if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(storageInfo.bucket).build())) {
                 minioClient.makeBucket(MakeBucketArgs.builder().bucket(storageInfo.bucket).build())
@@ -87,6 +88,10 @@ class ObjectStorageServiceImpl(
                 if (metadata === null) {
                     // First multipart file should be metadata.
                     metadata = StorageUtils.getStorageUploadMetadata(isAnonymous, item) // shouldn't be anonymous anymore.
+                    // validate bucket
+                    if (!isAnonymous) {
+                        StorageUtils.validateBucketWithJwtToken(metadata.bucket)
+                    }
                     // create bucket if not available
                     if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(metadata.bucket).build())) {
                         minioClient.makeBucket(MakeBucketArgs.builder().bucket(metadata.bucket).build())

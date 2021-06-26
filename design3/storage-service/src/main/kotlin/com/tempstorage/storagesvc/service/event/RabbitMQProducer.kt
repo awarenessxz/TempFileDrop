@@ -2,6 +2,7 @@ package com.tempstorage.storagesvc.service.event
 
 import com.tempstorage.storagesvc.service.eventdata.EventDataService
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
+import com.tempstorage.storagesvc.util.StorageUtils
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.stream.function.StreamBridge
 import org.springframework.messaging.MessageHeaders
@@ -25,9 +26,14 @@ class RabbitMQProducer(
         eventDataService.writeToDB(message)
     }
 
-    fun sendEventwithHeader(eventType: EventType, storageInfo: StorageInfo, data: String, routingKey: String) {
+    fun sendEventwithHeader(eventType: EventType, storageInfo: StorageInfo, data: String, routingKey: String, requiresAuth: Boolean) {
         val message = EventMessage(eventType.name, storageInfo.id.toString(), storageInfo.storagePath, storageInfo.filenames, storageInfo.bucket, data)
-        logger.info("Publishing Event ($eventType.name) to $STORAGE_SERVICE_CHANNEL with router Key = $routingKey")
+        logger.info("Publishing Event (${eventType.name}) to $STORAGE_SERVICE_CHANNEL with router Key ($routingKey)")
+        // validate routing key
+        if (requiresAuth) {
+            StorageUtils.validateRoutingKeysWithJwtToken(routingKey)
+        }
+        // publish
         streamBridge.send(STORAGE_SERVICE_CHANNEL, MessageBuilder.createMessage(
                 message,
                 MessageHeaders(mutableMapOf(Pair<String, Any>("routingkey", routingKey)))

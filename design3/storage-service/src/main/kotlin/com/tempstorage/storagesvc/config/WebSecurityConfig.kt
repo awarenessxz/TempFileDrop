@@ -1,8 +1,8 @@
 package com.tempstorage.storagesvc.config
 
-import com.tempstorage.storagesvc.util.JwtAccessDeniedHandler
-import com.tempstorage.storagesvc.util.JwtAuthenticationEntryPoint
-import com.tempstorage.storagesvc.util.JwtAuthenticationFilter
+import com.tempstorage.storagesvc.security.JwtAccessDeniedHandler
+import com.tempstorage.storagesvc.security.JwtAuthenticationEntryPoint
+import com.tempstorage.storagesvc.security.JwtAuthenticationFilter
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.annotation.web.builders.HttpSecurity
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity

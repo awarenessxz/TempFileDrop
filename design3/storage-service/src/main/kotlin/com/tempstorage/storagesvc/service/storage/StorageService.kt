@@ -52,6 +52,7 @@ abstract class StorageService {
     fun getAllStorageInfo(bucket: String? = null): List<StorageInfo> {
         var allStorageInfoList = storageInfoService.getAllStorageInfo()
         if (bucket != null) {
+            StorageUtils.validateBucketWithJwtToken(bucket)
             allStorageInfoList = allStorageInfoList.filter { it.bucket == bucket }
         }
         return allStorageInfoList.filter { checkIfStorageFileIsAvailable(it) }
@@ -76,6 +77,7 @@ abstract class StorageService {
     }
 
     fun getMultipleStorageInfoFromBucket(bucket: String, storageIdList: List<String>): List<StorageInfo> {
+        StorageUtils.validateBucketWithJwtToken(bucket)
         val storageInfoList = storageInfoService.getBulkStorageInfoById(storageIdList)
         if (storageInfoList.any { it.bucket != bucket}) {
             throw ApiException("Storage Id not available in Bucket!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
@@ -136,7 +138,13 @@ abstract class StorageService {
     }
 
     fun getAndValidateStorageInfo(storageId: String, bucket: String? = null): StorageInfo {
+        // validate bucket first
+        if (bucket != null) {
+            StorageUtils.validateBucketWithJwtToken(bucket)
+        }
+        // retrieve storage information
         val storageInfo = storageInfoService.getStorageInfoById(storageId) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
+        // validate if bucket matches storage Id
         bucket?.let {
             if (storageInfo.bucket != bucket) {
                 throw ApiException("Files not found in Bucket!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST) // bucket and storageID didn't match

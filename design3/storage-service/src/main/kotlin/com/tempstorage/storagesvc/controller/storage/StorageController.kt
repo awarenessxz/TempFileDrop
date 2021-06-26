@@ -62,7 +62,7 @@ class StorageController(
         val (metadata, storageInfo) = storageService.uploadViaStreamToBucket(request)
 
         // send an event
-        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey)
+        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey, true)
 
         // send response
         val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString())
@@ -87,7 +87,7 @@ class StorageController(
         val storageInfo = storageService.deleteFromBucket(bucket, storageId)
 
         // send an event
-        producer.sendEventwithHeader(EventType.FILES_DELETED, storageInfo, eventData, eventRoutingKey)
+        producer.sendEventwithHeader(EventType.FILES_DELETED, storageInfo, eventData, eventRoutingKey, true)
 
         // send response
         return ResponseEntity("Files deleted successfully", HttpStatus.OK)

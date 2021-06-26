@@ -5,11 +5,13 @@ import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
+import com.tempstorage.storagesvc.security.JwtUser
 import com.tempstorage.storagesvc.service.storage.FileSystemNode
 import org.apache.commons.fileupload.FileItemStream
 import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.security.core.context.SecurityContextHolder
 import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.ZoneOffset
@@ -108,6 +110,21 @@ object StorageUtils {
                 val newFile = FileSystemNode(true, file.label, file.storageFullPath, file.storageBucket, file.storageId, file.storageSize, file.storageDownloadLeft, file.storageExpiryDatetime)
                 parent.children.add(newFile)
             }
+        }
+    }
+
+    fun validateBucketWithJwtToken(bucket: String) {
+        val jwtUser = SecurityContextHolder.getContext().authentication.principal as JwtUser
+        if (bucket !in jwtUser.storageAttrs.buckets) {
+            throw ApiException("Not Authorized to access $bucket!", ErrorCode.NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED)
+        }
+    }
+
+    fun validateRoutingKeysWithJwtToken(routingKey: String) {
+        logger.info("${SecurityContextHolder.getContext()}")
+        val jwtUser = SecurityContextHolder.getContext().authentication.principal as JwtUser
+        if (routingKey !in jwtUser.storageAttrs.routingkeys) {
+            throw ApiException("Not Authorized to publish message to exchange with $routingKey!", ErrorCode.NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED)
         }
     }
 }

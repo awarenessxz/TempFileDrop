@@ -61,7 +61,7 @@ class DownloadController(
         val token = downloadTokenService.checkIfTokenExpired(downloadKey)
         val storageInfo = storageService.downloadFilesFromBucket(token!!.storageId, response) // download files
         if (eventRoutingKey.isNotEmpty()) {
-            producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageInfo, eventData, eventRoutingKey) // send an event
+            producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageInfo, eventData, eventRoutingKey, false) // send an event
         }
     }
 
@@ -81,7 +81,7 @@ class DownloadController(
         val token = downloadTokenService.checkIfTokenExpired(downloadKey)
         val storageInfo = storageService.downloadFilesFromBucket(token!!.storageId, response, true) // download files
         if (eventRoutingKey.isNotEmpty()) {
-            producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageInfo, eventData, eventRoutingKey) // send an event
+            producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageInfo, eventData, eventRoutingKey, false) // send an event
         }
     }
 
@@ -101,7 +101,7 @@ class DownloadController(
         logger.info("Downloading files from $storageId with authorization header directly without using download key")
         val storageInfo = storageService.downloadFilesFromBucket(storageId, response, true, bucket) // download files
         if (eventRoutingKey.isNotEmpty()) {
-            producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageInfo, eventData, eventRoutingKey) // send an event
+            producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageInfo, eventData, eventRoutingKey, false) // send an event
         }
     }
 }

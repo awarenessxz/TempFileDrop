@@ -276,6 +276,7 @@ for more information.
         - [Expose Realm Attributes](https://lists.jboss.org/pipermail/keycloak-user/2019-February/017122.html)
         - [Using ## as delimiter for multiple values in attributes](https://stackoverflow.com/questions/60767085/keycloak-map-multiple-user-attributes)
     - [Securing inter service communication in microservice architecture](https://medium.com/@radutoev/securing-inter-service-communication-in-a-microservice-architecture-f413937012d4)
+    - [Spring Security Context](https://www.javacodegeeks.com/2018/02/securitycontext-securitycontextholder-spring-security.html)
 - WebSocket
     - [Websockets with react & express](https://dev.to/ksankar/websockets-with-react-express-part-2-4n9f)
     - [React Managing Websockets with redux and context](https://rossbulat.medium.com/react-managing-websockets-with-redux-and-context-61f9a06c125b)

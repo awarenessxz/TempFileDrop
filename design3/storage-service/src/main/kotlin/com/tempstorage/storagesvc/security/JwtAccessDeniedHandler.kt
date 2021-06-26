@@ -1,4 +1,4 @@
-package com.tempstorage.storagesvc.util
+package com.tempstorage.storagesvc.security
 
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.security.web.access.AccessDeniedHandler

@@ -1,6 +1,7 @@
-package com.tempstorage.storagesvc.util
+package com.tempstorage.storagesvc.security
 
 import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.registerKotlinModule
 import io.jsonwebtoken.JwtException
 import io.jsonwebtoken.Jwts
 import org.keycloak.representations.AccessToken
@@ -9,7 +10,6 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
-import org.springframework.security.core.userdetails.User
 import org.springframework.util.StringUtils
 import java.security.KeyFactory
 import java.security.NoSuchAlgorithmException
@@ -49,18 +49,21 @@ object JwtUtils {
         logger.debug("Token Claims: $claims")
 
         // extract roles from token
-        val accessToken = ObjectMapper().convertValue(claims, AccessToken::class.java)
+        val objectMapper = ObjectMapper().registerKotlinModule()
+        val accessToken = objectMapper.convertValue(claims, AccessToken::class.java)
         val authorities = if (useClientRole) {
             accessToken.getResourceAccess(client).roles.map { SimpleGrantedAuthority(it) }
         } else {
             accessToken.realmAccess.roles.map { SimpleGrantedAuthority(it) }
         }
+        // extract custom storage attributes
+        val storageAttrs = objectMapper.convertValue(claims["storage_client_attr"], StorageAttributes::class.java)
 
         // Use SimpleAuthorityMapper to add prefix ROLE_ to all keycloak roles
         val grantedAuthorities = SimpleAuthorityMapper().mapAuthorities(authorities)
         logger.debug("Token Roles: $grantedAuthorities")
 
-        val principal = User(claims.subject, "", grantedAuthorities)
+        val principal = JwtUser(claims.subject, grantedAuthorities, storageAttrs)
         return UsernamePasswordAuthenticationToken(principal, token, grantedAuthorities)
     }
 }

@@ -63,6 +63,7 @@ class FileStorageServiceImpl(
         logger.info("Uploading files to Folder Storage.....")
 
         // create bucket if not available
+        StorageUtils.validateBucketWithJwtToken(storageInfo.bucket)
         val bucket = root.resolve(storageInfo.bucket)
         if (!Files.exists(bucket)) {
             Files.createDirectory(bucket)
@@ -111,6 +112,9 @@ class FileStorageServiceImpl(
                 if (metadata === null) {
                     // First multipart file should be metadata.
                     metadata = StorageUtils.getStorageUploadMetadata(isAnonymous, item) // shouldn't be anonymous anymore.
+                    if (!isAnonymous) {
+                        StorageUtils.validateBucketWithJwtToken(metadata.bucket)
+                    }
                     // create bucket if not available
                     bucketPath = root.resolve(metadata.bucket)
                     if (!Files.exists(bucketPath!!)) {

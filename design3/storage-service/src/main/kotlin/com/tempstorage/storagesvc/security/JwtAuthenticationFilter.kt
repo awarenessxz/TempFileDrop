@@ -1,4 +1,4 @@
-package com.tempstorage.tempfiledrop.webserver.util
+package com.tempstorage.storagesvc.security
 
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Value

@@ -10,8 +10,12 @@ import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
+import org.springframework.security.core.Authentication
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
+import java.security.Principal
+import javax.servlet.http.HttpServletRequest
 
 @RestController
 @RequestMapping("/api/users-upload-info")
@@ -22,6 +26,15 @@ class UserUploadInfoController(
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(UserUploadInfoController::class.java)
+    }
+
+    @GetMapping("/print")
+    fun printUser(request: HttpServletRequest, principal: Principal, authentication: Authentication): ResponseEntity<Void> {
+        logger.info("Principal = $principal")
+        logger.info("Authentication = ${authentication.principal}")
+        logger.info("Request = ${request.headerNames}")
+        logger.info("Security Context = ${SecurityContextHolder.getContext().authentication}")
+        return ResponseEntity.noContent().build()
     }
 
     @GetMapping("/{username}")
