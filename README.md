@@ -3,8 +3,8 @@
 **Table of Content**
 - [Overview](#overview)
 - [Architecture Design](#architecture-design)
-- [Getting Started](design3)
-- [How to consume storage service](design3/storage-service/README.md#how-to-consume-centralized-storage-service)
+- [Getting Started](design4)
+- [How to consume storage service](design4/storage-service/README.md#how-to-consume-centralized-storage-service)
 - [Design Considerations](#design-considerations)
 - [Future Works](#future-works)
 - [References](#references)
@@ -37,10 +37,10 @@ There are 3 main purpose of this project.
 - **Keycloak** - Authentication
 
 **For more details on implementation, refer to the README of the individual services**
-- [Design v1 [Archive]](archive/design1)
-- [Design v2 [Archive]](archive/design2)
-- [Design v3 [Archive]](archive/design3)
-- **[Design v4 [Current]](design4)**
+- [Design v1 [Archive]](#version-1---backend-proxy)
+- [Design v2 [Archive]](#version-2---direct-consumption-with-event-feedback)
+- [Design v3 [Archive]](#version-3---gateway-authentication)
+- **[Design v4 [Current]](#version-4---gateway-authentication-v2-current)**
     - [TempFileDrop Website](design4/tempfiledrop/webapp)
     - [TempFileDrop Web Server](design4/tempfiledrop/webserver)
     - [storage-js-client](design4/storage-js-client)
@@ -79,8 +79,8 @@ In additional to the implementations above, I have added the implementations bel
 for more information.
 - **Event Feedback** when file upload / download / delete event occur
 - **Anonymous uploads / downloads**
-- **Streaming Upload**
-- **Keycloak authentication**
+- **Streaming File Upload**
+- **Keycloak authentication** - all services are registered as keycloak client
 
 ### Version 3 - Gateway Authentication
 
@@ -95,18 +95,22 @@ I used an API Gateway to manage authentication. Previously, the following featur
 - File Storage in either **Local File Storage** or **MinIO docker cluster**
 - **Event Feedback** when file upload / download / delete event occur
 - **Anonymous uploads / downloads**
-- **Streaming Upload**
-- **Keycloak authentication**
+- **Streaming File Upload**
+- **Keycloak authentication** - all services are registered as keycloak client **[UPDATED]**
 
 In additional to the implementations above, I added a few more implementations below. Refer to the [design 3's documentation](archive/design3) 
 for more information.
+- **Keycloak authentication**
+    - Only Web Applications are registered as clients
+    - Gateway is registered as client to handle authentication for backend services
 - **API Gateway** with **Centralized Authentication**
+- **Microservice authorization / validations**
     - Role Authorization using **Storage Gateway Client Roles**
     - API request validation by extracting **Client/Realm Role Attributes** (buckets, routingkeys, subscribers) from keycloak token
 - **Storage Console** to view storage and events
 - **storage-js-client** is a javascript client for web applications to communicate with storage service
 
-### Version 4 - Gateway Authentication V2 [Current]
+### Version 4 - Gateway V2 [Current]
 
 ![design 4](doc/architecture_design4.png)
 
@@ -120,9 +124,12 @@ authentication & authorization is handled purely by the gateway. Previously, the
 - File Storage in either **Local File Storage** or **MinIO docker cluster**
 - **Event Feedback** when file upload / download / delete event occur
 - **Anonymous uploads / downloads**
-- **Streaming Upload**
-- **Keycloak authentication**
+- **Streaming File Upload**
+- **Keycloak authentication** -- **[UPDATED]**
+    - Only Web Applications are registered as clients
+    - Gateway is registered as client to handle authentication for backend services
 - **API Gateway** with **Centralized Authentication**
+- **Microservice authorization / validations**
     - Role Authorization using **Storage Gateway Client Roles**
     - API request validation by extracting **Client/Realm Role Attributes** (buckets, routingkeys, subscribers) from keycloak token
 - **Storage Console** to view storage and events
@@ -130,7 +137,9 @@ authentication & authorization is handled purely by the gateway. Previously, the
 
 In additional to the implementations above, I added a few more implementations below. Refer to the design 4's documentation(design4)
 for more information.
-- **Open Policy Agent (OPA)** for authorization
+- **Keycloak authentication**
+    - Only Gateway is registered as client to handle authentication for backend services and web applications
+- **Open Policy Agent (OPA)** for authorization at gateway
 
 ## Design Considerations
 

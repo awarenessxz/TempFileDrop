@@ -1,6 +1,6 @@
-# Design v3 - API Gateway with Access Control
+# Design v4 - Gateway
 
-![design 3](../doc/architecture_design3.png)
+![design 3](../doc/architecture_design4.png)
 
 This design is an upgrade to the first and second implementation. Additional features such as **api gateway** and 
 **storage console** was added. For more details, check out the [centralized storage service documentation](storage-service)

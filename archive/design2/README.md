@@ -1,6 +1,6 @@
 # Design v2 - Direct Consumption with Event Feedback
 
-![design 1](../../doc/architecture_design2.png)
+![design 1](../../doc/architecture_design2b.png)
 
 This design is an upgrade to the first implementation. Additional features such as **keycloak authentication** and 
 **event feedback using rabbitmq** was added. For more details, check out the [centralized storage service documentation](storage-service).
