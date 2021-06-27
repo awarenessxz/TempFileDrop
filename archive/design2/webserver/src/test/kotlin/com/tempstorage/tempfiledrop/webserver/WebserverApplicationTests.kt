@@ -1,4 +1,4 @@
-package com.tempfiledrop.console.webserver
+package com.tempstorage.tempfiledrop.webserver
 
 import org.junit.jupiter.api.Test
 import org.springframework.boot.test.context.SpringBootTest

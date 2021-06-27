@@ -35,6 +35,8 @@
         "clientRoles": ["user", "admin"]
     },
     "api_endpoints": {
+        "logout": "/logout",
+        "get_user": "/auth/user",
         "uploaded_files": "/api/users-upload-info",
         "storagesvc_swagger": "/swagger/storagesvc/api-docs",
         "storagesvc_upload": "/api/storagesvc/upload",

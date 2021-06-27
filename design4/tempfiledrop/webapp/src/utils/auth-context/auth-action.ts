@@ -1,67 +1,53 @@
 import { Dispatch } from "react";
-import {
-    AuthActionTypes,
-    INIT_KEYCLOAK,
-    LOGIN_ERROR,
-    LOGIN_SUCCESS,
-    REQUEST_LOGIN
-} from "./auth-types";
-import Keycloak, { KeycloakInstance } from "keycloak-js";
-import { extractUserToken } from "../keycloak-utils";
+import axios from "axios";
+import { AuthActionTypes, REQUEST_LOGIN, REQUEST_LOGOUT } from "./auth-types";
+import Data from "../../config/app.json";
 
-export const dispatchInitKeycloak = (dispatch: Dispatch<AuthActionTypes> | null) => {
+export const dispatchCheckSSO = (dispatch: Dispatch<AuthActionTypes> | null) => {
     if (dispatch === null) {
         throw new Error("dispatch is null....");
     }
 
-    const keycloak = Keycloak({
-        url: process.env.REACT_APP_KEYCLOAK_AUTH_SERVER_URL,
-        realm: process.env.REACT_APP_KEYCLOAK_REALM ? process.env.REACT_APP_KEYCLOAK_REALM : "",
-        clientId: process.env.REACT_APP_KEYCLOAK_CLIENT_ID ? process.env.REACT_APP_KEYCLOAK_CLIENT_ID : ""
-    });
-    keycloak.init({ onLoad: "check-sso" })
-        .then(authenticated => {
-            window.accessToken = keycloak.token || "";
-            dispatch({
-                type: INIT_KEYCLOAK,
-                payload: {
-                    keycloak,
-                    isAuthenticated: authenticated,
-                    userToken: authenticated ? extractUserToken(keycloak.tokenParsed) : null,
-                    errorMsg: authenticated ? null : "Login Failed! User is not registered!"
-                }
-            });
-        })
-        .catch(error => {
-            console.warn(error);
-            dispatch({ type: INIT_KEYCLOAK, payload: { keycloak, isAuthenticated: false, userToken: null }});
-        });
+    axios.get(Data.api_endpoints.get_user)
+        .then(res => console.log(res))
+        .catch(err => console.log(err));
 };
 
-export const dispatchLoginUserAction = (dispatch: Dispatch<AuthActionTypes> | null, keycloak: KeycloakInstance | null) => {
+export const dispatchLogoutUserAction = (dispatch: Dispatch<AuthActionTypes> | null) => {
     if (dispatch === null) {
         throw new Error("dispatch is null....");
     }
-    if (keycloak === null) {
-        throw new Error("keycloak instance is null....");
+
+    axios.get(Data.api_endpoints.logout)
+        .then(res => dispatch({ type: REQUEST_LOGOUT }))
+        .catch(err => console.log(err));
+};
+
+export const dispatchLoginUserAction = (dispatch: Dispatch<AuthActionTypes> | null) => {
+    if (dispatch === null) {
+        throw new Error("dispatch is null....");
     }
 
     // set loading = true
     dispatch({ type: REQUEST_LOGIN });
 
     // keycloak login
-    keycloak.init({ onLoad: "login-required" })
-        .then(authenticated => {
-            dispatch({
-                type: LOGIN_SUCCESS,
-                payload: {
-                    isAuthenticated: authenticated,
-                    userToken: extractUserToken(keycloak.tokenParsed)
-                }
-            });
-        })
-        .catch(error => {
-            console.warn(error);
-            dispatch({ type: LOGIN_ERROR, payload: { error: "Login Failed! Please try again." } });
-        });
+    //
+    //
+    //
+    //
+    // keycloak.init({ onLoad: "login-required" })
+    //     .then(authenticated => {
+    //         dispatch({
+    //             type: LOGIN_SUCCESS,
+    //             payload: {
+    //                 isAuthenticated: authenticated,
+    //                 userToken: extractUserToken(keycloak.tokenParsed)
+    //             }
+    //         });
+    //     })
+    //     .catch(error => {
+    //         console.warn(error);
+    //         dispatch({ type: LOGIN_ERROR, payload: { error: "Login Failed! Please try again." } });
+    //     });
 };

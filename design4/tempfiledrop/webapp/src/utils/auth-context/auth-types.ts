@@ -1,4 +1,3 @@
-import { KeycloakInstance } from "keycloak-js";
 import { UserToken } from "../keycloak-utils";
 
 /* ***************************************************************************************
@@ -7,17 +6,17 @@ import { UserToken } from "../keycloak-utils";
 
 export interface AuthState {
     isAuthReady: boolean;
-    authErrorMsg: string | null;
-    userToken: UserToken | null;
-    keycloak: KeycloakInstance | null;
     isAuthenticated: boolean;
+    userToken: UserToken | null;
+    authErrorMsg: string | null;
 }
 
 /* ***************************************************************************************
  * List of all action type
  *************************************************************************************** */
 
-export const INIT_KEYCLOAK = "INIT_KEYCLOAK";
+export const CHECK_SSO = "CHECK_SSO";
+export const REQUEST_LOGOUT = "REQUEST_LOGOUT";
 export const REQUEST_LOGIN = "REQUEST_LOGIN";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_ERROR = "LOGIN_ERROR";
@@ -26,14 +25,8 @@ export const LOGIN_ERROR = "LOGIN_ERROR";
  * Types Definition for all action type
  *************************************************************************************** */
 
-interface InitKeycloakAction {
-    type: typeof INIT_KEYCLOAK;
-    payload: {
-        keycloak: KeycloakInstance;
-        isAuthenticated: boolean;
-        userToken: UserToken | null;
-        errorMsg?: string | null;
-    }
+interface CheckSSOAction {
+    type: typeof CHECK_SSO;
 }
 
 interface LoginUserAction {
@@ -55,9 +48,14 @@ interface LoginUserErrorAction {
     }
 }
 
+interface LogoutUserAction {
+    type: typeof REQUEST_LOGOUT;
+}
+
 // union action types
 export type AuthActionTypes =
-    | InitKeycloakAction
+    | CheckSSOAction
     | LoginUserAction
     | LoginUserSuccessAction
-    | LoginUserErrorAction;
+    | LoginUserErrorAction
+    | LogoutUserAction;

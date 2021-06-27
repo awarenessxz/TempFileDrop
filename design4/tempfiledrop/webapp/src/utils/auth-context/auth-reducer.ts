@@ -1,30 +1,34 @@
 import {
     AuthActionTypes,
     AuthState,
-    INIT_KEYCLOAK,
+    CHECK_SSO,
     LOGIN_ERROR,
     LOGIN_SUCCESS,
-    REQUEST_LOGIN
+    REQUEST_LOGIN,
+    REQUEST_LOGOUT
 } from "./auth-types";
 
 export const initialState: AuthState = {
     isAuthReady: false,
     authErrorMsg: null,
     userToken: null,
-    keycloak: null,
     isAuthenticated: false
 }
 
 export const AuthReducer = (state: AuthState = initialState, action: AuthActionTypes) => {
     switch (action.type) {
-        case INIT_KEYCLOAK:
+        case CHECK_SSO:
             return {
                 ...state,
                 isAuthReady: true,
-                keycloak: action.payload.keycloak,
-                isAuthenticated: action.payload.isAuthenticated,
-                userToken: action.payload.userToken
             };
+        case REQUEST_LOGOUT:
+            return {
+                isAuthReady: true,
+                authErrorMsg: null,
+                userToken: null,
+                isAuthenticated: false
+            }
         case REQUEST_LOGIN:
             return {
                 ...state,
@@ -43,6 +47,7 @@ export const AuthReducer = (state: AuthState = initialState, action: AuthActionT
             return {
                 ...state,
                 isAuthReady: true,
+                isAuthenticated: false,
                 authErrorMsg: action.payload.error
             };
         default:

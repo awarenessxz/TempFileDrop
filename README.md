@@ -82,7 +82,7 @@ for more information.
 - **Streaming File Upload**
 - **Keycloak authentication** - all services are registered as keycloak client
 
-### Version 3 - Gateway Authentication
+### Version 3 - API Gateway Authentication
 
 ![design 3](doc/architecture_design3b.png)
 
@@ -110,7 +110,7 @@ for more information.
 - **Storage Console** to view storage and events
 - **storage-js-client** is a javascript client for web applications to communicate with storage service
 
-### Version 4 - Gateway V2 [Current]
+### Version 4 - API + APP Gateway [Current]
 
 ![design 4](doc/architecture_design4.png)
 
@@ -235,6 +235,25 @@ for more information.
     - [UI Gateway](https://sdoxsee.github.io/blog/2019/12/17/merry-microservices-part2-ui-gateway.html)
     - [Spring Cloud gateway Oauth2 with Keycloak](https://piotrminkowski.com/2020/10/09/spring-cloud-gateway-oauth2-with-keycloak/)
     - [Microservices authentication and authorization with Keycloak at Gateway level](https://javatodev.com/microservices-authentication-and-authorization-with-keycloak/)
+    - [Spring Cloud Gateway with JWT Authentication](https://ihorkosandiak.medium.com/spring-cloud-gateway-security-with-jwt-93341b342020)
+- Spring Security
+    - [Keycloak for Identity and Access Management & High Availability Deployment with Kubernetes](https://medium.com/devops-dudes/keycloak-for-identity-and-access-management-9860a994bf0)
+    - [Baeldung - Spring Boot + Keycloak](https://www.baeldung.com/spring-boot-keycloak)
+    - [Securing Spring Boot Rest APIs with Keycloak](https://medium.com/devops-dudes/securing-spring-boot-rest-apis-with-keycloak-1d760b2004e)
+    - [Secure Frontend (React) and Backend (Node JS Express Rest API) with Keycloak](https://medium.com/devops-dudes/secure-front-end-react-js-and-back-end-node-js-express-rest-api-with-keycloak-daf159f0a94e)
+    - [Role Based Access Control for multiple keycloak clients](https://janikvonrotz.ch/2020/04/30/role-based-access-control-for-multiple-keycloak-clients/)
+    - [Spring Security + Keycloak](https://www.thomasvitale.com/spring-security-keycloak/)
+    - [Keycloak authentication flow SSO Client](https://www.thomasvitale.com/keycloak-authentication-flow-sso-client/)
+    - [Using Spring Boot OAuth2 instead of Keycloak adapters](https://medium.com/@bcarunmail/securing-rest-api-using-keycloak-and-spring-oauth2-6ddf3a1efcc2)
+    - [Using Spring Boot OAuth2 instead of Keycloak adapters](https://wstutorial.com/rest/spring-security-oauth2-keycloak.html)
+    - [Stackoverflow - Why do Bearer-only clients exist?](https://stackoverflow.com/questions/58911507/keycloak-bearer-only-clients-why-do-they-exist)
+    - [Keycloak RestTemplate with Spring Boot Security Integration](https://ramonak.io/posts/vaadin%E2%80%93keycloak%E2%80%93spring-security-integration)
+    - [Stackoverflow - Custom Realm / Client Role attributes with script mapper](https://stackoverflow.com/questions/55702315/accessing-keycloak-roles-users-attributes-from-java-api)
+        - [Add to Claims](https://gist.github.com/webdeb/d8a99df9023f01b78e3e8ff580abe10b)
+        - [Expose Realm Attributes](https://lists.jboss.org/pipermail/keycloak-user/2019-February/017122.html)
+        - [Using ## as delimiter for multiple values in attributes](https://stackoverflow.com/questions/60767085/keycloak-map-multiple-user-attributes)
+    - [Securing inter service communication in microservice architecture](https://medium.com/@radutoev/securing-inter-service-communication-in-a-microservice-architecture-f413937012d4)
+    - [Spring Security Context](https://www.javacodegeeks.com/2018/02/securitycontext-securitycontextholder-spring-security.html)
 - Multipart upload / download
     - React & Axios
         - [React File Upload/Download Example with Spring Rest Api](https://bezkoder.com/react-file-upload-spring-boot/)
@@ -295,24 +314,6 @@ for more information.
 - Nginx
     - [Nginx as reverse proxy in front of keycloak](https://itnext.io/nginx-as-reverse-proxy-in-front-of-keycloak-21e4b3f8ec53)
     - [Keycloak with Java and ReactJS](https://www.powerupcloud.com/keycloak-with-java-and-reactjs/)
-- Security
-    - [Keycloak for Identity and Access Management & High Availability Deployment with Kubernetes](https://medium.com/devops-dudes/keycloak-for-identity-and-access-management-9860a994bf0)
-    - [Baeldung - Spring Boot + Keycloak](https://www.baeldung.com/spring-boot-keycloak)
-    - [Securing Spring Boot Rest APIs with Keycloak](https://medium.com/devops-dudes/securing-spring-boot-rest-apis-with-keycloak-1d760b2004e)
-    - [Secure Frontend (React) and Backend (Node JS Express Rest API) with Keycloak](https://medium.com/devops-dudes/secure-front-end-react-js-and-back-end-node-js-express-rest-api-with-keycloak-daf159f0a94e)
-    - [Role Based Access Control for multiple keycloak clients](https://janikvonrotz.ch/2020/04/30/role-based-access-control-for-multiple-keycloak-clients/)
-    - [Spring Security + Keycloak](https://www.thomasvitale.com/spring-security-keycloak/)
-    - [Keycloak authentication flow SSO Client](https://www.thomasvitale.com/keycloak-authentication-flow-sso-client/)
-    - [Using Spring Boot OAuth2 instead of Keycloak adapters](https://medium.com/@bcarunmail/securing-rest-api-using-keycloak-and-spring-oauth2-6ddf3a1efcc2)
-    - [Using Spring Boot OAuth2 instead of Keycloak adapters](https://wstutorial.com/rest/spring-security-oauth2-keycloak.html)
-    - [Stackoverflow - Why do Bearer-only clients exist?](https://stackoverflow.com/questions/58911507/keycloak-bearer-only-clients-why-do-they-exist)
-    - [Keycloak RestTemplate with Spring Boot Security Integration](https://ramonak.io/posts/vaadin%E2%80%93keycloak%E2%80%93spring-security-integration)
-    - [Stackoverflow - Custom Realm / Client Role attributes with script mapper](https://stackoverflow.com/questions/55702315/accessing-keycloak-roles-users-attributes-from-java-api)
-        - [Add to Claims](https://gist.github.com/webdeb/d8a99df9023f01b78e3e8ff580abe10b)
-        - [Expose Realm Attributes](https://lists.jboss.org/pipermail/keycloak-user/2019-February/017122.html)
-        - [Using ## as delimiter for multiple values in attributes](https://stackoverflow.com/questions/60767085/keycloak-map-multiple-user-attributes)
-    - [Securing inter service communication in microservice architecture](https://medium.com/@radutoev/securing-inter-service-communication-in-a-microservice-architecture-f413937012d4)
-    - [Spring Security Context](https://www.javacodegeeks.com/2018/02/securitycontext-securitycontextholder-spring-security.html)
 - WebSocket
     - [Websockets with react & express](https://dev.to/ksankar/websockets-with-react-express-part-2-4n9f)
     - [React Managing Websockets with redux and context](https://rossbulat.medium.com/react-managing-websockets-with-redux-and-context-61f9a06c125b)
@@ -329,3 +330,5 @@ for more information.
     - [Stackoverflow - Algorithm for folder structure](https://stackoverflow.com/questions/7433414/help-to-write-an-algorithm-for-folders-structure)
     - [Stackoverflow - Spring Security 403 for POST/DELETE but ok for GET](https://stackoverflow.com/questions/19468209/spring-security-403-error)
     - [How microservies communicate](https://medium.com/geekculture/microservices-apis-a7b43ce850ee)
+    - [Stackoverflow - Create-React-app reroute hot reload client](https://stackoverflow.com/questions/59936123/howto-re-route-webpack-hot-reload-client)
+    

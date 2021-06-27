@@ -3,7 +3,7 @@ import { Link, useHistory } from "react-router-dom";
 import Container from "react-bootstrap/cjs/Container";
 import Nav from "react-bootstrap/cjs/Nav";
 import Navbar from "react-bootstrap/cjs/Navbar";
-import { dispatchLoginUserAction, useAuthDispatch, useAuthState } from "../../utils/auth-context";
+import { dispatchLogoutUserAction, dispatchLoginUserAction, useAuthDispatch, useAuthState } from "../../utils/auth-context";
 import Data from "../../config/app.json";
 
 interface MenuItem {
@@ -15,18 +15,18 @@ interface MenuItem {
 
 const NavBar = () => {
     const history = useHistory();
-    const { keycloak, isAuthenticated } = useAuthState();
+    const { isAuthenticated } = useAuthState();
     const dispatch = useAuthDispatch();
 
     const handleLogout = (e: MouseEvent) => {
         e.preventDefault();
         history.push("/");
-        keycloak?.logout();
+        dispatchLogoutUserAction(dispatch);
     };
 
     const handleLogin = (e: MouseEvent) => {
         e.preventDefault();
-        dispatchLoginUserAction(dispatch, keycloak);
+        dispatchLoginUserAction(dispatch);
     };
 
     const handleNoPath = (item: MenuItem, idx: number) => {

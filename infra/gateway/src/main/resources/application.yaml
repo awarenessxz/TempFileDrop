@@ -22,6 +22,7 @@ gateway:
     - /api/storagesvc/anonymous/**
     - /api/storagesvc/download/**
     - /swagger/storagesvc/api-docs
+    - /tempfiledrop/**
 
 ---
 
@@ -51,21 +52,33 @@ spring.security.oauth2:
 ###############################################################################################
 
 spring.cloud.gateway:
-#  globalcors:
-#    corsConfigurations:
-#      '[/**]':
-#        allowedOrigins: "*"
-#        allowedMethods:
-#          - GET
-#          - POST
+  globalcors:
+    corsConfigurations:
+      '[/**]':
+        allowedOrigins: "*"
+        allowedHeaders:
+          - content-type
+          - x-requested-with
+          - Authorization
+        allowedMethods:
+          - GET
+          - POST
+          - OPTIONS
+          - DELETE
+          - PUT
   default-filters:
     - TokenRelay
   routes:
-    ####################################### Restful API Endpoints
-    - id: auth
-      uri: http://localhost:8080/
+    ####################################### Gateway Endpoints
+#    - id: gatewayAuth
+#      uri: http://localhost:9090/
+#      predicates:
+#        - Path=/auth/**
+    ####################################### UI Endpoints
+    - id: tempfiledropApp
+      uri: http://localhost:3000/
       predicates:
-        - Path=/auth/**
+        - Path=/tempfiledrop/**
     ######################################## Swagger Routes
     - id: swaggerStorageService
       uri: http://localhost:8001/

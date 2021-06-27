@@ -19,7 +19,7 @@ be more relevant my design
 
 ### Routing Gateway with Centralized Authentication + Token Relay (Current)
 
-![Gateway Pattern 1](../../doc/gateway_pattern1.png)
+![Gateway Pattern 1](../../../doc/gateway_pattern1.png)
 
 **Update**: Instead of letting microservices handle roles authorization, we will instead let API Gateway handle both
 authentication and authorization. This way we will let the microservices focus on business logic. For security reason, 
@@ -28,4 +28,4 @@ via the api gateway.
 
 ### Routing Gateway with Token Relay
 
-![Gateway Pattern 2](../../doc/gateway_pattern2.png)
+![Gateway Pattern 2](../../../doc/gateway_pattern2.png)
