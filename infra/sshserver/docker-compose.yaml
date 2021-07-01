@@ -1,0 +1,29 @@
+version: '3.7'
+
+services:
+  openssh-server:
+    image: ghcr.io/linuxserver/openssh-server
+    container_name: openssh-server
+    hostname: openssh-server #optional
+    environment:
+      - DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Singapore
+      - SUDO_ACCESS=true
+      - PASSWORD_ACCESS=true
+      - USER_PASSWORD=dev
+      - USER_NAME=dev
+    expose:
+      - 8888
+    #volumes:
+    #  - ./config:/config:rw
+    ports:
+      - 2222:2222
+      - 8888:8888
+    restart: unless-stopped
+
+networks:
+  proxy-net:
+    external:
+      name: tempfiledrop_bridge
