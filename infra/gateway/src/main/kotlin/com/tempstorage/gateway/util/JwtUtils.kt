@@ -1,23 +1,8 @@
-package com.tempstorage.apigateway.util
+package com.tempstorage.gateway.util
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import io.jsonwebtoken.JwtException
-import io.jsonwebtoken.Jwts
-import org.keycloak.representations.AccessToken
 import org.slf4j.LoggerFactory
 import org.springframework.http.server.reactive.ServerHttpRequest
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
-import org.springframework.security.core.Authentication
-import org.springframework.security.core.authority.SimpleGrantedAuthority
-import org.springframework.security.core.authority.mapping.SimpleAuthorityMapper
 import org.springframework.util.StringUtils
-import java.security.KeyFactory
-import java.security.NoSuchAlgorithmException
-import java.security.PublicKey
-import java.security.spec.InvalidKeySpecException
-import java.security.spec.X509EncodedKeySpec
-import java.util.*
 
 object JwtUtils {
     private const val AUTHORIZATION_HEADER = "Authorization"

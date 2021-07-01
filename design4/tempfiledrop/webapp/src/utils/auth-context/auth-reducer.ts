@@ -4,7 +4,6 @@ import {
     CHECK_SSO,
     LOGIN_ERROR,
     LOGIN_SUCCESS,
-    REQUEST_LOGIN,
     REQUEST_LOGOUT
 } from "./auth-types";
 
@@ -21,6 +20,7 @@ export const AuthReducer = (state: AuthState = initialState, action: AuthActionT
             return {
                 ...state,
                 isAuthReady: true,
+                authErrorMsg: null
             };
         case REQUEST_LOGOUT:
             return {
@@ -28,12 +28,6 @@ export const AuthReducer = (state: AuthState = initialState, action: AuthActionT
                 authErrorMsg: null,
                 userToken: null,
                 isAuthenticated: false
-            }
-        case REQUEST_LOGIN:
-            return {
-                ...state,
-                isAuthReady: false,
-                authErrorMsg: null
             };
         case LOGIN_SUCCESS:
             return {

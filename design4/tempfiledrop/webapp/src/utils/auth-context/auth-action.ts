@@ -1,6 +1,6 @@
 import { Dispatch } from "react";
 import axios from "axios";
-import { AuthActionTypes, REQUEST_LOGIN, REQUEST_LOGOUT } from "./auth-types";
+import { AuthActionTypes, CHECK_SSO, REQUEST_LOGOUT, LOGIN_ERROR, LOGIN_SUCCESS } from "./auth-types";
 import Data from "../../config/app.json";
 
 export const dispatchCheckSSO = (dispatch: Dispatch<AuthActionTypes> | null) => {
@@ -9,8 +9,14 @@ export const dispatchCheckSSO = (dispatch: Dispatch<AuthActionTypes> | null) => 
     }
 
     axios.get(Data.api_endpoints.get_user)
-        .then(res => console.log(res))
-        .catch(err => console.log(err));
+        .then(res => {
+            console.log(res);
+            dispatch({ type: CHECK_SSO });
+        })
+        .catch(err => {
+            console.log(err);
+            dispatch({ type: LOGIN_ERROR, payload: { error: "Login Failed! Please try again." } });
+        });
 };
 
 export const dispatchLogoutUserAction = (dispatch: Dispatch<AuthActionTypes> | null) => {
@@ -19,7 +25,10 @@ export const dispatchLogoutUserAction = (dispatch: Dispatch<AuthActionTypes> | n
     }
 
     axios.get(Data.api_endpoints.logout)
-        .then(res => dispatch({ type: REQUEST_LOGOUT }))
+        .then(res => {
+            console.log(res);
+            dispatch({ type: REQUEST_LOGOUT });
+        })
         .catch(err => console.log(err));
 };
 
@@ -28,26 +37,7 @@ export const dispatchLoginUserAction = (dispatch: Dispatch<AuthActionTypes> | nu
         throw new Error("dispatch is null....");
     }
 
-    // set loading = true
-    dispatch({ type: REQUEST_LOGIN });
-
-    // keycloak login
-    //
-    //
-    //
-    //
-    // keycloak.init({ onLoad: "login-required" })
-    //     .then(authenticated => {
-    //         dispatch({
-    //             type: LOGIN_SUCCESS,
-    //             payload: {
-    //                 isAuthenticated: authenticated,
-    //                 userToken: extractUserToken(keycloak.tokenParsed)
-    //             }
-    //         });
-    //     })
-    //     .catch(error => {
-    //         console.warn(error);
-    //         dispatch({ type: LOGIN_ERROR, payload: { error: "Login Failed! Please try again." } });
-    //     });
+    // redirect to login
+    const port = (window.location.port ? ':' + window.location.port : '');
+    window.location.href = '//' + window.location.hostname + port + Data.api_endpoints.login;
 };

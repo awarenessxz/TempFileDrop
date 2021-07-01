@@ -1,7 +1,7 @@
-package com.tempstorage.apigateway.filter
+package com.tempstorage.gateway.filter
 
-import com.tempstorage.apigateway.util.JwtUtils
-import com.tempstorage.apigateway.util.RouteValidator
+import com.tempstorage.gateway.util.JwtUtils
+import com.tempstorage.gateway.util.RouteValidator
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.gateway.filter.GatewayFilter
 import org.springframework.cloud.gateway.filter.GatewayFilterChain

@@ -17,7 +17,6 @@ export interface AuthState {
 
 export const CHECK_SSO = "CHECK_SSO";
 export const REQUEST_LOGOUT = "REQUEST_LOGOUT";
-export const REQUEST_LOGIN = "REQUEST_LOGIN";
 export const LOGIN_SUCCESS = "LOGIN_SUCCESS";
 export const LOGIN_ERROR = "LOGIN_ERROR";
 
@@ -27,10 +26,6 @@ export const LOGIN_ERROR = "LOGIN_ERROR";
 
 interface CheckSSOAction {
     type: typeof CHECK_SSO;
-}
-
-interface LoginUserAction {
-    type: typeof REQUEST_LOGIN;
 }
 
 interface LoginUserSuccessAction {
@@ -55,7 +50,6 @@ interface LogoutUserAction {
 // union action types
 export type AuthActionTypes =
     | CheckSSOAction
-    | LoginUserAction
     | LoginUserSuccessAction
     | LoginUserErrorAction
     | LogoutUserAction;

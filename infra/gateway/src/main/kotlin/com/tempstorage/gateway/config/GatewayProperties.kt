@@ -1,4 +1,4 @@
-package com.tempstorage.apigateway.config
+package com.tempstorage.gateway.config
 
 import org.springframework.boot.context.properties.ConfigurationProperties
 import org.springframework.boot.context.properties.ConstructorBinding

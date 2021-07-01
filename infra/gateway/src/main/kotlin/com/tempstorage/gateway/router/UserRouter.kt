@@ -1,6 +1,6 @@
-package com.tempstorage.apigateway.router
+package com.tempstorage.gateway.router
 
-import com.tempstorage.apigateway.handler.UserHandler
+import com.tempstorage.gateway.handler.UserHandler
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.server.*
@@ -11,5 +11,7 @@ class UserRouter {
     fun router(userHandler: UserHandler): RouterFunction<ServerResponse> {
         return RouterFunctions
                 .route(RequestPredicates.GET("/auth/user"), userHandler::getUser)
+                .andRoute(RequestPredicates.GET("/auth/login/tempfiledrop"), userHandler::loginTempFileDrop)
+                .andRoute(RequestPredicates.GET("/auth/login/console"), userHandler::loginStorageConsole)
     }
 }

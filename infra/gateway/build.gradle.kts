@@ -22,7 +22,7 @@ dependencies {
 
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-client") // oauth2 (authenticate with keycloak)
-	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server") // oauth2 (validate jwt token with keycloak)
+	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server") // oauth2 (store user’s data and http services which can return user data to authenticated clients.)
 	implementation("io.jsonwebtoken:jjwt:0.9.1") // parsing jwt token
 	implementation("javax.xml.bind:jaxb-api:2.3.1") // parsing jwt token
 	implementation("org.keycloak:keycloak-core") // using Keycloak interfaces

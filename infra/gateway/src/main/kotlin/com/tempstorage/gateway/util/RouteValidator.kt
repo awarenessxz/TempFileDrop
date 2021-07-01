@@ -1,6 +1,6 @@
-package com.tempstorage.apigateway.util
+package com.tempstorage.gateway.util
 
-import com.tempstorage.apigateway.config.GatewayProperties
+import com.tempstorage.gateway.config.GatewayProperties
 import org.springframework.http.server.reactive.ServerHttpRequest
 import org.springframework.stereotype.Component
 

@@ -1,4 +1,4 @@
-package com.tempstorage.apigateway.filter
+package com.tempstorage.gateway.filter
 
 import org.slf4j.LoggerFactory
 import org.springframework.cloud.gateway.filter.GatewayFilter
@@ -21,8 +21,9 @@ class JwtParserGatewayFilterFactory: AbstractGatewayFilterFactory<JwtParserGatew
     }
 
     override fun apply(config: Config): GatewayFilter {
-        logger.info("applyiong gateway filter")
+        logger.info("applying gateway filter ${config.preFilter} ${config.postFilter}")
         return GatewayFilter { exchange: ServerWebExchange?, chain: GatewayFilterChain ->
+            logger.info("DID YOU GET TRIGGERED? ${config.preFilter} ${config.postFilter}")
             if (config.preFilter) {
                 logger.info("Pre GatewayFilter to extract JWT Token")
             }

@@ -23,6 +23,7 @@ gateway:
     - /api/storagesvc/download/**
     - /swagger/storagesvc/api-docs
     - /tempfiledrop/**
+    - /auth/user
 
 ---
 
@@ -52,33 +53,23 @@ spring.security.oauth2:
 ###############################################################################################
 
 spring.cloud.gateway:
-  globalcors:
-    corsConfigurations:
-      '[/**]':
-        allowedOrigins: "*"
-        allowedHeaders:
-          - content-type
-          - x-requested-with
-          - Authorization
-        allowedMethods:
-          - GET
-          - POST
-          - OPTIONS
-          - DELETE
-          - PUT
+#  globalcors:
+#    corsConfigurations:
+#      '[/**]':
+#        allowedOrigins: "*"
+#        allowedHeaders:
+#          - content-type
+#          - x-requested-with
+#          - Authorization
+#        allowedMethods:
+#          - GET
+#          - POST
+#          - OPTIONS
+#          - DELETE
+#          - PUT
   default-filters:
     - TokenRelay
   routes:
-    ####################################### Gateway Endpoints
-#    - id: gatewayAuth
-#      uri: http://localhost:9090/
-#      predicates:
-#        - Path=/auth/**
-    ####################################### UI Endpoints
-    - id: tempfiledropApp
-      uri: http://localhost:3000/
-      predicates:
-        - Path=/tempfiledrop/**
     ######################################## Swagger Routes
     - id: swaggerStorageService
       uri: http://localhost:8001/
@@ -87,12 +78,16 @@ spring.cloud.gateway:
         - Path=/swagger/storagesvc/api-docs
       filters:
         - RewritePath=/swagger/storagesvc(?<segment>/?.*), $\{segment}   # /swagger/storagesvc/api-docs --becomes--> /api-docs
-    ####################################### Restful API Endpoints
+    ####################################### Restful API Endpoints (Resource Servers)
     - id: storageService
       uri: http://localhost:8001/
       predicates:
         - Path=/api/storagesvc/**
+#      filters:
+#        - JwtParser=true,true
     - id: tempfiledropWebServer
       uri: http://localhost:7001/
       predicates:
         - Path=/api/**
+#      filters:
+#        - JwtParser=true,true

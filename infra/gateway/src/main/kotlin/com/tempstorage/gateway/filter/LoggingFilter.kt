@@ -1,4 +1,4 @@
-package com.tempstorage.apigateway.filter
+package com.tempstorage.gateway.filter
 
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory
@@ -22,13 +22,13 @@ class LoggingFilter: GlobalFilter, Ordered {
     override fun filter(exchange: ServerWebExchange, chain: GatewayFilterChain): Mono<Void> {
         val requestMutated = object: ServerHttpRequestDecorator(exchange.request) {
             override fun getBody(): Flux<DataBuffer> {
-                logger.info("Forwarding Request : ${delegate.path}")
+                //logger.info("Forwarding Request : ${delegate.path} ${delegate.headers}")
                 return super.getBody()
             }
         }
         val responseMutated = object: ServerHttpResponseDecorator(exchange.response) {
             override fun writeWith(body: Publisher<out DataBuffer>): Mono<Void> {
-                logger.info("Forwarding Response: ${delegate.rawStatusCode}")
+                //logger.info("Forwarding Response: ${delegate.rawStatusCode} ${delegate.headers}")
                 return super.writeWith(body)
             }
         }

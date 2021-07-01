@@ -35,6 +35,7 @@
         "clientRoles": ["user", "admin"]
     },
     "api_endpoints": {
+        "login": "/auth/login/tempfiledrop",
         "logout": "/logout",
         "get_user": "/auth/user",
         "uploaded_files": "/api/users-upload-info",

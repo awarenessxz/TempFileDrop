@@ -1,4 +1,4 @@
-package com.tempstorage.apigateway.filter
+package com.tempstorage.gateway.filter
 
 import org.reactivestreams.Publisher
 import org.slf4j.LoggerFactory

@@ -34,13 +34,14 @@ There are 3 main purpose of this project.
 - **Spring Boot** - API web services
 - **Rabbit MQ** - Publish / Subscribe Messages
 - **Docker** - Containerization
-- **Keycloak** - Authentication
+- **Keycloak** - Authentication / Authorization Server
+- **Open Policy Agent** - Authorization
 
 **For more details on implementation, refer to the README of the individual services**
 - [Design v1 [Archive]](#version-1---backend-proxy)
 - [Design v2 [Archive]](#version-2---direct-consumption-with-event-feedback)
-- [Design v3 [Archive]](#version-3---gateway-authentication)
-- **[Design v4 [Current]](#version-4---gateway-authentication-v2-current)**
+- [Design v3 [Archive]](#version-3---api-gateway-authentication)
+- **[Design v4 [Current]](#version-4---api--app-gateway-current)**
     - [TempFileDrop Website](design4/tempfiledrop/webapp)
     - [TempFileDrop Web Server](design4/tempfiledrop/webserver)
     - [storage-js-client](design4/storage-js-client)
@@ -137,6 +138,7 @@ authentication & authorization is handled purely by the gateway. Previously, the
 
 In additional to the implementations above, I added a few more implementations below. Refer to the design 4's documentation(design4)
 for more information.
+- **Web Applications** are behind the gateway
 - **Keycloak authentication**
     - Only Gateway is registered as client to handle authentication for backend services and web applications
 - **Open Policy Agent (OPA)** for authorization at gateway
@@ -236,6 +238,7 @@ for more information.
     - [Spring Cloud gateway Oauth2 with Keycloak](https://piotrminkowski.com/2020/10/09/spring-cloud-gateway-oauth2-with-keycloak/)
     - [Microservices authentication and authorization with Keycloak at Gateway level](https://javatodev.com/microservices-authentication-and-authorization-with-keycloak/)
     - [Spring Cloud Gateway with JWT Authentication](https://ihorkosandiak.medium.com/spring-cloud-gateway-security-with-jwt-93341b342020)
+    - [Okta - Spring Reactive Microservices with Spring Cloud Gateway](https://developer.okta.com/blog/2019/08/28/reactive-microservices-spring-cloud-gateway)
 - Spring Security
     - [Keycloak for Identity and Access Management & High Availability Deployment with Kubernetes](https://medium.com/devops-dudes/keycloak-for-identity-and-access-management-9860a994bf0)
     - [Baeldung - Spring Boot + Keycloak](https://www.baeldung.com/spring-boot-keycloak)
