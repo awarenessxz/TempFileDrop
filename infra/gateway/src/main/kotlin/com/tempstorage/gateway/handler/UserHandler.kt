@@ -1,7 +1,9 @@
 package com.tempstorage.gateway.handler
 
+import com.tempstorage.gateway.model.JwtUser
 import org.slf4j.LoggerFactory
 import org.springframework.http.MediaType
+import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.BodyInserters
 import org.springframework.web.reactive.function.server.ServerRequest
@@ -18,8 +20,10 @@ class UserHandler {
 
     fun getUser(request: ServerRequest): Mono<ServerResponse> {
         return request.principal()
-                .map(Principal::toString)
-                .flatMap { username -> ServerResponse.ok().contentType(MediaType.TEXT_PLAIN).body(BodyInserters.fromValue(username)) }
+                .filter { principal -> principal is OAuth2AuthenticationToken }
+                .cast(OAuth2AuthenticationToken::class.java)
+                .map { auth -> logger.info("Auth => $auth") }
+                .flatMap { auth -> ServerResponse.ok().body(BodyInserters.fromValue(auth)) }
     }
 
     fun loginTempFileDrop(request: ServerRequest): Mono<ServerResponse> {

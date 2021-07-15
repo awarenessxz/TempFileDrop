@@ -18,6 +18,16 @@ logging:
     org.springframework.cloud.gateway: DEBUG
 
 gateway:
+  jwt-keycloak-parser:
+    resource: storage-gateway           # Client
+    use-resource-role-mappings: true    # use client role
+    public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjBbNUOPhBZVCssoky2C5S3WnmiR0a492J+KU7Z6yLrwgmTfyo1ZZjEDup3DvF/GLMaaDF3QJMwY33cefMV+UzFt+xy7Usc6cI2+6mo1ZZjgy0LP/+t5RXKRCPNW69wEfWSXfb6CGrv+bklhmut0M3SqnsV3JJentRl0geZ9WC8aOzIuyHXP67fSgkGzRW6yhFKHsIoN06A5hD6gzvb64pt31Eycs/rmnNgtAmyQmUls3imdjMrbs0fM1/xNQh7qLb/mR1UT+WErgxCn/VDrDTqgC5QLvNMdp1sdf5lpYBjd+Y90NQgyj2pTNSuJZuLXFBad5lfaVAP6w6oF3nmfmFwIDAQAB
+  attributes:
+    tempfiledrop:
+      buckets:
+        - tempfiledrop
+      routing-keys:
+        - tempfiledrop
   whitelist:
     - /api/storagesvc/anonymous/**
     - /api/storagesvc/download/**
@@ -53,23 +63,28 @@ spring.security.oauth2:
 ###############################################################################################
 
 spring.cloud.gateway:
-#  globalcors:
-#    corsConfigurations:
-#      '[/**]':
-#        allowedOrigins: "*"
-#        allowedHeaders:
-#          - content-type
-#          - x-requested-with
-#          - Authorization
-#        allowedMethods:
-#          - GET
-#          - POST
-#          - OPTIONS
-#          - DELETE
-#          - PUT
+  globalcors:
+    corsConfigurations:
+      '[/**]':
+        allowedOrigins: "*"
+        allowedHeaders:
+          - content-type
+          - x-requested-with
+          - Authorization
+        allowedMethods:
+          - GET
+          - POST
+          - OPTIONS
+          - DELETE
+          - PUT
   default-filters:
     - TokenRelay
   routes:
+    ######################################## UI Endpoints
+    - id: tempfiledrop
+      uri: http://localhost:3000/
+      predicates:
+        - Path=/tempfiledrop/**
     ######################################## Swagger Routes
     - id: swaggerStorageService
       uri: http://localhost:8001/
@@ -83,11 +98,11 @@ spring.cloud.gateway:
       uri: http://localhost:8001/
       predicates:
         - Path=/api/storagesvc/**
-#      filters:
-#        - JwtParser=true,true
+      filters:
+        - StorageAttributesInjection=true
     - id: tempfiledropWebServer
       uri: http://localhost:7001/
       predicates:
         - Path=/api/**
-#      filters:
-#        - JwtParser=true,true
+      filters:
+        - StorageAttributesInjection=true
