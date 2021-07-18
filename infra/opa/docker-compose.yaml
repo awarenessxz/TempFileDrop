@@ -1,0 +1,34 @@
+version: '3.7'
+
+services:
+  opa-server:
+    image: openpolicyagent/opa
+    container_name: opa-server
+    hostname: opa-server
+    restart: unless-stopped
+    networks:
+      - proxy-net
+    environment:
+      - DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel
+      - PUID=1000
+      - PGID=1000
+      - TZ=Asia/Singapore
+      - SUDO_ACCESS=true
+      - PASSWORD_ACCESS=true
+      - USER_PASSWORD=dev
+      - USER_NAME=dev
+    command:
+      - "run"
+      - "--server"
+      - "--log-level=debug"
+      - "--log-format=json"
+      - "policy.rego"
+    ports:
+      - 8181:8181
+    volumes:
+      - ./policy/req_authz.rego:/policy.rego
+
+networks:
+  proxy-net:
+    external:
+      name: tempfiledrop_bridge

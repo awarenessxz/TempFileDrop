@@ -1,8 +1,7 @@
 package com.tempstorage.gateway.handler
 
-import com.tempstorage.gateway.model.JwtUser
 import org.slf4j.LoggerFactory
-import org.springframework.http.MediaType
+import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken
 import org.springframework.stereotype.Component
 import org.springframework.web.reactive.function.BodyInserters
@@ -10,7 +9,6 @@ import org.springframework.web.reactive.function.server.ServerRequest
 import org.springframework.web.reactive.function.server.ServerResponse
 import reactor.core.publisher.Mono
 import java.net.URI
-import java.security.Principal
 
 @Component
 class UserHandler {
@@ -19,11 +17,18 @@ class UserHandler {
     }
 
     fun getUser(request: ServerRequest): Mono<ServerResponse> {
+        val context = SecurityContextHolder.getContext()
+        val authentication = context.authentication
+        logger.info("Authentication --> $authentication")
+        logger.info("Request Headers --> ${request.headers()}")
         return request.principal()
-                .filter { principal -> principal is OAuth2AuthenticationToken }
-                .cast(OAuth2AuthenticationToken::class.java)
-                .map { auth -> logger.info("Auth => $auth") }
-                .flatMap { auth -> ServerResponse.ok().body(BodyInserters.fromValue(auth)) }
+                .map { principal -> logger.info("Principal => $principal")}
+                .flatMap { principal -> ServerResponse.ok().body(BodyInserters.fromValue(principal)) }
+//        return request.principal()
+//                .filter { principal -> principal is OAuth2AuthenticationToken }
+//                .cast(OAuth2AuthenticationToken::class.java)
+//                .map { auth -> logger.info("Auth => $auth") }
+//                .flatMap { auth -> ServerResponse.ok().body(BodyInserters.fromValue(auth)) }
     }
 
     fun loginTempFileDrop(request: ServerRequest): Mono<ServerResponse> {

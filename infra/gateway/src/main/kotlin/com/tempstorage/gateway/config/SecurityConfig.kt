@@ -1,5 +1,6 @@
 package com.tempstorage.gateway.config
 
+import com.tempstorage.gateway.util.OpaReactiveAuthorizationManager
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.security.config.Customizer.withDefaults
@@ -11,7 +12,8 @@ import org.springframework.security.web.server.header.XFrameOptionsServerHttpHea
 @Configuration
 @EnableWebFluxSecurity
 class SecurityConfig(
-        private val gatewayProps: GatewayProperties
+        private val gatewayProps: GatewayProperties,
+        private val authorizationManager: OpaReactiveAuthorizationManager
 ) {
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
@@ -19,6 +21,7 @@ class SecurityConfig(
         http.authorizeExchange()
                 .pathMatchers(*gatewayProps.whitelist.toTypedArray()).permitAll()
                 .anyExchange().authenticated()
+                .anyExchange().access(authorizationManager)
         http.oauth2Login(withDefaults()) // Authenticate through configured OpenID Provider
         http.oauth2ResourceServer { obj -> obj.jwt() }  // Token Validation
         http.headers().frameOptions().mode(Mode.SAMEORIGIN)
