@@ -230,6 +230,8 @@ for more information.
     - [Understanding Spring Security](https://www.marcobehler.com/guides/spring-security)
     - [Rest Security with JWT (Spring Security)](https://www.toptal.com/java/rest-security-with-jwt-spring-security-and-java)
         - [Github Sample](https://github.com/szerhusenBC/jwt-spring-security-demo)
+- OPA Authorization
+    - [Stackoverflow: Union an array of objects in Rego](https://stackoverflow.com/questions/64562266/union-an-array-of-objects-in-rego)
 - API Gateway
     - [API Gateway Pattern](https://www.nginx.com/blog/choosing-the-right-api-gateway-pattern/)
     - [Okta - spring gateway patterns](https://developer.okta.com/blog/2020/08/14/spring-gateway-patterns)
