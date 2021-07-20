@@ -113,7 +113,7 @@ for more information.
 
 ### Version 4 - API + APP Gateway [Current]
 
-![design 4](doc/architecture_design4.png)
+![design 4](doc/architecture_design4b.png)
 
 This design is built upon the third implementation. Instead of registering the frontend web applications as keycloak client, 
 I placed the webservers which are serving frontend resources behind the gateway. This provides a cleaner architecture where
