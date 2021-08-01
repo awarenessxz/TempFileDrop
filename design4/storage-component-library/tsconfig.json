@@ -1,0 +1,37 @@
+{
+    "compilerOptions": {
+        "rootDir": "src",
+        "module": "esnext",
+        "target": "es2018",
+        "jsx": "react",
+        "allowJs": false,
+        "lib": ["dom", "dom.iterable", "es2018"],
+        "sourceMap": true,
+        "declaration": true,
+        "declarationDir": "dist",
+        "moduleResolution": "node",
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noImplicitAny": true,
+        "noUnusedLocals": false,
+        "noUnusedParameters": false,
+        "noFallthroughCasesInSwitch": true,
+        "strictNullChecks": true,
+        "strictFunctionTypes": true,
+        "removeComments": true,
+        "allowSyntheticDefaultImports": true,
+        "preserveConstEnums": true,
+        "esModuleInterop": true,
+        "forceConsistentCasingInFileNames": true,
+        "plugins": [
+            {
+                "name": "typescript-plugin-css-modules",
+                "options": {
+                    "customMatcher": "\\.module\\.scss$"
+                }
+            }
+        ]
+    },
+    "include": ["src/**/*"],
+    "exclude": ["node_modules", "dist", "src/**/*.stories.tsx", "src/**/*.test.tsx"]
+}

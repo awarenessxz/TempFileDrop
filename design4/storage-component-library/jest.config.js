@@ -1,0 +1,18 @@
+module.exports = {
+    roots: ['./src'],
+    setupFilesAfterEnv: ['./setup/jest.setup.ts'],
+    moduleFileExtensions: ['ts', 'tsx', 'js'],
+    collectCoverage: true,
+    collectCoverageFrom: ['<rootDir>/src/components/**/*.{ts,tsx}', '!<rootDir>/src/components/**/*.stories.{ts,tsx}'],
+    coverageDirectory: './coverage',
+    testPathIgnorePatterns: ['node_modules/'],
+    transform: {
+        '^.+\\.tsx?$': 'ts-jest',
+    },
+    testMatch: ['**/*.test.(ts|tsx)'],
+    moduleNameMapper: {
+        // Mocks out all these file formats when tests are run
+        '\\.(jpg|ico|jpeg|png|gif|eot|otf|webp|svg|ttf|woff|woff2|mp4|webm|wav|mp3|m4a|aac|oga)$': 'identity-obj-proxy',
+        '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
+    },
+};

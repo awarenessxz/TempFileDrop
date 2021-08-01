@@ -1,0 +1,15 @@
+.testComponent {
+    background-color: white;
+    border: 1px solid black;
+    padding: 16px;
+    text-align: center;
+
+    .heading {
+        font-size: 64px;
+    }
+
+    &.testComponentSecondary {
+        background-color: black;
+        color: white;
+    }
+}

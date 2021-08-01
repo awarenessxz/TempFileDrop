@@ -1,0 +1,59 @@
+import { Meta, Story, ArgsTable } from '@storybook/addon-docs/blocks';
+import FileDropzone from './FileDropzone';
+
+<Meta title='Docs/FileDropzone' component={FileDropzone} />
+
+# FileDropzone
+
+This is a generic FileDropzone component built on top of `react-dropzone` and `material-ui`. Refer to [https://react-dropzone.js.org/](https://react-dropzone.js.org/)
+for more information. Refer to the documentation below on how to implement this component.
+
+<Story id="components-filedropzone--basic" />
+
+<br />
+
+## Usage
+
+1. Import the library and the required dependencies.
+    ```bash
+    yarn add storage-component-library axios moment
+    ```
+2. Add the component to your react project.
+    ```javascript
+    import { FileDropzone } from "storage-component-library";
+
+    const App = () => {
+        return <FileDropzone uploadUrl="/your/upload/endpoint" />;
+    };
+    ```
+
+## Code Snippets (Details)
+
+**Below is the code snippet on how the component uploads to the API endpoint using Axios:**
+
+```javascript
+const formData = new FormData();
+files.forEach(file => formData.append("files", file));  // files refers to files dropped into the component
+const options = {
+    onUploadProgress: (progressEvent: any) => {
+        const {loaded, total} = progressEvent;
+        const percent = Math.floor((loaded * 100) / total);
+        if (percent <= 100) {
+            setUploadPercentage(percent);
+        }
+    },
+};
+axios.post(uploadUrl, formData, options)
+    .then(res => {
+        onSuccessfulUploadCallback(res);
+    })
+    .catch(err => {
+        setErrorMsg("Upload Failed!");
+    });
+```
+
+## Parameters
+
+Refer below to the list of parameters that you can configure:
+
+<ArgsTable of={FileDropzone} />

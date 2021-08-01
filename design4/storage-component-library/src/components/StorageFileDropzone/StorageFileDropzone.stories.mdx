@@ -1,0 +1,115 @@
+import { Meta, Story, ArgsTable } from '@storybook/addon-docs/blocks';
+import StorageFileDropzone from './StorageFileDropzone';
+
+<Meta title='Docs/StorageFileDropzone' component={StorageFileDropzone} />
+
+# StorageFileDropzone
+
+This is a StorageFileDropzone component built on top of `react-dropzone` and `material-ui`. Refer to [https://react-dropzone.js.org/](https://react-dropzone.js.org/)
+for more information. **This component is built specifically for storage service API where it uses storage-js-client for
+uploading files to the API**. Refer to the documentation below on how to implement this component.
+
+<Story id="components-storagefiledropzone--basic" />
+
+<br />
+
+## Usage
+
+### Getting Started
+
+1. Import the library and the required dependencies.
+    ```bash
+    yarn add storage-component-library axios moment
+    ```
+2. Add the component to your react project.
+    ```javascript
+    import { StorageFileDropzone } from "storage-component-library";
+
+    const App = () => {
+        return <StorageFileDropzone />;
+    };
+    ```
+
+### Normal Upload
+
+The storage service API requires **Upload Metadata** when uploading files. This is provided in the form of a `json` object.
+The format of the metadata is as follows:
+
+```javascript
+export interface UploadMetadata {
+    bucket: string;
+    storagePath: string;
+    eventRoutingKey: string;
+    eventData?: string;
+}
+```
+
+You can also provide **Maximum Download Count**, **Expiry Period** and **Allow Anonymous Download** settings for the uploaded
+files. Show these settings in the component by enabling the parameter `showConfigs=true`. Below is an example on how you can
+implement the component for normal upload:
+
+```javascript
+import { StorageFileDropzone } from "storage-component-library";
+
+const App = () => {
+    const handleUploadSuccess = () => {
+        console.log("Upload Success!");
+    };
+
+    const handleUploadError = (err: any) => {
+        console.log("Upload Error!");
+    };
+
+    return (
+        <div>
+            <StorageFileDropzone
+                showConfigs={true}
+                uploadMetadata={{
+                    bucket: "example",
+                    storagePath: "/example",
+                    eventRoutingKey: "example",
+                    eventData: JSON.stringify({ example: "example" })
+                }}
+                onSuccessfulUploadCallback={handleUploadSuccess}
+                onErrorCallback={handleUploadError}
+            />
+        </div>
+    );
+};
+```
+
+### Anonymous Upload
+
+The storage service API provides an **anonymous upload endpoint** which is useful when the uploader does not have the
+required permissions. Hence, uploader can use the anonymous endpoint for upload / download without any authorization
+required. Refer to the code snippet below on how you can implement the component for anonymous upload:
+
+```javascript
+import { StorageFileDropzone } from "storage-component-library";
+
+const App = () => {
+    const handleUploadSuccess = () => {
+        console.log("Upload Success!");
+    };
+
+    const handleUploadError = (err: any) => {
+        console.log("Upload Error!");
+    };
+
+    return (
+        <div>
+            <StorageFileDropzone
+                isAnonymousUpload={true}
+                onSuccessfulUploadCallback={handleUploadSuccess}
+                onErrorCallback={handleUploadError}
+            />
+        </div>
+    );
+};
+```
+
+## Parameters
+
+Refer below to the list of parameters that you can configure:
+
+<ArgsTable of={StorageFileDropzone} />

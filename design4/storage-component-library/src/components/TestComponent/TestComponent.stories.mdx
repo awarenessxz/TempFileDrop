@@ -1,0 +1,30 @@
+import { Meta, Story, ArgsTable } from '@storybook/addon-docs/blocks';
+import TestComponent from "./TestComponent";
+
+<Meta title='Docs/TestComponent' component={TestComponent} />
+
+# Test Component
+
+If you have more information which you would like to add about your component, you can document it here
+
+## Below are some possible documentation that you can do
+
+### 1 - Display your story
+
+*Note: The id is obtained from the url when you open storybook*
+
+<Story id="components-testcomponent--primary" />
+
+### 2 - Provide a Quick Start using simple markdown
+
+```tsx
+import TestComponent from "./TestComponent";
+
+const test = () => {
+    return <TestComponent theme='primary' />
+};
+```
+
+### 3 - Display API / Interface
+
+<ArgsTable of={TestComponent} />
