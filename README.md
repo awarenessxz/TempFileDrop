@@ -45,6 +45,7 @@ There are 3 main purpose of this project.
     - [TempFileDrop Website](design4/tempfiledrop/webapp)
     - [TempFileDrop Web Server](design4/tempfiledrop/webserver)
     - [storage-js-client](design4/storage-js-client)
+    - [storage-component-library](design4/storage-component-library)
     - [Storage Admin Console](design4/storage-console)
     - [Storage Microservice](design4/storage-service)
     - [API Gateway](infra/gateway)
@@ -142,6 +143,7 @@ for more information.
 - **Keycloak authentication**
     - Only Gateway is registered as client to handle authentication for backend services and web applications
 - **Open Policy Agent (OPA)** for authorization at gateway
+- **Storage Component Library** for reusable react components
 
 ## Design Considerations
 
