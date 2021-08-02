@@ -3,6 +3,7 @@ package com.tempstorage.storagesvc.service.storage
 import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
+import com.tempstorage.storagesvc.service.notification.NotificationService
 import com.tempstorage.storagesvc.service.storagefiles.StorageFile
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import com.tempstorage.storagesvc.util.StorageUtils
@@ -29,6 +30,7 @@ import kotlin.collections.ArrayList
 @ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "minio")
 class MinioStorageServiceImpl(
         private val minioClient: MinioClient,
+        private val notificationService: NotificationService
 ): StorageService() {
     companion object {
         private val logger = LoggerFactory.getLogger(MinioStorageServiceImpl::class.java)
@@ -36,39 +38,7 @@ class MinioStorageServiceImpl(
 
     override fun initStorage() { }
 
-    override fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo): List<StorageFile> {
-        logger.info("Uploading files to MinIO Cluster.....")
-
-        val storageFiles = ArrayList<StorageFile>()
-        try {
-            // validate bucket
-            StorageUtils.validateBucketWithJwtToken(storageInfo.bucket)
-            // create bucket if not available
-            if (!minioClient.bucketExists(BucketExistsArgs.builder().bucket(storageInfo.bucket).build())) {
-                minioClient.makeBucket(MakeBucketArgs.builder().bucket(storageInfo.bucket).build())
-            }
-
-            // upload to bucket
-            val targetFolderPath = Paths.get(storageInfo.storagePath)
-            files.forEach {
-                logger.info("FILE ==> ${it.originalFilename}")
-                val targetFilePath = targetFolderPath.resolve(it.originalFilename)
-                minioClient.putObject(PutObjectArgs.builder()
-                        .bucket(storageInfo.bucket)
-                        .contentType(it.contentType)
-                        .`object`(targetFilePath.toString())
-                        .stream(it.inputStream, it.size, -1)
-                        .build()
-                )
-                storageFiles.add(StorageFile(storageInfo.bucket, storageInfo.storagePath, it.originalFilename!!, it.contentType, it.size))
-            }
-        } catch (e: Exception) {
-            throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
-        }
-        return storageFiles
-    }
-
-    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): Triple<StorageUploadMetadata, StorageInfo, List<StorageFile>> {
+    override fun uploadFilesViaStream(request: HttpServletRequest, storageId: String, isAnonymous: Boolean) {
         logger.info("Uploading files to MinIO Cluster using input streams.....")
         val storageFiles = ArrayList<StorageFile>()
 
@@ -124,8 +94,7 @@ class MinioStorageServiceImpl(
         val filenames = storageFiles.joinToString(",") { it.originalFilename }
         val expiryDatetime = StorageUtils.processExpiryPeriod(metadata!!.expiryPeriod)
         val anonDownload = isAnonymous || metadata.allowAnonymousDownload
-        val storageInfo = StorageInfo(metadata.bucket, metadata.storagePath, filenames, metadata.maxDownloads, expiryDatetime, anonDownload)
-        return Triple(metadata, storageInfo, storageFiles)
+        val storageInfo = StorageInfo(storageId, metadata.bucket, metadata.storagePath, filenames, metadata.maxDownloads, expiryDatetime, anonDownload)
     }
 
     override fun downloadFile(storageFile: StorageFile, response: HttpServletResponse) {

@@ -1,6 +1,5 @@
 package com.tempstorage.storagesvc.service.storage
 
-import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
 import com.tempstorage.storagesvc.service.storagefiles.StorageFile
@@ -14,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
-import org.springframework.web.multipart.MultipartFile
 import java.time.ZonedDateTime
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
@@ -25,8 +23,7 @@ abstract class StorageService {
     }
 
     abstract fun initStorage()
-    abstract fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo): List<StorageFile>
-    abstract fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): Triple<StorageUploadMetadata, StorageInfo, List<StorageFile>>
+    abstract fun uploadFilesViaStream(request: HttpServletRequest, storageId: String, isAnonymous: Boolean)
     abstract fun deleteFiles(storageFileList: List<StorageFile>, bucket: String)
     abstract fun downloadFile(storageFile: StorageFile, response: HttpServletResponse)
     abstract fun downloadFilesAsZip(storageFiles: List<StorageFile>, response: HttpServletResponse)
@@ -126,15 +123,14 @@ abstract class StorageService {
     }
 
     // upload via apache commons fileupload streaming api
-    fun uploadViaStreamToBucket(request: HttpServletRequest, isAnonymous: Boolean = false): Pair<StorageUploadMetadata, StorageInfo> {
+    fun uploadViaStreamToBucket(request: HttpServletRequest, isAnonymous: Boolean = false): String {
         val isMultipart = ServletFileUpload.isMultipartContent(request)
         if (!isMultipart) {
             throw ApiException("Invalid Multipart Request", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         }
-        val (metadata, storageInfo, storageFiles) = uploadFilesViaStream(request, isAnonymous) // upload files
-        storageInfoService.addStorageInfo(storageInfo) // store upload to storage mapping. Should populate storage ID after storing
-        storageFileService.saveFilesInfo(storageInfo.id.toString(), storageFiles) // store file information
-        return Pair(metadata, storageInfo)
+        val storageId = StorageUtils.generateStorageId() // generate storage Id
+        uploadFilesViaStream(request, storageId, isAnonymous) // upload file
+        return storageId
     }
 
     fun getAndValidateStorageInfo(storageId: String, bucket: String? = null): StorageInfo {

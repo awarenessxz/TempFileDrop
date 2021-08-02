@@ -57,15 +57,8 @@ class StorageController(
     @PostMapping("/upload")
     fun uploadFilesViaStream(request: HttpServletRequest): ResponseEntity<StorageUploadResponse> {
         logger.info("Receiving upload request via stream")
-
-        // store files
-        val (metadata, storageInfo) = storageService.uploadViaStreamToBucket(request)
-
-        // send an event
-        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageInfo, metadata.eventData!!, metadata.eventRoutingKey, true)
-
-        // send response
-        val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString())
+        val storageId = storageService.uploadViaStreamToBucket(request) // store files
+        val response = StorageUploadResponse("Files uploaded successfully", storageId)
         return ResponseEntity(response, HttpStatus.OK)
     }
 

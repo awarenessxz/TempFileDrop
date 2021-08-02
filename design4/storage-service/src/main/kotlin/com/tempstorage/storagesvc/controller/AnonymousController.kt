@@ -45,10 +45,10 @@ class AnonymousController(
         }
 
         // store files
-        val (_, storageInfo) = storageService.uploadViaStreamToBucket(request, true)
+        val storageId = storageService.uploadViaStreamToBucket(request, true)
 
         // send response
-        val response = StorageUploadResponse("Files uploaded successfully", storageInfo.id.toString())
+        val response = StorageUploadResponse("Files uploaded successfully", storageId)
         return ResponseEntity(response, HttpStatus.OK)
     }
 }

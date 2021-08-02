@@ -4,6 +4,7 @@ import com.tempstorage.storagesvc.config.StorageSvcProperties
 import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
+import com.tempstorage.storagesvc.service.notification.NotificationService
 import com.tempstorage.storagesvc.service.storagefiles.StorageFile
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import com.tempstorage.storagesvc.util.StorageUtils
@@ -37,7 +38,8 @@ import kotlin.io.path.createDirectories
 @Primary
 @ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "file")
 class FileStorageServiceImpl(
-        properties: StorageSvcProperties
+        properties: StorageSvcProperties,
+        private val notificationService: NotificationService
 ): StorageService() {
     companion object {
         private val logger = LoggerFactory.getLogger(FileStorageServiceImpl::class.java)
@@ -58,40 +60,7 @@ class FileStorageServiceImpl(
     }
 
     @ExperimentalPathApi
-    override fun uploadFiles(files: List<MultipartFile>, storageInfo: StorageInfo): List<StorageFile> {
-        logger.info("Uploading files to Folder Storage.....")
-
-        // create bucket if not available
-        StorageUtils.validateBucketWithJwtToken(storageInfo.bucket)
-        val bucket = root.resolve(storageInfo.bucket)
-        if (!Files.exists(bucket)) {
-            Files.createDirectory(bucket)
-        }
-
-        val storageFiles = ArrayList<StorageFile>()
-        try {
-            // if path is not found, create it
-            val storagePath = Paths.get(storageInfo.storagePath)
-            val bucketStoragePath = bucket.resolve(storagePath)
-            if (!Files.exists(bucketStoragePath)) {
-                bucketStoragePath.createDirectories()
-            }
-
-            // copy file into bucket
-            files.forEach {
-                logger.info("FILE ==> ${it.originalFilename}")
-                val filepath = bucketStoragePath.resolve(it.originalFilename)
-                Files.copy(it.inputStream, filepath)
-                storageFiles.add(StorageFile(storageInfo.bucket, storageInfo.storagePath, it.originalFilename!!, it.contentType, it.size))
-            }
-        } catch (e: Exception) {
-            throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
-        }
-        return storageFiles
-    }
-
-    @ExperimentalPathApi
-    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): Triple<StorageUploadMetadata, StorageInfo, List<StorageFile>> {
+    override fun uploadFilesViaStream(request: HttpServletRequest, storageId: String, isAnonymous: Boolean) {
         logger.info("Uploading files to Folder Storage using input stream.....")
         val storageFiles = ArrayList<StorageFile>()
 
@@ -148,8 +117,8 @@ class FileStorageServiceImpl(
         val filenames = storageFiles.joinToString(",") { it.originalFilename }
         val expiryDatetime = StorageUtils.processExpiryPeriod(metadata!!.expiryPeriod)
         val anonDownload = isAnonymous || metadata.allowAnonymousDownload
-        val storageInfo = StorageInfo(metadata.bucket, metadata.storagePath, filenames, metadata.maxDownloads, expiryDatetime, anonDownload)
-        return Triple(metadata, storageInfo, storageFiles)
+        val storageInfo = StorageInfo(storageId, metadata.bucket, metadata.storagePath, filenames, metadata.maxDownloads, expiryDatetime, anonDownload)
+        notificationService.triggerUploadNotification(metadata, storageInfo, storageFiles)
     }
 
     override fun downloadFile(storageFile: StorageFile, response: HttpServletResponse) {

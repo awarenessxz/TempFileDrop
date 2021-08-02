@@ -16,6 +16,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
+import java.util.*
 
 object StorageUtils {
     private const val ANONYMOUS_BUCKET = "anonymous"
@@ -126,5 +127,9 @@ object StorageUtils {
         if (routingKey !in jwtUser.storageAttrs.routingkeys) {
             throw ApiException("Not Authorized to publish message to exchange with $routingKey!", ErrorCode.NOT_AUTHORIZED, HttpStatus.UNAUTHORIZED)
         }
+    }
+
+    fun generateStorageId(): String {
+        return UUID.randomUUID().toString()
     }
 }
