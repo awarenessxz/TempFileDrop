@@ -2,8 +2,8 @@ package com.tempstorage.storagesvc.controller.download
 
 import com.tempstorage.storagesvc.exception.ErrorResponse
 import com.tempstorage.storagesvc.service.download.DownloadTokenService
-import com.tempstorage.storagesvc.service.event.EventType
-import com.tempstorage.storagesvc.service.event.RabbitMQProducer
+import com.tempstorage.storagesvc.service.notification.EventType
+import com.tempstorage.storagesvc.service.notification.RabbitMQProducer
 import com.tempstorage.storagesvc.service.storage.StorageService
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content

@@ -2,8 +2,8 @@ package com.tempstorage.storagesvc.controller.storage
 
 import com.tempstorage.storagesvc.controller.SecuredRestController
 import com.tempstorage.storagesvc.exception.ErrorResponse
-import com.tempstorage.storagesvc.service.event.EventType
-import com.tempstorage.storagesvc.service.event.RabbitMQProducer
+import com.tempstorage.storagesvc.service.notification.EventType
+import com.tempstorage.storagesvc.service.notification.RabbitMQProducer
 import com.tempstorage.storagesvc.service.eventdata.EventData
 import com.tempstorage.storagesvc.service.eventdata.EventDataService
 import com.tempstorage.storagesvc.service.storage.StorageService

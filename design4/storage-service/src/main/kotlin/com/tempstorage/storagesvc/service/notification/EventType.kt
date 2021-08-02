@@ -1,4 +1,4 @@
-package com.tempstorage.storagesvc.service.event
+package com.tempstorage.storagesvc.service.notification
 
 enum class EventType {
     FILES_UPLOADED,

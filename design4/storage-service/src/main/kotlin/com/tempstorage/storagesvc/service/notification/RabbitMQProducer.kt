@@ -1,4 +1,4 @@
-package com.tempstorage.storagesvc.service.event
+package com.tempstorage.storagesvc.service.notification
 
 import com.tempstorage.storagesvc.service.eventdata.EventDataService
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo

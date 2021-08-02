@@ -1,4 +1,4 @@
-package com.tempstorage.storagesvc.service.event
+package com.tempstorage.storagesvc.service.notification
 
 data class EventMessage(
         val eventType: String,
