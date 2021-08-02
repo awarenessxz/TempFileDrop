@@ -19,7 +19,6 @@ import org.springframework.stereotype.Service
 import org.springframework.util.StreamUtils
 import org.springframework.web.multipart.MultipartFile
 import java.nio.file.Paths
-import java.util.*
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletRequest
@@ -53,9 +52,7 @@ class ObjectStorageServiceImpl(
             val targetFolderPath = Paths.get(storageInfo.storagePath)
             files.forEach {
                 logger.info("FILE ==> ${it.originalFilename}")
-                val fileExtension = StorageUtils.getFileExtension(it.originalFilename!!)
-                val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
-                val targetFilePath = targetFolderPath.resolve(uuidFilename)
+                val targetFilePath = targetFolderPath.resolve(it.originalFilename)
                 minioClient.putObject(PutObjectArgs.builder()
                         .bucket(storageInfo.bucket)
                         .contentType(it.contentType)
@@ -63,7 +60,7 @@ class ObjectStorageServiceImpl(
                         .stream(it.inputStream, it.size, -1)
                         .build()
                 )
-                storageFiles.add(StorageFile(storageInfo.bucket, storageInfo.storagePath, it.originalFilename!!, uuidFilename, it.contentType, it.size))
+                storageFiles.add(StorageFile(storageInfo.bucket, storageInfo.storagePath, it.originalFilename!!, it.contentType, it.size))
             }
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
@@ -105,10 +102,7 @@ class ObjectStorageServiceImpl(
                 // subsequent multipart files are uploads
                 if (item.fieldName == "files") {
                     // upload to bucket
-                    val targetFolderPath = Paths.get(metadata.storagePath)
-                    val fileExtension = StorageUtils.getFileExtension(item.name)
-                    val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
-                    val targetFilePath = targetFolderPath.resolve(uuidFilename)
+                    val targetFilePath = Paths.get(metadata.storagePath).resolve(item.name!!)
                     minioClient.putObject(PutObjectArgs.builder()
                             .bucket(metadata.bucket)
                             .contentType(item.contentType)
@@ -116,7 +110,7 @@ class ObjectStorageServiceImpl(
                             .stream(item.openStream(), -1, 10485760)
                             .build()
                     )
-                    storageFiles.add(StorageFile(metadata.bucket, metadata.storagePath, item.name!!, uuidFilename, item.contentType, -1))
+                    storageFiles.add(StorageFile(metadata.bucket, metadata.storagePath, item.name!!, item.contentType, -1))
                 } else {
                     throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
                 }
@@ -135,7 +129,7 @@ class ObjectStorageServiceImpl(
     }
 
     override fun downloadFile(storageFile: StorageFile, response: HttpServletResponse) {
-        logger.info("Downloading ${storageFile.filename} from MinIO Cluster.....")
+        logger.info("Downloading ${storageFile.originalFilename} from MinIO Cluster.....")
         val filepath = storageFile.getFileStoragePath()
         val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(storageFile.bucket).`object`(filepath).build())
         IOUtils.copyLarge(inputStream, response.outputStream)
@@ -163,7 +157,7 @@ class ObjectStorageServiceImpl(
         val objectSizeMapper = results.map { it.get().objectName() to it.get().size() }.toMap()
         return storageFiles.map {
             val fileSize = objectSizeMapper[it.getFileStoragePath()] ?: 0
-            StorageFile(it.bucket, it.storagePath, it.originalFilename, it.filename, it.fileContentType, fileSize, it.storageId, it.id)
+            StorageFile(it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.storageId, it.id)
         }
     }
 

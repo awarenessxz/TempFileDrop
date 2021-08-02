@@ -24,7 +24,6 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.*
 import java.util.stream.Collectors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
@@ -81,11 +80,9 @@ class FileStorageServiceImpl(
             // copy file into bucket
             files.forEach {
                 logger.info("FILE ==> ${it.originalFilename}")
-                val fileExtension = StorageUtils.getFileExtension(it.originalFilename!!)
-                val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
-                val filepath = bucketStoragePath.resolve(uuidFilename)
+                val filepath = bucketStoragePath.resolve(it.originalFilename)
                 Files.copy(it.inputStream, filepath)
-                storageFiles.add(StorageFile(storageInfo.bucket, storageInfo.storagePath, it.originalFilename!!, uuidFilename, it.contentType, it.size))
+                storageFiles.add(StorageFile(storageInfo.bucket, storageInfo.storagePath, it.originalFilename!!, it.contentType, it.size))
             }
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
@@ -129,18 +126,15 @@ class FileStorageServiceImpl(
                 // subsequent multipart files are uploads
                 if (item.fieldName == "files" && bucketPath != null) {
                     // if path is not found, create it
-                    val fileStoragePath = Paths.get(metadata.storagePath)
-                    val bucketStoragePath = bucketPath.resolve(fileStoragePath)
+                    val bucketStoragePath = bucketPath.resolve(metadata.storagePath)
                     if (!Files.exists(bucketStoragePath)) {
                         bucketStoragePath.createDirectories()
                     }
 
                     // copy file into bucket
-                    val fileExtension = StorageUtils.getFileExtension(item.name)
-                    val uuidFilename = "${UUID.randomUUID()}${fileExtension}"
-                    val filepath = bucketStoragePath.resolve(uuidFilename)
+                    val filepath = bucketStoragePath.resolve(item.name)
                     Files.copy(item.openStream(), filepath)
-                    storageFiles.add(StorageFile(metadata.bucket, metadata.storagePath, item.name, uuidFilename, item.contentType, -1))
+                    storageFiles.add(StorageFile(metadata.bucket, metadata.storagePath, item.name, item.contentType, -1))
                 } else {
                     throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
                 }
@@ -159,7 +153,7 @@ class FileStorageServiceImpl(
     }
 
     override fun downloadFile(storageFile: StorageFile, response: HttpServletResponse) {
-        logger.info("Downloading ${storageFile.filename} from Folder Storage.....")
+        logger.info("Downloading ${storageFile.originalFilename} from Folder Storage.....")
         val filepath = root.resolve(storageFile.getFullStoragePath()).toString()
         val inputStream = FileInputStream(filepath)
         IOUtils.copyLarge(inputStream, response.outputStream)
@@ -187,8 +181,8 @@ class FileStorageServiceImpl(
             val results = Files.walk(root).filter(Files::isRegularFile).collect(Collectors.toList())
             val objectSizeMapper = results.map { it.fileName.toString() to Files.size(it) }.toMap()
             return storageFiles.map {
-                val fileSize = objectSizeMapper[it.filename] ?: 0
-                StorageFile(it.bucket, it.storagePath, it.originalFilename, it.filename, it.fileContentType, fileSize, it.storageId, it.id)
+                val fileSize = objectSizeMapper[it.originalFilename] ?: 0
+                StorageFile(it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.storageId, it.id)
             }
         } catch (e: IOException) {
             throw RuntimeException("Could not load the files!")

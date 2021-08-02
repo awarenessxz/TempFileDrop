@@ -21,7 +21,7 @@ storagesvc:
   anonymous-upload:
     enable: true
     max-file-size: 104857600    # 1024 * 1024 * 100 (100MB)
-  storage-mode: object          # object or file
+  storage-mode: file          # object or file
   file-storage:
     upload-directory: uploads
   object-storage:

@@ -9,17 +9,16 @@ data class StorageFile(
         val bucket: String,         // bucket_name
         val storagePath: String,        // the directory
         val originalFilename: String,   // original file name
-        val filename: String,           // UUID file name (to distinct as well as change name of file to prevent hacker from finding it)
         val fileContentType: String?,   // content type
         val fileLength: Long,           // file size
         val storageId: String? = null,  // group ID for all the files that are uploaded at the same time
         @Id val id: String? = null      // mongoDB ID
 ) {
     fun getFullStoragePath(): String {
-        return Paths.get(bucket).resolve(storagePath).resolve(filename).toString()
+        return Paths.get(bucket).resolve(storagePath).resolve(originalFilename).toString()
     }
 
     fun getFileStoragePath(): String {
-        return Paths.get(storagePath).resolve(filename).toString()
+        return Paths.get(storagePath).resolve(originalFilename).toString()
     }
 }
