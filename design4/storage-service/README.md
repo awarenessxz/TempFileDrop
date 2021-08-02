@@ -32,7 +32,7 @@ Storage Service that provides REST API Endpoints for **uploading, downloading an
 
 | Property Group | Property | Remarks |
 | --- | --- | --- |
-| storagesvc | storage-mode | Choice of storage mode = file / object |
+| storagesvc | storage-mode | Choice of storage mode = file / minio |
 | storagesvc.anonymous-upload | enable | enable anonymous upload |
 | storagesvc.anonymous-upload | max-file-size | maximum file upload size for anonymous uploads |
 | storagesvc.file-storage | upload-directory | directory to upload files to |

@@ -26,12 +26,12 @@ import javax.servlet.http.HttpServletResponse
 import kotlin.collections.ArrayList
 
 @Service
-@ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "object")
-class ObjectStorageServiceImpl(
+@ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "minio")
+class MinioStorageServiceImpl(
         private val minioClient: MinioClient,
 ): StorageService() {
     companion object {
-        private val logger = LoggerFactory.getLogger(ObjectStorageServiceImpl::class.java)
+        private val logger = LoggerFactory.getLogger(MinioStorageServiceImpl::class.java)
     }
 
     override fun initStorage() { }

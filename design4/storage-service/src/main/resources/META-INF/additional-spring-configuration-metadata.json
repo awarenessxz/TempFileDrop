@@ -3,8 +3,8 @@
         {
             "name": "storagesvc.storage-mode",
             "type": "java.lang.String",
-            "description": "File Storage / Object Storage.",
-            "defaultValue": "object"
+            "description": "File Storage / Minio Storage.",
+            "defaultValue": "minio"
         },
         {
             "name": "storagesvc.file-storage.upload-directory",
@@ -55,8 +55,8 @@
                     "description": "File Storage."
                 },
                 {
-                    "value": "object",
-                    "description": "Object Storage."
+                    "value": "minio",
+                    "description": "Minio Storage."
                 }
             ]
         }
