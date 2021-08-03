@@ -1,0 +1,40 @@
+version: '3.7'
+
+services:
+  envoy:
+    image: envoyproxy/envoy:v1.19-latest
+    environment:
+      - KEYCLOAK_URL=http://localhost:8080
+      - KEYCLOAK_HOST=localhost
+      - KEYCLOAK_PROTOCOL=http
+      - KEYCLOAK_PORT=8080
+      - KEYCLOAK_REALM=storage
+      - SERVICE_NAME=storage-gateway
+      - SERVICE_HOST=localhost
+      - SERVICE_PORT=9090
+      - SERVICE_HEALTHCHECK_PATH=/health
+      - SERVICE_HEALTHCHECK_PORT=8081
+      - OPA_HOST=localhost
+      - OPA_PORT=9191
+      - DISABLE_JWT_AUTHN
+      - ENVOY_LOG_LEVEL=info
+      - ENVOY_HEALTHCHECK_PORt=8070
+      - ENVOY_PORT=80
+      - TIMEOUT=15s
+    ports:
+      - 80:80
+      - 8070:8070
+    volumes:
+    - ./envoy.yaml:/etc/envoy/envoy.yaml
+
+  opa:
+    image: openpolicyagent/opa:0.24.0-envoy
+    volumes:
+      - ./policy.rego:/config/policy.rego
+    command:
+      - "run"
+      - "--log-format=json-pretty"
+      - "--set=decision_logs.console=true"
+      - "--server"
+      - "--set=plugins.envoy_ext_authz_grpc.addr=:9191"
+      - "/config/policy.rego"
