@@ -8,7 +8,7 @@ import java.time.ZonedDateTime
 data class EventData(
         val bucket: String,                        // Bucket
         val storageId: String,                     // Storage Id
-        val storageFiles: String,                  // files inside storage id
+        val originalFilename: String,              // filename
         val eventType: String,                     // event Type (upload / download / delete)
         val publishedDateTime: ZonedDateTime,      // datetime event was published
         @Id val id: String? = null                 // mongoDB ID

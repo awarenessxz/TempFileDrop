@@ -19,20 +19,17 @@ class RabbitMQProducer(
         private val logger = LoggerFactory.getLogger(RabbitMQProducer::class.java)
     }
 
-    fun sendEvent(eventType: EventType, storageInfo: StorageInfo, data: String) {
+    fun sendEvent(eventType: EventType, storageInfo: StorageInfo, customData: String) {
         logger.info("Publishing Event ($eventType.name) to $STORAGE_SERVICE_CHANNEL")
-        val message = EventMessage(eventType.name, storageInfo.id.toString(), storageInfo.storagePath, storageInfo.filenames, storageInfo.bucket, data)
+        val message = EventMessage(eventType.name, customData, storageInfo.id, storageInfo.originalFilename, storageInfo.bucket, storageInfo.storageFullPath!!)
         streamBridge.send(STORAGE_SERVICE_CHANNEL, message)
         eventDataService.writeToDB(message)
     }
 
-    fun sendEventwithHeader(eventType: EventType, storageInfo: StorageInfo, data: String, routingKey: String, requiresAuth: Boolean) {
-        val message = EventMessage(eventType.name, storageInfo.id.toString(), storageInfo.storagePath, storageInfo.filenames, storageInfo.bucket, data)
+    fun sendEventwithHeader(eventType: EventType, storageInfo: StorageInfo, customData: String) {
+        val message = EventMessage(eventType.name, customData, storageInfo.id, storageInfo.originalFilename, storageInfo.bucket, storageInfo.storageFullPath!!)
+        val routingKey = storageInfo.bucket
         logger.info("Publishing Event (${eventType.name}) to $STORAGE_SERVICE_CHANNEL with router Key ($routingKey)")
-        // validate routing key
-        if (requiresAuth) {
-            StorageUtils.validateRoutingKeysWithJwtToken(routingKey)
-        }
         // publish
         streamBridge.send(STORAGE_SERVICE_CHANNEL, MessageBuilder.createMessage(
                 message,

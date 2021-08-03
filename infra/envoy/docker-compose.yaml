@@ -3,6 +3,11 @@ version: '3.7'
 services:
   envoy:
     image: envoyproxy/envoy:v1.19-latest
+    container_name: envoy
+    hostname: envoy
+    restart: unless-stopped
+    networks:
+      - proxy-net
     environment:
       - KEYCLOAK_URL=http://localhost:8080
       - KEYCLOAK_HOST=localhost
@@ -25,16 +30,9 @@ services:
       - 80:80
       - 8070:8070
     volumes:
-    - ./envoy.yaml:/etc/envoy/envoy.yaml
+      - ./envoy.yaml:/etc/envoy/envoy.yaml
 
-  opa:
-    image: openpolicyagent/opa:0.24.0-envoy
-    volumes:
-      - ./policy.rego:/config/policy.rego
-    command:
-      - "run"
-      - "--log-format=json-pretty"
-      - "--set=decision_logs.console=true"
-      - "--server"
-      - "--set=plugins.envoy_ext_authz_grpc.addr=:9191"
-      - "/config/policy.rego"
+networks:
+  proxy-net:
+    external:
+      name: tempfiledrop_bridge

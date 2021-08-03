@@ -2,31 +2,24 @@ version: '3.7'
 
 services:
   opa-server:
-    image: openpolicyagent/opa
+    image: openpolicyagent/opa:0.24.0-envoy
     container_name: opa-server
     hostname: opa-server
     restart: unless-stopped
     networks:
       - proxy-net
-    environment:
-      - DOCKER_MODS=linuxserver/mods:openssh-server-ssh-tunnel
-      - PUID=1000
-      - PGID=1000
-      - TZ=Asia/Singapore
-      - SUDO_ACCESS=true
-      - PASSWORD_ACCESS=true
-      - USER_PASSWORD=dev
-      - USER_NAME=dev
     command:
       - "run"
       - "--server"
+      - "--set=decision_logs.console=true"
+      - "--log-format=json-pretty"
       - "--log-level=debug"
-      - "--log-format=json"
-      - "policy.rego"
+      - "--set=plugins.envoy_ext_authz_grpc.addr=:9191"
+      - "/config/policy.rego"
     ports:
       - 8181:8181
     volumes:
-      - ./policy/req_authz.rego:/policy.rego
+      - ./policy/req_authz.rego:/config/policy.rego
 
 networks:
   proxy-net:

@@ -12,8 +12,7 @@ import org.springframework.security.web.server.header.XFrameOptionsServerHttpHea
 @Configuration
 @EnableWebFluxSecurity
 class SecurityConfig(
-        private val gatewayProps: GatewayProperties,
-        private val authorizationManager: OpaReactiveAuthorizationManager
+        private val gatewayProps: GatewayProperties
 ) {
     @Bean
     fun springSecurityFilterChain(http: ServerHttpSecurity): SecurityWebFilterChain {
@@ -21,7 +20,6 @@ class SecurityConfig(
         http.authorizeExchange()
                 .pathMatchers(*gatewayProps.whitelist.toTypedArray()).permitAll()
                 .anyExchange().authenticated()
-                .anyExchange().access(authorizationManager)
         http.oauth2Login(withDefaults()) // Authenticate through configured OpenID Provider
         http.oauth2ResourceServer { obj -> obj.jwt() }  // Token Validation
         http.headers().frameOptions().mode(Mode.SAMEORIGIN)

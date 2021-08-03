@@ -23,14 +23,7 @@ dependencies {
 
 	// Documentation
 	implementation("org.springdoc:springdoc-openapi-ui:1.5.9")
-	implementation("org.springdoc:springdoc-openapi-security:1.5.9")
 	implementation("org.springdoc:springdoc-openapi-kotlin:1.5.9")
-
-	// Security Token
-	implementation("org.springframework.boot:spring-boot-starter-security") // adding authentication filter
-	implementation("io.jsonwebtoken:jjwt:0.9.1") // parsing jwt token
-	implementation("javax.xml.bind:jaxb-api:2.3.1") // parsing jwt token
-	implementation("org.keycloak:keycloak-core") // using Keycloak interfaces
 
 	// Database
 	implementation("org.springframework.boot:spring-boot-starter-data-mongodb") // Mongo Database
@@ -57,7 +50,6 @@ dependencies {
 dependencyManagement {
 	imports {
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2020.0.3")
-		mavenBom("org.keycloak.bom:keycloak-adapter-bom:11.0.2")
 	}
 }
 

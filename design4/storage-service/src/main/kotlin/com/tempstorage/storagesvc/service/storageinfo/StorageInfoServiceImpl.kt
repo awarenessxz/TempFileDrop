@@ -37,6 +37,10 @@ class StorageInfoServiceImpl(
         return repository.findByIdOrNull(storageId)
     }
 
+    override fun getStorageInfoByPath(storagePath: String): StorageInfo? {
+        return repository.findByStorageFullPath(storagePath)
+    }
+
     override fun getBulkStorageInfoById(storageIds: List<String>): List<StorageInfo> {
         val results = repository.findAllById(storageIds)
         return results.map { it }
@@ -52,8 +56,10 @@ class StorageInfoServiceImpl(
                 storageInfo.id,
                 storageInfo.bucket,
                 storageInfo.storagePath,
-                storageInfo.filenames,
-                storageInfo.numOfDownloadsLeft - 1,
+                storageInfo.originalFilename,
+                storageInfo.fileContentType,
+                storageInfo.fileLength,
+                storageInfo.numOfDownloadsLeft,
                 storageInfo.expiryDatetime,
                 storageInfo.allowAnonymousDownload
         )
