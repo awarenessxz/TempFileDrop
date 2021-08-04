@@ -6,39 +6,55 @@ export interface FileUploadMetadata {
     maxDownloads: number;
     expiryPeriod: number;
     allowAnonymousDownload: boolean;
-    eventRoutingKey: string;
     eventData?: string;
 }
 
 export interface FileUploadResponse {
     message: string;
-    storageId: string;
+    storageIdList: string[];
+    storagePathList: string[];
 }
 
 export interface BaseUploadParams {
-    url: string;
     files: File[];
-    onSuccess: (uploadRes: FileUploadResponse) => void;
+    onSuccess?: (uploadRes: FileUploadResponse) => void;
     onError?: (err: any) => void;
     headers?: any;
+    url?: string;
     onUploadPercentage?: (percentage: number) => void;
+}
+
+interface FinalUploadParams {
+    onSuccess: (uploadRes: FileUploadResponse) => void;
+    onError: (err: any) => void;
+    headers: any;
+    url: string;
+    onUploadPercentage: (percentage: number) => void;
+    formData: FormData;
 }
 
 export interface UploadParams extends BaseUploadParams {
     metadata: FileUploadMetadata;
 }
 
-type UploadToStorageServiceParams = Omit<UploadParams, "metadata"|"files"> & { formData: FormData }
+export type AnonymousUploadParams = BaseUploadParams;
 
-const uploadToStorageService = (params: UploadToStorageServiceParams) => {
+interface FinalUploadParams {
+    onSuccess: (uploadRes: FileUploadResponse) => void;
+    onError: (err: any) => void;
+    headers: any;
+    url: string;
+    onUploadPercentage: (percentage: number) => void;
+    formData: FormData;
+}
+
+const uploadToStorageService = (params: FinalUploadParams) => {
     const options = {
         onUploadProgress: (progressEvent: any) => {
             const {loaded, total} = progressEvent;
             const percent = Math.floor((loaded * 100) / total);
             if (percent <= 100) {
-                if (params.onUploadPercentage) {
-                    params.onUploadPercentage(percent);
-                }
+                params.onUploadPercentage(percent);
             }
         },
         headers: params.headers
@@ -51,31 +67,52 @@ const uploadToStorageService = (params: UploadToStorageServiceParams) => {
                 const uploadResponse: FileUploadResponse = res.data;
                 params.onSuccess(uploadResponse);
             } else {
-                if (params.onError) {
-                    params.onError({
-                        message: "Fail to upload file"
-                    });
-                }
+                params.onError({ message: "Fail to upload file" });
             }
         })
-        .catch(err => {
-            if (params.onError) {
-                params.onError(err);
-            }
-        });
+        .catch(err => params.onError(err));
 };
 
-export const upload = (params: UploadParams) => {
+export const upload = ({
+    files,
+    metadata,
+    onSuccess = (uploadRes: FileUploadResponse) => {},
+    onError = (err: any) => {},
+    headers = {},
+    onUploadPercentage = (percentage: number) => {},
+    url = "/api/storagesvc/upload"
+}: UploadParams) => {
     const formData = new FormData();
-    formData.append("metadata", new Blob([JSON.stringify(params.metadata)], {
+    formData.append("metadata", new Blob([JSON.stringify(metadata)], {
         type: "application/json"
     }));
-    params.files.forEach(file => formData.append("files", file));
-    return uploadToStorageService({ ...params, formData});
+    files.forEach(file => formData.append("files", file));
+    return uploadToStorageService({
+        onSuccess: onSuccess,
+        onError: onError,
+        headers: headers,
+        onUploadPercentage: onUploadPercentage,
+        url: url,
+        formData: formData
+    });
 };
 
-export const uploadAnonymously = (params: BaseUploadParams) => {
+export const uploadAnonymously = ({
+    files,
+    onSuccess = (uploadRes: FileUploadResponse) => {},
+    onError = (err: any) => {},
+    headers = {},
+    onUploadPercentage = (percentage: number) => {},
+    url = "/api/storagesvc/anonymous/upload"
+}: AnonymousUploadParams) => {
     const formData = new FormData();
-    params.files.forEach(file => formData.append("files", file));
-    return uploadToStorageService({ ...params, formData});
+    files.forEach(file => formData.append("files", file));
+    return uploadToStorageService({
+        onSuccess: onSuccess,
+        onError: onError,
+        headers: headers,
+        onUploadPercentage: onUploadPercentage,
+        url: url,
+        formData: formData
+    });
 };

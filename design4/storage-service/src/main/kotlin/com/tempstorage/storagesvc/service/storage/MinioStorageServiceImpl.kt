@@ -1,6 +1,7 @@
 package com.tempstorage.storagesvc.service.storage
 
 import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
+import com.tempstorage.storagesvc.controller.storage.StorageUploadResponse
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
 import com.tempstorage.storagesvc.service.notification.NotificationService
@@ -31,7 +32,7 @@ class MinioStorageServiceImpl(
 
     override fun initStorage() { }
 
-    override fun uploadFilesViaStream(request: HttpServletRequest, storageId: String, isAnonymous: Boolean) {
+    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): StorageUploadResponse {
         logger.info("[MINIO CLUSTER] Uploading files to MinIO Cluster using input streams.....")
         val uploadedFiles = ArrayList<StorageInfo>()
 
@@ -71,7 +72,7 @@ class MinioStorageServiceImpl(
                     )
                     // extract file info
                     val tempFile = StorageInfo(
-                            storageId,
+                            StorageUtils.generateStorageId(),
                             metadata.bucket,
                             metadata.storagePath,
                             item.name,
@@ -94,6 +95,9 @@ class MinioStorageServiceImpl(
 
         // TODO: remove
         notificationService.triggerUploadNotification(uploadedFiles, metadata?.eventData ?: "")
+        val storageIdList = uploadedFiles.map { it.id }
+        val storagePathList = uploadedFiles.map { it.storageFullPath!! }
+        return StorageUploadResponse("Files uploaded successfully", storageIdList, storagePathList)
     }
 
     override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String?) {

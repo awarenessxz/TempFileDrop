@@ -16,7 +16,6 @@ import org.springframework.web.client.RestTemplate
 @RestController
 @RequestMapping("/api/users-upload-info")
 class UserUploadInfoController(
-        @Value("\${tempfiledrop.bucket-name}") private val tempfiledropBucket: String,
         @Value("\${tempfiledrop.storagesvc-url}") private val storageServiceUrl: String,
         private val uploadedFilesRecordService: UserUploadInfoService
 ) {
@@ -25,10 +24,7 @@ class UserUploadInfoController(
     }
 
     @GetMapping("/{username}")
-    fun getUploadedFilesRecords(
-            @PathVariable("username") username: String,
-            @RequestHeader("Authorization") authHeader: String
-    ): ResponseEntity<List<UserUploadInfoResponse>> {
+    fun getUploadedFilesRecords(@PathVariable("username") username: String): ResponseEntity<List<UserUploadInfoResponse>> {
         logger.info("Retrieving records for $username")
         val records = uploadedFilesRecordService.getUploadedFilesRecordsForUser(username)
 
@@ -37,9 +33,8 @@ class UserUploadInfoController(
         if (records.isNotEmpty()) {
             // get information from storage service
             val storageIds = records.map { it.storageId }
-            val request = StorageInfoBulkRequest(tempfiledropBucket, storageIds)
+            val request = StorageInfoBulkRequest(storageIds)
             val httpHeader = HttpHeaders()
-            httpHeader.set("Authorization", authHeader)
             val entity = HttpEntity(request, httpHeader)
             val restTemplate = RestTemplate()
             val response = restTemplate.postForEntity("$storageServiceUrl/api/storagesvc/storageinfo/bulk", entity, StorageInfoBulkResponse::class.java)
@@ -50,7 +45,7 @@ class UserUploadInfoController(
             }
 
             // process records
-            val storageInfoMap = storageInfoList.map { it.storageId to it }.toMap()
+            val storageInfoMap = storageInfoList.map { it.id to it }.toMap()
             records.forEach {
                 if (storageInfoMap.containsKey(it.storageId)) {
                     // get details

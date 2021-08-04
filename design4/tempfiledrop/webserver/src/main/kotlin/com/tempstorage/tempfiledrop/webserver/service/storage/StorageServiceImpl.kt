@@ -24,7 +24,7 @@ class StorageServiceImpl(
     override fun processFilesDeletedEvent(eventMessage: EventMessage) {
         // extract event data which we added from frontend first
         val objectMapper = ObjectMapper().registerKotlinModule()
-        val data = objectMapper.readValue(eventMessage.data, EventDataDelete::class.java)
+        val data = objectMapper.readValue(eventMessage.customData, EventDataDelete::class.java)
 
         // process
         logger.info("Deleting user's upload record...")
@@ -38,7 +38,7 @@ class StorageServiceImpl(
     override fun processFilesUploadedEvent(eventMessage: EventMessage) {
         // extract event data which we added from frontend first
         val objectMapper = ObjectMapper().registerKotlinModule()
-        val data = objectMapper.readValue(eventMessage.data, EventDataUpload::class.java)
+        val data = objectMapper.readValue(eventMessage.customData, EventDataUpload::class.java)
 
         // store the storage information into database
         logger.info("Adding <user, upload record> mapping to database -->  <${data.username}, ${eventMessage.storageId}>")

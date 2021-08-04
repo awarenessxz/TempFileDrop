@@ -1,28 +1,33 @@
-import { upload, uploadAnonymously, FileUploadMetadata, FileUploadResponse, BaseUploadParams, UploadParams } from "./upload";
-import { download, DownloadInfo, DownloadParams, getDownloadLink, GetDownloadLinkParams } from "./download";
-import { deleteStorageId, DeleteStorageParams } from "./delete";
-import { StorageInfo } from "./storage";
+import { upload, uploadAnonymously, FileUploadMetadata, FileUploadResponse, AnonymousUploadParams, UploadParams } from "./upload";
+import { downloadFileByStorageId, downloadFileByStoragePath, DownloadByStorageIdParams, DownloadByStoragePathParams } from "./download";
+import { deleteFileByStorageId, deleteFileByStoragePath, DeleteStorageIdParams, DeleteStoragePathParams } from "./delete";
+import { getStorageInfoByStoragePath, getStorageInfoByStorageId, StorageInfo, StorageInfoByStorageIdParams, StorageInfoByStoragePathParams } from "./storage";
 import { extractFilenameFromContentDisposition } from "./utils/file-utils";
 
 const StorageClient = {
-    download,
-    getDownloadLink,
+    downloadFileByStorageId,
+    downloadFileByStoragePath,
     upload,
     uploadAnonymously,
     extractFilenameFromContentDisposition,
-    deleteStorageId
+    deleteFileByStorageId,
+    deleteFileByStoragePath,
+    getStorageInfoByStoragePath,
+    getStorageInfoByStorageId
 };
 
 export {
     FileUploadMetadata,
     FileUploadResponse,
-    BaseUploadParams,
+    AnonymousUploadParams,
     UploadParams,
-    DownloadInfo,
-    DownloadParams,
-    GetDownloadLinkParams,
-    DeleteStorageParams,
-    StorageInfo
+    DownloadByStorageIdParams,
+    DownloadByStoragePathParams,
+    DeleteStorageIdParams,
+    DeleteStoragePathParams,
+    StorageInfo,
+    StorageInfoByStorageIdParams,
+    StorageInfoByStoragePathParams
 };
 
 export default StorageClient;

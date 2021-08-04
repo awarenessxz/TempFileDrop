@@ -2,6 +2,7 @@ package com.tempstorage.storagesvc.service.storage
 
 import com.tempstorage.storagesvc.config.StorageSvcProperties
 import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
+import com.tempstorage.storagesvc.controller.storage.StorageUploadResponse
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
 import com.tempstorage.storagesvc.service.notification.NotificationService
@@ -59,7 +60,7 @@ class FileStorageServiceImpl(
     }
 
     @ExperimentalPathApi
-    override fun uploadFilesViaStream(request: HttpServletRequest, storageId: String, isAnonymous: Boolean) {
+    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): StorageUploadResponse {
         logger.info("[FILE SYSTEM] Uploading files to Folder Storage using input stream.....")
         val uploadedFiles = ArrayList<StorageInfo>()
 
@@ -101,7 +102,7 @@ class FileStorageServiceImpl(
                     Files.copy(item.openStream(), filepath)
                     // extract file info
                     val tempFile = StorageInfo(
-                            storageId,
+                            StorageUtils.generateStorageId(),
                             metadata.bucket,
                             metadata.storagePath,
                             item.name,
@@ -122,6 +123,9 @@ class FileStorageServiceImpl(
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
         }
         notificationService.triggerUploadNotification(uploadedFiles, metadata?.eventData ?: "")
+        val storageIdList = uploadedFiles.map { it.id }
+        val storagePathList = uploadedFiles.map { it.storageFullPath!! }
+        return StorageUploadResponse("Files uploaded successfully", storageIdList, storagePathList)
     }
 
     override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String?) {

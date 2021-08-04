@@ -1,11 +1,10 @@
 import moment from "moment";
 import React, { MouseEvent, useEffect, useState } from "react";
 import { RouteComponentProps } from 'react-router-dom';
-import StorageClient, { DownloadInfo } from "storage-js-client";
+import StorageClient, { StorageInfo } from "storage-js-client";
 import Alert from "react-bootstrap/cjs/Alert";
 import Button from "react-bootstrap/cjs/Button";
 import Container from "react-bootstrap/cjs/Container";
-import Data from "../../config/app.json";
 import { useAuthState } from "../../utils/auth-context";
 import "./DownloadPage.css";
 
@@ -23,19 +22,18 @@ const DownloadPage = (props: DownloadPageProps) => {
     const [errorMsg, setErrorMsg] = useState("");
     const [disableBtn, setDisableBtn] = useState(false);
     const [refreshToggle, setRefreshToggle] = useState(false);
-    const [downloadInfo, setDownloadInfo] = useState<DownloadInfo | null>(null);
+    const [storageInfo, setStorageInfo] = useState<StorageInfo | null>(null);
 
     useEffect(() => {
+        console.log("REFRESHINGG!!");
         if (isAuthReady) {
             // retrieve information about the download
-            StorageClient.getDownloadLink({
-                url: `${Data.api_endpoints.storagesvc_get_downloadlink}/${props.match.params.storageId}`,
-                onSuccess: (downloadInfo: DownloadInfo) => {
-                    setDownloadInfo(downloadInfo);
-                },
+            StorageClient.getStorageInfoByStorageId({
+                storageId: props.match.params.storageId,
+                onSuccess: (info: StorageInfo) => setStorageInfo(info),
                 onError: (err) => {
                     console.log(err);
-                    setErrorMsg("Download Link is no longer available!");
+                    setErrorMsg("Download Link is no longer available");
                 }
             });
         }
@@ -45,19 +43,18 @@ const DownloadPage = (props: DownloadPageProps) => {
     const handleDownload = (e: MouseEvent<HTMLButtonElement>) => {
         setSuccessMsg("");
         setDisableBtn(true);
-        if (downloadInfo !== null) {
+        if (storageInfo !== null) {
             const token = window.accessToken ? window.accessToken : "dummy_token";
-            StorageClient.download({
-                url: downloadInfo.downloadEndpoint,
-                eventRoutingKey: isAuthenticated ? Data.rabbitmq.routingkey : "",
-                headers: downloadInfo.requiresAuthentication ? { 'Authorization': 'Bearer ' + token } : {},
-                onError(err: any): void {
+            StorageClient.downloadFileByStorageId({
+                storageId: storageInfo.id,
+                headers: isAuthenticated ? { 'Authorization': 'Bearer ' + token } : {},
+                onError: (err: any) => {
                     console.log(err);
                     if (err.response && err.response.status === 401) {
                         setErrorMsg("Authentication Required!");
                     }
                 },
-                onSuccess(): void {
+                onSuccess: () => {
                     setSuccessMsg("You have downloaded the files!");
                     setDisableBtn(false);
                     setRefreshToggle(!refreshToggle);
@@ -78,7 +75,7 @@ const DownloadPage = (props: DownloadPageProps) => {
                     </Alert>
                 ) : (
                     <div className="download-info-box">
-                    {(downloadInfo && downloadInfo.requiresAuthentication && !isAuthenticated) ? (
+                    {(storageInfo && !isAuthenticated) ? (
                         <Alert variant="danger">
                             <strong>Authentication Required to download files</strong>
                         </Alert>
@@ -89,7 +86,7 @@ const DownloadPage = (props: DownloadPageProps) => {
                               Download
                           </Button>
                           <Alert variant="warning">
-                              <strong>Please Note: </strong>Files will be deleted from our server after <strong>{downloadInfo?.numOfDownloadsLeft}</strong> more downloads or after <strong>{moment(downloadInfo?.expiryDatetime).format("DD MMM YYYY h:mma")}</strong>
+                              <strong>Please Note: </strong>Files will be deleted from our server after <strong>{storageInfo?.numOfDownloadsLeft}</strong> more downloads or after <strong>{moment(storageInfo?.expiryDatetime).format("DD MMM YYYY h:mma")}</strong>
                           </Alert>
                       </React.Fragment>
                     )}

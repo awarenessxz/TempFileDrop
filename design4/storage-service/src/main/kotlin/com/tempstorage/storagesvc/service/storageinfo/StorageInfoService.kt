@@ -4,7 +4,7 @@ interface StorageInfoService {
     fun addStorageInfo(storageInfo: StorageInfo)
     fun deleteStorageInfoById(storageId: String)
     fun deleteStorageInfoByIdBulk(storageIds: List<String>)
-    fun getStorageInfosInBucket(bucket: String): List<StorageInfo>
+    fun getAllStorageInfoInBucket(bucket: String): List<StorageInfo>
     fun getStorageInfoById(storageId: String): StorageInfo?
     fun getStorageInfoByPath(storagePath: String): StorageInfo?
     fun getBulkStorageInfoById(storageIds: List<String>): List<StorageInfo>

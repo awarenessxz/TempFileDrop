@@ -25,7 +25,7 @@ class StorageInfoServiceImpl(
         repository.deleteByIdIn(storageIds)
     }
 
-    override fun getStorageInfosInBucket(bucket: String): List<StorageInfo> {
+    override fun getAllStorageInfoInBucket(bucket: String): List<StorageInfo> {
         return repository.findByBucket(bucket)
     }
 
@@ -59,7 +59,7 @@ class StorageInfoServiceImpl(
                 storageInfo.originalFilename,
                 storageInfo.fileContentType,
                 storageInfo.fileLength,
-                storageInfo.numOfDownloadsLeft,
+                storageInfo.numOfDownloadsLeft - 1,
                 storageInfo.expiryDatetime,
                 storageInfo.allowAnonymousDownload
         )

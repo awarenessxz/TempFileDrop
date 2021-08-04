@@ -50,11 +50,10 @@ const Dashboard = () => {
 
         // call backend
         const token = window.accessToken ? window.accessToken : "dummy_token";
-        StorageClient.deleteStorageId({
-            url: `${Data.api_endpoints.storagesvc}/${Data.bucket}/${storageId}`,
+        StorageClient.deleteFileByStorageId({
+            storageId: storageId,
             headers: { 'Authorization': 'Bearer ' + token },
             eventData: JSON.stringify({ recordId: recordId }),
-            eventRoutingKey: Data.rabbitmq.routingkey,
             onSuccess: () => {
                 setMessage("Delete Success!");
                 setIsError(false);
@@ -68,9 +67,8 @@ const Dashboard = () => {
 
     const handleDownloadRecord = (storageId: string) => {
         const token = window.accessToken ? window.accessToken : "dummy_token";
-        StorageClient.download({
-            url: `${Data.api_endpoints.storagesvc_download}/secure/${Data.bucket}/${storageId}`,
-            eventRoutingKey: Data.rabbitmq.routingkey,
+        StorageClient.downloadFileByStorageId({
+            storageId: storageId,
             headers: { 'Authorization': 'Bearer ' + token },
             onError(err: any): void {
                 console.log(err);
@@ -126,16 +124,16 @@ const Dashboard = () => {
                         {records.map((record, idx) => (
                             <tr key={idx}>
                                 <td>{idx+1}</td>
-                                <td>{record.storageInfo.filenames}</td>
+                                <td>{record.storageInfo.originalFilename}</td>
                                 <td>{record.storageInfo.numOfDownloadsLeft}</td>
                                 <td>{moment(record.storageInfo.expiryDatetime).format("DD MMM YYYY h:mma")}</td>
                                 <td>{record.storageInfo.allowAnonymousDownload ? "Yes" : "No"}</td>
-                                <td><Link to={`/download/${record.storageInfo.storageId}`}>{joinURLs(window.location.origin, "download", record.storageInfo.storageId)}</Link></td>
+                                <td><Link to={`/download/${record.storageInfo.id}`}>{joinURLs(window.location.origin, "download", record.storageInfo.id)}</Link></td>
                                 <td className="action-btn-group">
-                                    <Button className="action-btn" size="sm" variant="info" onClick={() => handleDownloadRecord(record.storageInfo.storageId)}>
+                                    <Button className="action-btn" size="sm" variant="info" onClick={() => handleDownloadRecord(record.storageInfo.id)}>
                                         <FaDownload />
                                     </Button>
-                                    <Button className="action-btn" size="sm" variant="danger" onClick={() => handleDeleteRecord(idx, record.id, record.storageInfo.storageId)}>
+                                    <Button className="action-btn" size="sm" variant="danger" onClick={() => handleDeleteRecord(idx, record.id, record.storageInfo.id)}>
                                         <FaTrash />
                                     </Button>
                                 </td>

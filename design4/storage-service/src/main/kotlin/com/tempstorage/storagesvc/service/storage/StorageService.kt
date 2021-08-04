@@ -1,5 +1,6 @@
 package com.tempstorage.storagesvc.service.storage
 
+import com.tempstorage.storagesvc.controller.storage.StorageUploadResponse
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
@@ -21,7 +22,7 @@ abstract class StorageService {
     }
 
     abstract fun initStorage()
-    abstract fun uploadFilesViaStream(request: HttpServletRequest, storageId: String, isAnonymous: Boolean)
+    abstract fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): StorageUploadResponse
     abstract fun deleteFile(storageInfo: StorageInfo, eventData: String? = "")
     abstract fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String? = "")
 //    abstract fun downloadFilesAsZip(storageInfo: StorageInfo, storageFiles: List<StorageFile>, response: HttpServletResponse, eventData: String? = "")
@@ -34,17 +35,21 @@ abstract class StorageService {
         this.storageInfoService = storageInfoService
     }
 
-//    fun getAllBuckets(): List<String> {
-//        return storageInfoService.getBuckets()
-//    }
-//
-//    fun getAllStorageInfo(bucket: String? = null): List<StorageInfo> {
-//        var allStorageInfoList = storageInfoService.getAllStorageInfo()
-//        if (bucket != null) {
-//            allStorageInfoList = allStorageInfoList.filter { it.bucket == bucket }
-//        }
-//        return allStorageInfoList.filter { checkIfStorageFileIsAvailable(it) }
-//    }
+    fun getAllBuckets(): List<String> {
+        return storageInfoService.getBuckets()
+    }
+
+    fun getAllStorageInfoFromBucket(bucket: String): List<StorageInfo> {
+        val results = storageInfoService.getAllStorageInfoInBucket(bucket)
+        return results.filter { validateStorageInfo(it, false) }
+    }
+
+    fun getStorageInfoFromBucket(storageId: String, storagePath: String, throwError: Boolean? = true): StorageInfo {
+        val storageInfo = getStorageInfoFromDatabase(storageId, storagePath)
+        validateStorageInfo(storageInfo, throwError)
+        return storageInfo
+    }
+
 //
 //    // convert list of all storage in bucket into folder like structure
 //    fun listFilesAndFoldersInBucket(bucket: String): FileSystemNode {
@@ -59,26 +64,16 @@ abstract class StorageService {
 //        }
 //        return StorageUtils.buildFolderTreeStructure(bucket, filesystemNodes)
 //    }
-//
-//    fun getStorageInfoFromBucket(bucket: String, storageId: String): StorageInfo {
-//        return getAndValidateStorageInfo(storageId, bucket)
-//    }
-//
-//    fun getMultipleStorageInfoFromBucket(bucket: String, storageIdList: List<String>): List<StorageInfo> {
-//        val storageInfoList = storageInfoService.getBulkStorageInfoById(storageIdList)
-//        if (storageInfoList.any { it.bucket != bucket}) {
-//            throw ApiException("Storage Id not available in Bucket!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
-//        }
-//        return storageInfoList.filter { checkIfStorageFileIsAvailable(it) }
-//    }
 
     fun deleteFromBucket(storageId: String, storagePath: String, eventData: String) {
-        val storageInfo = getAndValidateStorageInfo(storageId, storagePath)
+        val storageInfo = getStorageInfoFromDatabase(storageId, storagePath)
+        validateStorageInfo(storageInfo)
         deleteFile(storageInfo, eventData)
     }
 
     fun downloadFileFromBucket(storageId: String, storagePath: String, response: HttpServletResponse, eventData: String) {
-        val storageInfo = getAndValidateStorageInfo(storageId, storagePath)
+        val storageInfo = getStorageInfoFromDatabase(storageId, storagePath)
+        validateStorageInfo(storageInfo)
         // download
         response.contentType = storageInfo.fileContentType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE
         // response.setContentLengthLong(storageFile.fileLength)
@@ -87,17 +82,21 @@ abstract class StorageService {
     }
 
     // upload via apache commons fileupload streaming api
-    fun uploadViaStreamToBucket(request: HttpServletRequest, isAnonymous: Boolean = false): String {
+    fun uploadViaStreamToBucket(request: HttpServletRequest, isAnonymous: Boolean = false): StorageUploadResponse {
         val isMultipart = ServletFileUpload.isMultipartContent(request)
         if (!isMultipart) {
             throw ApiException("Invalid Multipart Request", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         }
-        val storageId = StorageUtils.generateStorageId() // generate storage Id
-        uploadFilesViaStream(request, storageId, isAnonymous) // upload file
-        return storageId
+        return uploadFilesViaStream(request, isAnonymous) // upload file
     }
 
-    private fun getAndValidateStorageInfo(storageId: String, storagePath: String): StorageInfo {
+    /*******************************************************************************************************
+     *                                                                                                     *
+     * INTERNAL FUNCTION                                                                                   *
+     *                                                                                                     *
+     *******************************************************************************************************/
+
+    private fun getStorageInfoFromDatabase(storageId: String, storagePath: String): StorageInfo {
         return if (storageId.isNotEmpty()) {
             storageInfoService.getStorageInfoById(storageId) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
         } else if (storagePath.isNotEmpty()) {
@@ -107,27 +106,17 @@ abstract class StorageService {
         }
     }
 
-//
-//    private fun checkIfStorageFileIsAvailable(storageInfo: StorageInfo): Boolean {
-//        if (storageInfo.numOfDownloadsLeft <= 0 || storageInfo.expiryDatetime.isBefore(ZonedDateTime.now())) {
-//            // storage expired. Delete the records and objects
-//            val storageFiles = storageFileService.getStorageFilesInfoByStorageId(storageInfo.id)
-//            if (storageFiles.isEmpty()) {
-//                throw ApiException("Files details are not found in database", ErrorCode.SERVER_ERROR, HttpStatus.INTERNAL_SERVER_ERROR) // should not occur! If it occurs, means files information in database is missing
-//            }
-//            deleteFiles(storageFiles, storageInfo)
-//            storageFileService.deleteFilesInfo(storageInfo.id)
-//            storageInfoService.deleteStorageInfoById(storageInfo.id)
-//            return false
-//        }
-//        return true
-//    }
-//
-//    private fun getAndValidateStorageFiles(storageInfo: StorageInfo): List<StorageFile> {
-//        val storageFiles = storageFileService.getStorageFilesInfoByStorageId(storageInfo.id)
-//        if (storageFiles.isEmpty()) {
-//            throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
-//        }
-//        return storageFiles
-//    }
+    private fun validateStorageInfo(storageInfo: StorageInfo, throwError: Boolean? = true): Boolean {
+        var isValid = true
+        if (storageInfo.numOfDownloadsLeft <= 0 || storageInfo.expiryDatetime.isBefore(ZonedDateTime.now())) {
+            // storage expired. Delete the records and objects
+            deleteFile(storageInfo)
+            storageInfoService.deleteStorageInfoById(storageInfo.id)
+            isValid = false
+        }
+        if (throwError!! && !isValid) {
+            throw ApiException("File have expired!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
+        }
+        return isValid
+    }
 }

@@ -5,7 +5,8 @@
   "main": "./lib/index.js",
   "types": "./lib/index.d.ts",
   "scripts": {
-    "build": "tsc",
+    "build": "yarn run build:clean && tsc",
+    "build:clean": "rm -rf lib",
     "lint": "eslint . --ext .ts"
   },
   "license": "MIT",

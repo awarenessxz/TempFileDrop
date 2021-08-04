@@ -40,8 +40,8 @@ const FileDropzone = ({
     const [uploadPercentage, setUploadPercentage] = useState(0);
     const [maxDownloads, setMaxDownloads] = useState<number|"">("");
     const [copiedText, setCopiedText] = useState("Copy to Clipboard");
-    const [downloadLink, setDownloadLink] = useState("");
-    const downloadLinkRef = useRef(null);
+    const [downloadLinks, setDownloadLinks] = useState<string[]>([]);
+    const downloadLinksRef = useRef<(HTMLInputElement|null)[]>([]);
     const anonDownloadRef = useRef(null);
     const selectRef = useRef(null);
 
@@ -52,7 +52,7 @@ const FileDropzone = ({
 
         const handleUploadSuccess = (uploadRes: FileUploadResponse) => {
             setLoading(false);
-            setDownloadLink(joinURLs(window.location.origin, "download", uploadRes.storageId));
+            setDownloadLinks(uploadRes.storageIdList.map(id => joinURLs(window.location.origin, "download", id)));
             setUploadRes(uploadRes);
         };
 
@@ -72,12 +72,10 @@ const FileDropzone = ({
                 maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
                 expiryPeriod,
                 allowAnonymousDownload: anonDownload,
-                eventRoutingKey: Data.rabbitmq.routingkey,
                 eventData: JSON.stringify({ username: userToken?.username })
             };
             const token = window.accessToken ? window.accessToken : "dummy_token";
             StorageClient.upload({
-                url: Data.api_endpoints.storagesvc_upload,
                 files: acceptedFiles,
                 metadata: metadata,
                 headers: {
@@ -89,7 +87,6 @@ const FileDropzone = ({
             });
         } else {
             StorageClient.uploadAnonymously({
-                url: Data.api_endpoints.storagesvc_upload_anonymous,
                 files: acceptedFiles,
                 onUploadPercentage: (percentage) => setUploadPercentage(percentage),
                 onError: handleUploadFailure,
@@ -98,10 +95,10 @@ const FileDropzone = ({
         }
     };
 
-    const copyToClipboard = (e: MouseEvent<HTMLButtonElement>) => {
-        if (downloadLinkRef.current !== null) {
+    const copyToClipboard = (idx: number) => {
+        if (downloadLinksRef.current !== null) {
             // @ts-ignore
-            downloadLinkRef.current.select();
+            downloadLinksRef.current[idx].select();
             document.execCommand('copy');
             setCopiedText("Copied!");
         }
@@ -142,13 +139,19 @@ const FileDropzone = ({
                     <div className="dropzone-box message-success">
                         {uploadRes.message}
                         <div className="dropzone-share-link">
-                            <input ref={downloadLinkRef} value={downloadLink} onChange={() => {}}/>
-                            <div className="copy-tooltip">
-                                <Button onClick={copyToClipboard} onMouseOut={() => setCopiedText("Copy to Clipboard")}>
-                                    <span className="copy-tooltiptext">{copiedText}</span>
-                                    <FaCopy />
-                                </Button>
-                            </div>
+                            {downloadLinks.map((downloadLink, idx) => {
+                                return (
+                                    <React.Fragment>
+                                        <input ref={(ref) => downloadLinksRef.current.push(ref)} value={downloadLink} onChange={() => {}}/>
+                                        <div className="copy-tooltip">
+                                            <Button onClick={() => copyToClipboard(idx)} onMouseOut={() => setCopiedText("Copy to Clipboard")}>
+                                                <span className="copy-tooltiptext">{copiedText}</span>
+                                                <FaCopy />
+                                            </Button>
+                                        </div>
+                                    </React.Fragment>
+                                );
+                            })}
                         </div>
                     </div>
                 )}

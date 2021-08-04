@@ -7,6 +7,7 @@ import com.tempstorage.storagesvc.service.eventdata.EventData
 import com.tempstorage.storagesvc.service.eventdata.EventDataService
 import com.tempstorage.storagesvc.service.storage.StorageService
 import com.tempstorage.storagesvc.service.storage.FileSystemNode
+import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -46,6 +47,41 @@ class StorageController(
 //        return ResponseEntity(filesystemNode, HttpStatus.OK)
 //    }
 
+    @Operation(summary = "Get all files in bucket")
+    @GetMapping("/{bucket}")
+    fun getAllStorageInfoInBucket(@PathVariable("bucket") bucket: String): ResponseEntity<List<StorageInfo>> {
+        logger.info("Receiving Request to get all StorageInfo inside $bucket")
+        val storageInfoList = storageService.getAllStorageInfoFromBucket(bucket)
+        return ResponseEntity(storageInfoList, HttpStatus.OK)
+    }
+
+    @Operation(summary = "Get Storage Information based on storageId or storagePath")
+    @ApiResponses(value = [
+        ApiResponse(description = "Successful operation", responseCode = "200"),
+        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
+    ])
+    @GetMapping("/", produces = ["application/json"])
+    fun getStorageInfoByStorageId(
+            @RequestParam(value = "storageId", required = false, defaultValue = "") storageId: String,
+            @RequestParam(value = "storagePath", required = false, defaultValue = "") storagePath: String
+    ): ResponseEntity<StorageInfo> {
+        logger.info("Retrieving file information....")
+        val storageInfo = storageService.getStorageInfoFromBucket(storageId, storagePath)
+        return ResponseEntity(storageInfo, HttpStatus.OK)
+    }
+
+    @Operation(summary = "Get Multiple Storage Information based on list of storageId")
+    @ApiResponses(value = [
+        ApiResponse(description = "Successful operation", responseCode = "200"),
+        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
+    ])
+    @PostMapping("/storageinfo/bulk")
+    fun getMultipleStorageInfoByStorageId(@RequestBody storageInfoBulkReq: StorageInfoBulkRequest): ResponseEntity<StorageInfoBulkResponse> {
+        logger.info("Bulk request for retrieving file information....")
+        val storageInfoList = storageInfoBulkReq.storageIdList.map { storageService.getStorageInfoFromBucket(it, "", false) }
+        return ResponseEntity(StorageInfoBulkResponse(storageInfoList), HttpStatus.OK)
+    }
+
     @Operation(summary = "Upload single or multiple files to storage service")
     @ApiResponses(value = [
         ApiResponse(description = "File were uploaded successfully", responseCode = "200"),
@@ -56,8 +92,7 @@ class StorageController(
     @PostMapping("/upload")
     fun uploadFilesViaStream(request: HttpServletRequest): ResponseEntity<StorageUploadResponse> {
         logger.info("Receiving upload request via stream")
-        val storageId = storageService.uploadViaStreamToBucket(request) // store files
-        val response = StorageUploadResponse("Files uploaded successfully", storageId)
+        val response = storageService.uploadViaStreamToBucket(request) // store files
         return ResponseEntity(response, HttpStatus.OK)
     }
 
@@ -68,9 +103,9 @@ class StorageController(
     ])
     @GetMapping("/download")
     fun downloadFile(
-            @RequestParam(required = false, defaultValue = "") storageId: String,
-            @RequestParam(required = false, defaultValue = "") storagePath: String,
-            @RequestParam(required = false, defaultValue = "") eventData: String,
+            @RequestParam(value = "storageId", required = false, defaultValue = "") storageId: String,
+            @RequestParam(value = "storagePath", required = false, defaultValue = "") storagePath: String,
+            @RequestParam(value = "eventData", required = false, defaultValue = "") eventData: String,
             response: HttpServletResponse
     ) {
         logger.info("Downloading files....")
@@ -84,51 +119,15 @@ class StorageController(
     ])
     @DeleteMapping("/")
     fun deleteFilesInBucket(
-            @RequestParam(required = false, defaultValue = "") storageId: String,
-            @RequestParam(required = false, defaultValue = "") storagePath: String,
-            @RequestParam(required = false, defaultValue = "") eventData: String,
+            @RequestParam(value = "storageId", required = false, defaultValue = "") storageId: String,
+            @RequestParam(value = "storagePath", required = false, defaultValue = "") storagePath: String,
+            @RequestParam(value = "eventData", required = false, defaultValue = "") eventData: String,
     ): ResponseEntity<String> {
         logger.info("Deleting files....")
         storageService.deleteFromBucket(storageId, storagePath, eventData)
         return ResponseEntity("Files deleted successfully", HttpStatus.OK)
     }
 
-//    @Operation(summary = "Get list of storage information from bucket")
-//    @GetMapping("/storageinfo/{bucket}")
-//    fun getAllStorageInfoInBucket(@PathVariable("bucket") bucket: String): ResponseEntity<List<StorageInfoResponse>> {
-//        logger.info("Receiving Request to get all StorageInfo inside $bucket")
-//        val storageInfoList = storageService.getAllStorageInfo(bucket)
-//        val response = storageInfoList.map { StorageInfoResponse(it.id, it.filenames, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload) }
-//        return ResponseEntity(response, HttpStatus.OK)
-//    }
-//
-//    @Operation(summary = "Get Storage Information of uploaded files using bucket name and storageId")
-//    @ApiResponses(value = [
-//        ApiResponse(description = "Successful operation", responseCode = "200"),
-//        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
-//    ])
-//    @GetMapping("/storageinfo/{bucket}/{storageId}", produces = ["application/json"])
-//    fun getStorageInfoByStorageId(@PathVariable("bucket") bucket: String, @PathVariable("storageId") storageId: String): ResponseEntity<StorageInfoResponse> {
-//        logger.info("Retrieving Storage Information for $storageId in Bucket $bucket")
-//        val storageInfo = storageService.getStorageInfoFromBucket(bucket, storageId)
-//        val response = StorageInfoResponse(storageId, storageInfo.filenames, storageInfo.numOfDownloadsLeft, storageInfo.expiryDatetime, storageInfo.allowAnonymousDownload)
-//        return ResponseEntity(response, HttpStatus.OK)
-//    }
-//
-//    @Operation(summary = "Get Multiple Storage Information of uploaded files using bucket name and Bulk storageId")
-//    @ApiResponses(value = [
-//        ApiResponse(description = "Successful operation", responseCode = "200"),
-//        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
-//    ])
-//    @PostMapping("/storageinfo/bulk")
-//    fun getMultipleStorageInfoByStorageId(@RequestBody storageInfoReq: StorageInfoBulkRequest): ResponseEntity<StorageInfoBulkResponse> {
-//        logger.info("Retrieving Bulk StorageInfo Request for ${storageInfoReq.storageIdList} in Bucket ${storageInfoReq.bucket}")
-//        val storageInfoList = storageService.getMultipleStorageInfoFromBucket(storageInfoReq.bucket, storageInfoReq.storageIdList)
-//        val result = storageInfoList.map { StorageInfoResponse(it.id, it.filenames, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload) }
-//        val response = StorageInfoBulkResponse(result)
-//        return ResponseEntity(response, HttpStatus.OK)
-//    }
-//
 //    @Operation(summary = "Get all events that were published to message queue for bucket")
 //    @GetMapping("/events/{bucket}")
 //    fun getAllEvents(@PathVariable("bucket") bucket: String): ResponseEntity<List<EventData>> {
