@@ -34,7 +34,8 @@ const expressMiddleWare = router => {
     router.post('/api/storagesvc/anonymous/upload', (request, response) => {
         response.status(200).send({
             message: "Upload Success",
-            storageId: "example-storage-id",
+            storageIdList: ["example-storage-id", "something-id"],
+            storagePathList: ["example/storage/path.json", "testing"],
         });
     });
 
@@ -42,7 +43,8 @@ const expressMiddleWare = router => {
     router.post('/api/storagesvc/upload', (request, response) => {
         response.status(200).send({
             message: "Upload Success",
-            storageId: "example-storage-id",
+            storageIdList: ["example-storage-id", "something-id"],
+            storagePathList: ["example/storage/path.json", "testing"],
         });
     });
 };

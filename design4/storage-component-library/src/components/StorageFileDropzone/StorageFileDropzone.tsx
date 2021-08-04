@@ -68,11 +68,11 @@ const StorageFileDropzone = ({
     const [loading, setLoading] = useState(false);
     const [uploadPercentage, setUploadPercentage] = useState(0);
     const [copiedText, setCopiedText] = useState("Copy to Clipboard");
-    const [downloadLink, setDownloadLink] = useState("");
+    const [downloadLinks, setDownloadLinks] = useState<string[]>([]);
+    const downloadLinksRef = useRef<(HTMLInputElement|null)[]>([]);
     const [maxDownloads, setMaxDownloads] = useState<number|"">("");
     const [isAnonDownloadChecked, setIsAnonDownloadChecked] = useState(false);
     const [expiryPeriodIdx, setExpiryPeriodIdx] = useState(0);
-    const downloadLinkRef = useRef(null);
 
     const handleUpload = (e: MouseEvent<HTMLButtonElement>) => {
         // reset states
@@ -81,7 +81,7 @@ const StorageFileDropzone = ({
 
         const handleUploadSuccess = (uploadRes: FileUploadResponse) => {
             setLoading(false);
-            setDownloadLink(joinURLs(window.location.origin, "download", uploadRes.storageId));
+            setDownloadLinks(uploadRes.storageIdList.map(id => joinURLs(window.location.origin, "download", id)));
             setUploadRes(uploadRes);
             onSuccessfulUploadCallback();
         };
@@ -94,7 +94,6 @@ const StorageFileDropzone = ({
 
         if (isAnonymousUpload) {
             StorageClient.uploadAnonymously({
-                url: "/api/storagesvc/anonymous/upload",
                 files: acceptedFiles,
                 onUploadPercentage: (percentage) => setUploadPercentage(percentage),
                 onError: handleUploadFailure,
@@ -110,11 +109,9 @@ const StorageFileDropzone = ({
                     maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
                     expiryPeriod: expiryPeriodIdx,
                     allowAnonymousDownload: isAnonDownloadChecked,
-                    eventRoutingKey: uploadMetadata.eventRoutingKey,
                     eventData: uploadMetadata?.eventData
                 };
                 StorageClient.upload({
-                    url: "/api/storagesvc/upload",
                     files: acceptedFiles,
                     metadata: metadata,
                     onUploadPercentage: (percentage) => setUploadPercentage(percentage),
@@ -125,10 +122,10 @@ const StorageFileDropzone = ({
         }
     };
 
-    const copyToClipboard = (e: MouseEvent<HTMLButtonElement>) => {
-        if (downloadLinkRef.current !== null) {
+    const copyToClipboard = (idx: number) => {
+        if (downloadLinksRef.current !== null) {
             // @ts-ignore
-            downloadLinkRef.current.select();
+            downloadLinksRef.current[idx].select();
             document.execCommand('copy');
             setCopiedText("Copied!");
         }
@@ -168,14 +165,20 @@ const StorageFileDropzone = ({
                 {uploadRes && (
                     <div className={`${styles.dropzoneBox} ${styles.messageSuccess}`}>
                         <p>{uploadRes.message}</p>
-                        <div className={styles.dropzoneShareLink}>
-                            <input ref={downloadLinkRef} value={downloadLink} onChange={() => {}}/>
-                            <div className={styles.copyTooltip}>
-                                <Button variant="contained" color="primary" onClick={copyToClipboard} onMouseOut={() => setCopiedText("Copy to Clipboard")}>
-                                    <span className={styles.copyTooltiptext}>{copiedText}</span>
-                                    <FileCopyIcon />
-                                </Button>
-                            </div>
+                        <div className={styles.dropzoneShareLinkWrapper}>
+                            {downloadLinks.map((downloadLink, idx) => {
+                                return (
+                                    <div className={styles.dropzoneShareLink} key={idx}>
+                                        <input ref={(ref) => downloadLinksRef.current.push(ref)} value={downloadLink} onChange={() => {}}/>
+                                        <div className={styles.copyTooltip}>
+                                            <Button variant="contained" color="primary" onClick={() => copyToClipboard(idx)} onMouseOut={() => setCopiedText("Copy to Clipboard")}>
+                                                <span className={styles.copyTooltiptext}>{copiedText}</span>
+                                                <FileCopyIcon />
+                                            </Button>
+                                        </div>
+                                    </div >
+                                );
+                            })}
                         </div>
                     </div>
                 )}

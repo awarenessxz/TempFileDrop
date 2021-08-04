@@ -138,10 +138,10 @@ const FileDropzone = ({
                 {uploadRes && (
                     <div className="dropzone-box message-success">
                         {uploadRes.message}
-                        <div className="dropzone-share-link">
+                        <div className="dropzone-share-link-wrapper">
                             {downloadLinks.map((downloadLink, idx) => {
                                 return (
-                                    <React.Fragment>
+                                    <div className="dropzone-share-link" key={idx}>
                                         <input ref={(ref) => downloadLinksRef.current.push(ref)} value={downloadLink} onChange={() => {}}/>
                                         <div className="copy-tooltip">
                                             <Button onClick={() => copyToClipboard(idx)} onMouseOut={() => setCopiedText("Copy to Clipboard")}>
@@ -149,7 +149,7 @@ const FileDropzone = ({
                                                 <FaCopy />
                                             </Button>
                                         </div>
-                                    </React.Fragment>
+                                    </div>
                                 );
                             })}
                         </div>

@@ -16,13 +16,15 @@ const server = setupServer(
     rest.post('/api/storagesvc/anonymous/upload', (req, res, ctx) => {
         return res(ctx.json({
             message: "Upload Success",
-            storageId: "example-storage-id",
+            storageIdList: ["example-storage-id"],
+            storagePathList: ["example/storage/path.json"],
         }));
     }),
     rest.post('/api/storagesvc/upload', (req, res, ctx) => {
         return res(ctx.json({
             message: "Upload Success",
-            storageId: "example-storage-id",
+            storageIdList: ["example-storage-id"],
+            storagePathList: ["example/storage/path.json"],
         }));
     }),
 );
