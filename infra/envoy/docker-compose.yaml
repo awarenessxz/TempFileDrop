@@ -2,14 +2,13 @@ version: '3.7'
 
 services:
   envoy:
-    image: envoyproxy/envoy:v1.19-latest
+    build: ./
     container_name: envoy
     hostname: envoy
     restart: unless-stopped
     networks:
       - proxy-net
     environment:
-      - KEYCLOAK_URL=http://localhost:8080
       - KEYCLOAK_HOST=localhost
       - KEYCLOAK_PROTOCOL=http
       - KEYCLOAK_PORT=8080
@@ -17,13 +16,10 @@ services:
       - SERVICE_NAME=storage-gateway
       - SERVICE_HOST=localhost
       - SERVICE_PORT=9090
-      - SERVICE_HEALTHCHECK_PATH=/health
-      - SERVICE_HEALTHCHECK_PORT=8081
       - OPA_HOST=localhost
       - OPA_PORT=9191
-      - DISABLE_JWT_AUTHN
+      - DISABLE_JWT_AUTHN=false
       - ENVOY_LOG_LEVEL=info
-      - ENVOY_HEALTHCHECK_PORt=8070
       - ENVOY_PORT=80
       - TIMEOUT=15s
     ports:
