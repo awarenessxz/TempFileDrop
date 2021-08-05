@@ -9,6 +9,7 @@ import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import com.tempstorage.storagesvc.util.StorageUtils
 import io.minio.*
 import io.minio.messages.DeleteObject
+import io.minio.messages.Item
 import org.apache.commons.fileupload.FileItemIterator
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.io.IOUtils
@@ -125,16 +126,16 @@ class MinioStorageServiceImpl(
 //        zipOut.close()
 //        notificationService.triggerDownloadNotification(storageInfo, storageInfo.bucket, eventData ?: "")
 //    }
-//
-//    override fun getAllFileSizeInBucket(bucket: String, storageFiles: List<StorageFile>): List<StorageFile> {
-//        logger.info("List all files and folders in Bucket - $bucket...")
-//        val results: Iterable<Result<Item>> = minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).recursive(true).build())
-//        val objectSizeMapper = results.map { it.get().objectName() to it.get().size() }.toMap()
-//        return storageFiles.map {
-//            val fileSize = objectSizeMapper[it.getFileStoragePath()] ?: 0
-//            StorageFile(it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.storageId, it.id)
-//        }
-//    }
+
+    override fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo> {
+        logger.info("List all files and folders in Bucket - $bucket...")
+        val results: Iterable<Result<Item>> = minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).recursive(true).build())
+        val objectSizeMapper = results.map { it.get().objectName() to it.get().size() }.toMap()
+        return storageInfoList.map {
+            val fileSize = objectSizeMapper[it.getStoragePathWithoutBucketPrefix()] ?: 0
+            StorageInfo(it.id, it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload)
+        }
+    }
 
     override fun deleteFile(storageInfo: StorageInfo, eventData: String?) {
         logger.info("[MINIO CLUSTER] Deleting ${storageInfo.originalFilename} from ${storageInfo.bucket}...")

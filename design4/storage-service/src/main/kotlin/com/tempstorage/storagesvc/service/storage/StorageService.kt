@@ -26,7 +26,7 @@ abstract class StorageService {
     abstract fun deleteFile(storageInfo: StorageInfo, eventData: String? = "")
     abstract fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String? = "")
 //    abstract fun downloadFilesAsZip(storageInfo: StorageInfo, storageFiles: List<StorageFile>, response: HttpServletResponse, eventData: String? = "")
-//    abstract fun getAllFileSizeInBucket(bucket: String, storageFiles: List<StorageFile>): List<StorageFile>
+    abstract fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo>
 
     private lateinit var storageInfoService: StorageInfoService
 
@@ -50,20 +50,14 @@ abstract class StorageService {
         return storageInfo
     }
 
-//
-//    // convert list of all storage in bucket into folder like structure
-//    fun listFilesAndFoldersInBucket(bucket: String): FileSystemNode {
-//        val storageInfoList = getAllStorageInfo(bucket)
-//        val storageIds = storageInfoList.map { it.id.toString() }
-//        val storageFiles = storageFileService.getStorageFilesInfoByStorageIdBulk(storageIds)
-//        val storageFilesWithFileSize = getAllFileSizeInBucket(bucket, storageFiles)
-//
-//        val filesystemNodes = storageInfoList.map { storageInfo ->
-//            val storageSize = storageFilesWithFileSize.filter { it.storageId == storageInfo.id.toString() }.sumBy { it.fileLength.toInt() }
-//            FileSystemNode(true, storageInfo.filenames, "${storageInfo.storagePath}/${storageInfo.filenames}", storageInfo.bucket, storageInfo.id.toString(), storageSize, storageInfo.numOfDownloadsLeft, storageInfo.expiryDatetime)
-//        }
-//        return StorageUtils.buildFolderTreeStructure(bucket, filesystemNodes)
-//    }
+    // convert list of all storage in bucket into folder like structure
+    fun listFilesAndFoldersInBucket(bucket: String): FileSystemNode {
+        val storageInfoList = getAllStorageInfoFromBucket(bucket)
+        val fileSystemNodes = getAllFileSizeInBucket(bucket, storageInfoList).map {
+            FileSystemNode(true, it.originalFilename, it.getStoragePathWithoutBucketPrefix(), it.bucket, it.id, it.fileLength.toInt(), it.numOfDownloadsLeft, it.expiryDatetime)
+        }
+        return StorageUtils.buildFolderTreeStructure(bucket, fileSystemNodes)
+    }
 
     fun deleteFromBucket(storageId: String, storagePath: String, eventData: String) {
         val storageInfo = getStorageInfoFromDatabase(storageId, storagePath)

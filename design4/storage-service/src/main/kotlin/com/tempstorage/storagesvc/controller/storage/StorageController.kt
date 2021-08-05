@@ -1,7 +1,5 @@
 package com.tempstorage.storagesvc.controller.storage
 
-import com.tempstorage.storagesvc.exception.ApiException
-import com.tempstorage.storagesvc.exception.ErrorCode
 import com.tempstorage.storagesvc.exception.ErrorResponse
 import com.tempstorage.storagesvc.service.eventdata.EventData
 import com.tempstorage.storagesvc.service.eventdata.EventDataService
@@ -31,21 +29,21 @@ class StorageController(
         private val logger = LoggerFactory.getLogger(StorageController::class.java)
     }
 
-//    @Operation(summary = "Get number of files in bucket")
-//    @GetMapping("/{bucket}/count")
-//    fun getNumberOfFilesInBucket(@PathVariable("bucket") bucket: String): ResponseEntity<Int> {
-//        logger.info("Receiving Request to get number of files inside $bucket")
-//        val count = storageService.getAllStorageInfo(bucket).size
-//        return ResponseEntity(count, HttpStatus.OK)
-//    }
-//
-//    @Operation(summary = "Get all files and folders inside bucket in folder like structure")
-//    @GetMapping("/{bucket}")
-//    fun getStorageFromBucket(@PathVariable("bucket") bucket: String): ResponseEntity<FileSystemNode> {
-//        logger.info("Receiving Request to get content inside $bucket")
-//        val filesystemNode = storageService.listFilesAndFoldersInBucket(bucket)
-//        return ResponseEntity(filesystemNode, HttpStatus.OK)
-//    }
+    @Operation(summary = "Get number of files in bucket")
+    @GetMapping("/{bucket}/count")
+    fun getNumberOfFilesInBucket(@PathVariable("bucket") bucket: String): ResponseEntity<Int> {
+        logger.info("Receiving Request to get number of files inside $bucket")
+        val count = storageService.getAllStorageInfoFromBucket(bucket).size
+        return ResponseEntity(count, HttpStatus.OK)
+    }
+
+    @Operation(summary = "Get all files and folders inside bucket in folder like structure")
+    @GetMapping("/tree/{bucket}")
+    fun getStorageFromBucket(@PathVariable("bucket") bucket: String): ResponseEntity<FileSystemNode> {
+        logger.info("Receiving Request to get content inside $bucket")
+        val filesystemNode = storageService.listFilesAndFoldersInBucket(bucket)
+        return ResponseEntity(filesystemNode, HttpStatus.OK)
+    }
 
     @Operation(summary = "Get all files in bucket")
     @GetMapping("/{bucket}")
@@ -128,11 +126,11 @@ class StorageController(
         return ResponseEntity("Files deleted successfully", HttpStatus.OK)
     }
 
-//    @Operation(summary = "Get all events that were published to message queue for bucket")
-//    @GetMapping("/events/{bucket}")
-//    fun getAllEvents(@PathVariable("bucket") bucket: String): ResponseEntity<List<EventData>> {
-//        logger.info("Receiving Request to get all events that were published to message queue for $bucket")
-//        val events = eventDataService.getEventsByBucket(bucket)
-//        return ResponseEntity(events, HttpStatus.OK)
-//    }
+    @Operation(summary = "Get all events that were published to message queue for bucket")
+    @GetMapping("/events/{bucket}")
+    fun getAllEvents(@PathVariable("bucket") bucket: String): ResponseEntity<List<EventData>> {
+        logger.info("Receiving Request to get all events that were published to message queue for $bucket")
+        val events = eventDataService.getEventsByBucket(bucket)
+        return ResponseEntity(events, HttpStatus.OK)
+    }
 }

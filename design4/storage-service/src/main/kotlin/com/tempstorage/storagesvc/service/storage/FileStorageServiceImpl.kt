@@ -152,20 +152,20 @@ class FileStorageServiceImpl(
 //        zipOut.close()
 //        notificationService.triggerDownloadNotification(storageInfo, storageInfo.bucket, eventData ?: "")
 //    }
-//
-//    override fun getAllFileSizeInBucket(bucket: String, storageFiles: List<StorageFile>): List<StorageFile> {
-//        logger.info("List all files and folders in Bucket - $bucket...")
-//        try {
-//            val results = Files.walk(root).filter(Files::isRegularFile).collect(Collectors.toList())
-//            val objectSizeMapper = results.map { it.fileName.toString() to Files.size(it) }.toMap()
-//            return storageFiles.map {
-//                val fileSize = objectSizeMapper[it.originalFilename] ?: 0
-//                StorageFile(it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.storageId, it.id)
-//            }
-//        } catch (e: IOException) {
-//            throw RuntimeException("Could not load the files!")
-//        }
-//    }
+
+    override fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo> {
+        logger.info("List all files and folders in Bucket - $bucket...")
+        try {
+            val results = Files.walk(root).filter(Files::isRegularFile).collect(Collectors.toList())
+            val objectSizeMapper = results.map { it.fileName.toString() to Files.size(it) }.toMap()
+            return storageInfoList.map {
+                val fileSize = objectSizeMapper[it.originalFilename] ?: 0
+                StorageInfo(it.id, it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload)
+            }
+        } catch (e: IOException) {
+            throw RuntimeException("Could not load the files!")
+        }
+    }
 
     override fun deleteFile(storageInfo: StorageInfo, eventData: String?) {
         logger.info("[FILE SYSTEM] Deleting ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
