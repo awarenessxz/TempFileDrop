@@ -2,31 +2,31 @@ version: '3.7'
 
 services:
   envoy:
-    build: ./
+#    build: ./
+    image: envoyproxy/envoy:v1.16-latest
     container_name: envoy
     hostname: envoy
     restart: unless-stopped
     networks:
       - proxy-net
-    environment:
-      - KEYCLOAK_HOST=localhost
-      - KEYCLOAK_PROTOCOL=http
-      - KEYCLOAK_PORT=8080
-      - KEYCLOAK_REALM=storage
-      - SERVICE_NAME=storage-gateway
-      - SERVICE_HOST=localhost
-      - SERVICE_PORT=9090
-      - OPA_HOST=localhost
-      - OPA_PORT=9191
-      - DISABLE_JWT_AUTHN=false
-      - ENVOY_LOG_LEVEL=info
-      - ENVOY_PORT=80
-      - TIMEOUT=15s
+#    environment:
+#      - KEYCLOAK_HOST=localhost
+#      - KEYCLOAK_PROTOCOL=http
+#      - KEYCLOAK_PORT=8080
+#      - KEYCLOAK_REALM=storage
+#      - SERVICE_NAME=storage-gateway
+#      - SERVICE_HOST=localhost
+#      - SERVICE_PORT=9090
+#      - OPA_HOST=localhost
+#      - OPA_PORT=9191
+#      - DISABLE_JWT_AUTHN=false
+#      - ENVOY_LOG_LEVEL=info
+#      - ENVOY_PORT=10000
+#      - TIMEOUT=15s
     ports:
-      - 80:80
-      - 8070:8070
+      - 10000:10000
     volumes:
-      - ./envoy.yaml:/etc/envoy/envoy.yaml
+      - ./sample/envoy.yaml:/etc/envoy/envoy.yaml
 
 networks:
   proxy-net:

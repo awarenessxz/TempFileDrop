@@ -4,7 +4,7 @@
 - [Overview](#overview)
 - [Architecture Design](#architecture-design)
     - [Design Version 1.0.0 - Proxy File Transfer Logic Abstraction using Microservice](archive/README.md#proxy-file-transfer-logic-abstraction-using-microservice-version-100)
-    - [Design Version 2.0.0]()
+    - [Design Version 2.0.0 - Direct File Transfer to Storage Medium](#version-2---direct-file-transfer-to-storage-medium)
 - [Design Considerations](#design-considerations)
 - [Future Works](#future-works)
 - [References](#references)
@@ -15,14 +15,15 @@
 There are 4 main purpose of this project.
 1. **Minio/S3 Research**
 2. **Design a centralized storage service which provide developers with storage logic abstraction** so that they do not
-have to implement such logic on their own. Such storage logic abstraction includes:
-    - **UI Components**
-    - **Javascript Client**
-    - **Backend API**
-    - **File Upload Vulnerabilities Checks**
-    - **Files Clean up**
-    - **Notification via websocket / message queue**
-    - **Access Control**
+have to implement file transfer / file storage logic on their own. Such storage logic abstraction includes:
+    - **Frontend Libraries**
+        - **UI Components for Upload files**
+        - **Javascript Client for File Transfer**
+    - **Backend API for File Transfer**
+        - **File Upload Vulnerabilities Checks**
+        - **Files Clean up**
+        - **Notification via websocket / message queue**
+        - **Access Control**
 3. **To create a temporary file sharing application.**
     - **TempFileDrop.io** is a project that replicates [file.io](https://www.file.io/) which is a super simple file sharing application.
     - Understand **file uploads / downloads using Rest** 
@@ -42,7 +43,7 @@ have to implement such logic on their own. Such storage logic abstraction includ
 
 **Do check out the following design sprints**
 - [Design Version 1.0.0 - Proxy File Transfer Logic Abstraction using Microservice](archive/README.md#version-1---proxy-file-transfer-logic-abstraction-using-microservice)
-- [Design version 2.0.0 - Direct File Transfer to Storage Medium](#version-2---direct-file-transfer-to-storage-medium)
+- [Design Version 2.0.0 - Direct File Transfer to Storage Medium](#version-2---direct-file-transfer-to-storage-medium)
 
 ### Version 2 - Direct File Transfer to Storage Medium
 
@@ -53,7 +54,36 @@ which is a key feature in S3 protocols to file transfer securely to the storage 
 
 ### Version 2.0.0 Current Implementation
 
-In Progress....
+![design 4](doc/architecture_design4b.png)
+
+This design is built upon the third implementation. Instead of registering the frontend web applications as keycloak client, 
+I placed the webservers which are serving frontend resources behind the gateway. This provides a cleaner architecture where
+authentication & authorization is handled purely by the gateway. Previously, the following features were implemented:
+
+- **Object Storage** based on s3 bucket concepts
+- Basic **multipart upload / download / delete / list files**
+- Scheduled Clean up based on **maximum download count / expiry Period**
+- File Storage in either **Local File Storage** or **MinIO docker cluster**
+- **Event Feedback** when file upload / download / delete event occur
+- **Anonymous uploads / downloads**
+- **Streaming File Upload**
+- **Keycloak authentication** -- **[UPDATED]**
+    - Only Web Applications are registered as clients
+    - Gateway is registered as client to handle authentication for backend services
+- **API Gateway** with **Centralized Authentication**
+- **Microservice authorization / validations**
+    - Role Authorization using **Storage Gateway Client Roles**
+    - API request validation by extracting **Client/Realm Role Attributes** (buckets, routingkeys, subscribers) from keycloak token
+- **Storage Console** to view storage and events
+- **storage-js-client** is a javascript client for web applications to communicate with storage service
+
+In additional to the implementations above, I added a few more implementations below. Refer to the design 4's documentation(design4)
+for more information.
+- **Web Applications** are behind the gateway
+- **Keycloak authentication**
+    - Only Gateway is registered as client to handle authentication for backend services and web applications
+- **Open Policy Agent (OPA)** for authorization at gateway
+- **Storage Component Library** for reusable react components
 
 ## Design Considerations
 

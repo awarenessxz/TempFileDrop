@@ -13,8 +13,8 @@ docker-compose -f $INFRAPATH/mongo/docker-compose.yaml down -v
 docker-compose -f $INFRAPATH/minio/docker-compose/docker-compose.yaml down -v
 docker-compose -f $INFRAPATH/rabbitmq/docker-compose.yaml down -v
 docker-compose -f $INFRAPATH/keycloak/docker-compose.yaml down -v
-docker-compose -f $SCRIPTPATH/docker-compose.yaml down -v
-docker-compose -f $SCRIPTPATH/../archive/design2/docker-compose.yaml down -v
+#docker-compose -f $INFRAPATH/opa/docker-compose.yaml down -v
+#docker-compose -f $INFRAPATH/envoy/docker-compose.yaml down -v
 
 printf "\n==================================================\n"
 printf "Cleaning up all persistent data...\n"

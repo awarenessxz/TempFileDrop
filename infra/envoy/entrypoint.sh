@@ -47,7 +47,7 @@ static_resources:
           - lb_endpoints:
               - endpoint:
                   address:
-                    socker_address:
+                    socket_address:
                       address: $KEYCLOAK_HOST
                       port_value: $KEYCLOAK_PORT
 EOF
@@ -73,7 +73,7 @@ cat <<-EOF >> /etc/envoy/envoy.yaml
         socket_address:
           address: 0.0.0.0
           port_value: $ENVOY_PORT
-      filters_chains:
+      filter_chains:
         - filters:
             - name: envoy.http_connection_manager
               typed_config:
@@ -127,7 +127,7 @@ cat <<-EOF >> /etc/envoy/envoy.yaml
                       metadata_context_namespaces:
                         - envoy.filters.http.jwt_authn
                       grpc_service:
-                        google_gprc:
+                        google_grpc:
                           target_uri: $OPA_HOST:$OPA_PORT
                           stat_prefix: ext_authz
                         timeout: 0.5s
