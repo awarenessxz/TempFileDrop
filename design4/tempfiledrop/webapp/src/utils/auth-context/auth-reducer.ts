@@ -18,7 +18,8 @@ export const AuthReducer = (state: AuthState = initialState, action: AuthActionT
     switch (action.type) {
         case CHECK_SSO:
             return {
-                ...state,
+                isAuthenticated: action.payload.isAuthenticated,
+                userToken: action.payload.userToken,
                 isAuthReady: true,
                 authErrorMsg: null
             };
@@ -31,7 +32,6 @@ export const AuthReducer = (state: AuthState = initialState, action: AuthActionT
             };
         case LOGIN_SUCCESS:
             return {
-                ...state,
                 isAuthReady: true,
                 authErrorMsg: null,
                 isAuthenticated: action.payload.isAuthenticated,

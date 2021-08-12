@@ -1,7 +1,8 @@
 import { Dispatch } from "react";
 import axios from "axios";
-import { AuthActionTypes, CHECK_SSO, REQUEST_LOGOUT, LOGIN_ERROR, LOGIN_SUCCESS } from "./auth-types";
+import { AuthActionTypes, CHECK_SSO } from "./auth-types";
 import Data from "../../config/app.json";
+import { UserToken } from "../keycloak-utils";
 
 export const dispatchCheckSSO = (dispatch: Dispatch<AuthActionTypes> | null) => {
     if (dispatch === null) {
@@ -10,22 +11,15 @@ export const dispatchCheckSSO = (dispatch: Dispatch<AuthActionTypes> | null) => 
 
     axios.get(Data.api_endpoints.get_user)
         .then(res => {
-            console.log(res);
-            dispatch({ type: CHECK_SSO });
+            const user = res.data as UserToken;
+            console.log("Check SSO --> ", user);
+            window.accessToken = user.token;
+            dispatch({ type: CHECK_SSO, payload: { isAuthenticated: true, userToken: { ...user, isAdmin: user.roles.includes("tempfiledrop|admin") }}});
         })
         .catch(err => {
             console.log(err);
-            dispatch({ type: LOGIN_SUCCESS, payload: {
-                isAuthenticated: true,
-                    userToken: {
-                        username: "user",
-                        name: "Alex",
-                        roles: ["admin"],
-                        isAdmin: true
-                    }
-                }
-            });
-            // dispatch({ type: LOGIN_ERROR, payload: { error: "Login Failed! Please try again." } });
+            window.accessToken = "";
+            dispatch({ type: CHECK_SSO, payload: { isAuthenticated: false, userToken: null } });
         });
 };
 
@@ -34,12 +28,9 @@ export const dispatchLogoutUserAction = (dispatch: Dispatch<AuthActionTypes> | n
         throw new Error("dispatch is null....");
     }
 
-    axios.get(Data.api_endpoints.logout)
-        .then(res => {
-            console.log(res);
-            dispatch({ type: REQUEST_LOGOUT });
-        })
-        .catch(err => console.log(err));
+    // redirect to logout
+    const port = (window.location.port ? ':' + window.location.port : '');
+    window.location.href = '//' + window.location.hostname + port + Data.api_endpoints.logout;
 };
 
 export const dispatchLoginUserAction = (dispatch: Dispatch<AuthActionTypes> | null) => {

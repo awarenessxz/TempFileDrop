@@ -52,7 +52,7 @@ const FileDropzone = ({
 
         const handleUploadSuccess = (uploadRes: FileUploadResponse) => {
             setLoading(false);
-            setDownloadLinks(uploadRes.storageIdList.map(id => joinURLs(window.location.origin, "download", id)));
+            setDownloadLinks(uploadRes.storageIdList.map(id => joinURLs(window.location.origin, "tempfiledrop", "download", id)));
             setUploadRes(uploadRes);
         };
 

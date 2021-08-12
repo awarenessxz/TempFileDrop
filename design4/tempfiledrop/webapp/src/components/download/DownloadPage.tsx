@@ -25,7 +25,6 @@ const DownloadPage = (props: DownloadPageProps) => {
     const [storageInfo, setStorageInfo] = useState<StorageInfo | null>(null);
 
     useEffect(() => {
-        console.log("REFRESHINGG!!");
         if (isAuthReady) {
             // retrieve information about the download
             StorageClient.getStorageInfoByStorageId({

@@ -27,7 +27,7 @@ class WebSecurityConfig(
         http.headers().frameOptions().sameOrigin()
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // do not create sessions since we are using tokens for each request
         http.authorizeRequests()
-                .antMatchers("/api/storagesvc/admin/**").hasRole("storagesvc_admin")
+                .antMatchers("/api/storagesvc/admin/**").hasRole("storage|admin")
                 .antMatchers("/api/storagesvc/download/secure/**").hasAnyRole(*storageSvcProperties.authorizedRoles.toTypedArray())
                 .antMatchers("/api/storagesvc/anonymous/**", "/api/storagesvc/download/**").permitAll()
                 .antMatchers("/api-docs/**", "/v3/api-docs/**", "/swagger-ui/**", "/swagger-ui.html").permitAll()

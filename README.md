@@ -42,15 +42,15 @@ have to implement file transfer / file storage logic on their own. Such storage 
 ## Architecture Design
 
 **Do check out the following design sprints**
-- [Design Version 1.0.0 - Proxy File Transfer Logic Abstraction using Microservice](archive/README.md#version-1---proxy-file-transfer-logic-abstraction-using-microservice)
-- [Design Version 2.0.0 - Direct File Transfer to Storage Medium](#version-2---direct-file-transfer-to-storage-medium)
+- [Design Version 1 - Proxy File Transfer Logic Abstraction using Microservice](archive/README.md#version-1---proxy-file-transfer-logic-abstraction-using-microservice)
+- [Design Version 2 - Direct File Transfer to Storage Medium](#version-2---direct-file-transfer-to-storage-medium)
 
 ### Version 2 - Direct File Transfer to Storage Medium
 
-Version 2.0.0 is an enhancement of version 1.0.0 where instead of relying on a proxy file transfer, we used presigned url
+Version 2 is an enhancement of version 1 where instead of relying on a proxy file transfer, we used presigned url
 which is a key feature in S3 protocols to file transfer securely to the storage medium. 
 
-![Version 2.0.0](doc/project_purpose_2.png)
+![Version 2](doc/project_purpose_2.png)
 
 ### Version 2.0.0 Current Implementation
 

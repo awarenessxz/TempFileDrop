@@ -31,17 +31,16 @@
         "routingkey": "tempfiledrop"
     },
     "keycloak": {
-        "realmRoles": ["tempfiledrop-user", "tempfiledrop-admin"],
+        "realmRoles": ["tempfiledrop|user", "tempfiledrop|admin"],
         "clientRoles": ["user", "admin"]
     },
     "api_endpoints": {
         "login": "/auth/login/tempfiledrop",
         "logout": "/logout",
         "get_user": "/auth/user",
-        "uploaded_files": "/api/users-upload-info",
+        "uploaded_files": "/api/tempfiledrop/users-upload-info",
         "storagesvc_swagger": "/swagger/storagesvc/api-docs",
         "storagesvc_storage_info": "/api/storagesvc/storageinfo",
-        "storagesvc_storage_info_anonymous": "/api/storagesvc/anonymous/storageinfo",
         "storagesvc": "/api/storagesvc"
     },
     "websocket_stomp_endpoint": "/ws/websocket-stomp",

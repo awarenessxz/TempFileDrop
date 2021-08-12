@@ -58,13 +58,14 @@ class StorageController(
         ApiResponse(description = "Successful operation", responseCode = "200"),
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
     ])
-    @GetMapping("/", produces = ["application/json"])
+    @GetMapping("/storageinfo", produces = ["application/json"])
     fun getStorageInfoByStorageId(
             @RequestParam(value = "storageId", required = false, defaultValue = "") storageId: String,
             @RequestParam(value = "storagePath", required = false, defaultValue = "") storagePath: String
     ): ResponseEntity<StorageInfo> {
         logger.info("Retrieving file information....")
         val storageInfo = storageService.getStorageInfoFromBucket(storageId, storagePath)
+        // TODO: Implement checks to see if storageId can be retrieved by anonymous users
         return ResponseEntity(storageInfo, HttpStatus.OK)
     }
 

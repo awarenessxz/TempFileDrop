@@ -2,7 +2,7 @@
 
 ## Version 1 - Proxy File Transfer Logic Abstraction using Microservice
 
-Version 1.0.0 of this project is to abstract file transfer logic into a microservice. In most cases, files are uploaded
+Version 1 of this project is to abstract file transfer logic into a microservice. In most cases, files are uploaded
 to a backend server which then uploads the file to a storage medium (Minio / File System). This logic is use in most
 applications hence, it is possible to create a microservice which handles this file transfer logic. Do note that this 
 is based on a proxy file upload pattern as shown in the diagram below.

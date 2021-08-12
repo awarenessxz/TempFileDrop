@@ -3,7 +3,7 @@ version: '3.7'
 services:
   mongodb:
     hostname: mongodb
-    image: mongo:latest
+    image: mongo:5.0
     container_name: 'mongo_server'
     networks:
       - proxy-net

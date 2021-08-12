@@ -4,7 +4,7 @@ services:
   keycloak:
     hostname: keycloak
     container_name: keycloak
-    image: jboss/keycloak:latest
+    image: jboss/keycloak:13.0.1
     networks:
       - proxy-net
     environment:

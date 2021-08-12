@@ -17,6 +17,7 @@ export interface UserToken {
     name: string;
     roles: string[];
     isAdmin: boolean;
+    token: string;
 }
 
 /* ***************************************************************************************
@@ -30,7 +31,8 @@ export const extractUserToken = (token: KeycloakTokenParsed | undefined): UserTo
             username: ntoken.preferred_username,
             name: ntoken.name,
             roles: ntoken.roles,
-            isAdmin: ntoken.roles?.includes("admin")
+            isAdmin: ntoken.roles?.includes("admin"),
+            token: ""
         };
     }
     return null;

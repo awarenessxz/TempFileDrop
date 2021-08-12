@@ -26,6 +26,10 @@ export const LOGIN_ERROR = "LOGIN_ERROR";
 
 interface CheckSSOAction {
     type: typeof CHECK_SSO;
+    payload: {
+        isAuthenticated: boolean;
+        userToken: UserToken | null;
+    }
 }
 
 interface LoginUserSuccessAction {

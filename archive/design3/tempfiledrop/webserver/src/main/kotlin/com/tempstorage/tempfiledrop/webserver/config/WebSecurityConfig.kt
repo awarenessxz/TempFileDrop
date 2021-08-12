@@ -25,7 +25,7 @@ class WebSecurityConfig(
         http.headers().frameOptions().sameOrigin()
         http.sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS) // do not create sessions since we are using tokens for each request
         http.authorizeRequests()
-                .antMatchers("/**").hasAnyRole("tempfiledrop_user", "tempfiledrop_admin")
+                .antMatchers("/**").hasAnyRole("tempfiledrop|user", "tempfiledrop|admin")
                 .anyRequest().denyAll()
         http.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter::class.java)
     }

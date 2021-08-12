@@ -2,7 +2,9 @@
 # Server Configuration
 ###############################################################################################
 
-server.port: 9090
+server:
+  port: 9090
+  forward-headers-strategy: framework # https://stackoverflow.com/a/59126519/1098564 (but ours is non-servlet)
 
 spring:
   profiles.active: dev
@@ -11,26 +13,17 @@ spring:
 logging:
   level:
     root: INFO
-    org.springframework.web: INFO
-    org.springframework.web.HttpLogging: INFO
-    org.springframework.security: INFO
-    org.springframework.security.oauth2: INFO
-    org.springframework.cloud.gateway: INFO
+    org.springframework.web: DEBUG
+    org.springframework.web.HttpLogging: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.security.oauth2: DEBUG
+    org.springframework.cloud.gateway: DEBUG
 
 gateway:
-  jwt-keycloak-parser:
-    resource: storage-gateway           # Client
-    use-resource-role-mappings: true    # use client role
-    public-key: MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjBbNUOPhBZVCssoky2C5S3WnmiR0a492J+KU7Z6yLrwgmTfyo1ZZjEDup3DvF/GLMaaDF3QJMwY33cefMV+UzFt+xy7Usc6cI2+6mo1ZZjgy0LP/+t5RXKRCPNW69wEfWSXfb6CGrv+bklhmut0M3SqnsV3JJentRl0geZ9WC8aOzIuyHXP67fSgkGzRW6yhFKHsIoN06A5hD6gzvb64pt31Eycs/rmnNgtAmyQmUls3imdjMrbs0fM1/xNQh7qLb/mR1UT+WErgxCn/VDrDTqgC5QLvNMdp1sdf5lpYBjd+Y90NQgyj2pTNSuJZuLXFBad5lfaVAP6w6oF3nmfmFwIDAQAB
-  attributes:
-    tempfiledrop:
-      buckets:
-        - tempfiledrop
-      routing-keys:
-        - tempfiledrop
   whitelist:
     - /api/storagesvc/anonymous/**
     - /api/storagesvc/download/**
+    - /api/storagesvc/storageinfo
     - /swagger/storagesvc/api-docs
     - /tempfiledrop/**
     - /auth/user
@@ -98,11 +91,11 @@ spring.cloud.gateway:
       uri: http://localhost:8001/
       predicates:
         - Path=/api/storagesvc/**
-      filters:
-        - StorageAttributesInjection=true
+#      filters:
+#        - RemoveRequestHeader=Cookie
     - id: tempfiledropWebServer
       uri: http://localhost:7001/
       predicates:
-        - Path=/api/**
-      filters:
-        - StorageAttributesInjection=true
+        - Path=/api/tempfiledrop/**
+#      filters:
+#        - RemoveRequestHeader=Cookie

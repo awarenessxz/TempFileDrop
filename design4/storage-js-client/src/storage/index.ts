@@ -38,7 +38,7 @@ export const getStorageInfoByStorageId = ({
     onSuccess,
     onError = (err: any) => {},
     headers = {},
-    url = "/api/storagesvc/"
+    url = "/api/storagesvc/storageinfo"
 }: StorageInfoByStorageIdParams) => {
     const reqParams: StorageInfoRequestParams = { };
     reqParams["storageId"] = storageId;
@@ -59,7 +59,7 @@ export const getStorageInfoByStoragePath = ({
     onSuccess,
     onError = (err: any) => {},
     headers = {},
-    url = "/api/storagesvc/"
+    url = "/api/storagesvc/storageinfo"
 }: StorageInfoByStoragePathParams) => {
     const reqParams: StorageInfoRequestParams = { };
     reqParams["storagePath"] = storagePath;

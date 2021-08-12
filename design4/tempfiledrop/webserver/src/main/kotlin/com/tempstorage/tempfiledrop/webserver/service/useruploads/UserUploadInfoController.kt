@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*
 import org.springframework.web.client.RestTemplate
 
 @RestController
-@RequestMapping("/api/users-upload-info")
+@RequestMapping("/api/tempfiledrop/users-upload-info")
 class UserUploadInfoController(
         @Value("\${tempfiledrop.storagesvc-url}") private val storageServiceUrl: String,
         private val uploadedFilesRecordService: UserUploadInfoService

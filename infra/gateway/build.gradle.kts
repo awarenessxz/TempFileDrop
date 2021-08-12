@@ -23,9 +23,9 @@ dependencies {
 	// Security
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-client") // oauth2 (authenticate with keycloak)
 	implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server") // oauth2 (store user’s data and http services which can return user data to authenticated clients.)
-	implementation("io.jsonwebtoken:jjwt:0.9.1") // parsing jwt token
-	implementation("javax.xml.bind:jaxb-api:2.3.1") // parsing jwt token
-	implementation("org.keycloak:keycloak-core") // using Keycloak interfaces
+//	implementation("io.jsonwebtoken:jjwt:0.9.1") // parsing jwt token
+//	implementation("javax.xml.bind:jaxb-api:2.3.1") // parsing jwt token
+//	implementation("org.keycloak:keycloak-core") // using Keycloak interfaces
 
 	// Kotlin
 	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
@@ -39,7 +39,7 @@ dependencies {
 dependencyManagement {
 	imports {
 		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2020.0.3")
-		mavenBom("org.keycloak.bom:keycloak-adapter-bom:11.0.2")
+//		mavenBom("org.keycloak.bom:keycloak-adapter-bom:11.0.2")
 	}
 }
 
