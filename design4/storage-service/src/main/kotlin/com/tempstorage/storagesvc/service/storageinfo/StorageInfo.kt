@@ -22,7 +22,7 @@ data class StorageInfo(
         storageFullPath = Paths.get(bucket).resolve(storagePath).resolve(originalFilename).toString()
     }
 
-    fun getStoragePathWithoutBucketPrefix(): String {
+    fun getObjectName(): String {
         return Paths.get(storagePath).resolve(originalFilename).toString()
     }
 }

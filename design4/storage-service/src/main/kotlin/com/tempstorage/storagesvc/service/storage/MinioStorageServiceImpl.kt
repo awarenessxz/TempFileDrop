@@ -4,11 +4,10 @@ import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
 import com.tempstorage.storagesvc.controller.storage.StorageUploadResponse
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
-import com.tempstorage.storagesvc.service.notification.NotificationService
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import com.tempstorage.storagesvc.util.StorageUtils
 import io.minio.*
-import io.minio.messages.DeleteObject
+import io.minio.http.Method
 import io.minio.messages.Item
 import org.apache.commons.fileupload.FileItemIterator
 import org.apache.commons.fileupload.servlet.ServletFileUpload
@@ -18,14 +17,14 @@ import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import java.nio.file.Paths
+import java.util.concurrent.TimeUnit
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
 
 @Service
 @ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "minio")
 class MinioStorageServiceImpl(
-        private val minioClient: MinioClient,
-        private val notificationService: NotificationService
+        private val minioClient: MinioClient
 ): StorageService() {
     companion object {
         private val logger = LoggerFactory.getLogger(MinioStorageServiceImpl::class.java)
@@ -33,7 +32,18 @@ class MinioStorageServiceImpl(
 
     override fun initStorage() { }
 
-    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): StorageUploadResponse {
+    override fun getUploadUrl(bucket: String, objectName: String): String {
+        return minioClient.getPresignedObjectUrl(
+                GetPresignedObjectUrlArgs.builder()
+                        .method(Method.POST)
+                        .bucket(bucket)
+                        .`object`(objectName)
+                        .expiry(1, TimeUnit.HOURS)
+                        .build()
+        )
+    }
+
+    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageInfo> {
         logger.info("[MINIO CLUSTER] Uploading files to MinIO Cluster using input streams.....")
         val uploadedFiles = ArrayList<StorageInfo>()
 
@@ -93,21 +103,14 @@ class MinioStorageServiceImpl(
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
         }
-
-        // TODO: remove
-        notificationService.triggerUploadNotification(uploadedFiles, metadata?.eventData ?: "")
-        val storageIdList = uploadedFiles.map { it.id }
-        val storagePathList = uploadedFiles.map { it.storageFullPath!! }
-        return StorageUploadResponse("Files uploaded successfully", storageIdList, storagePathList)
+        return uploadedFiles
     }
 
     override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String?) {
         logger.info("[MINIO CLUSTER] Downloading ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
-        val filepath = storageInfo.getStoragePathWithoutBucketPrefix()
-        val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(storageInfo.bucket).`object`(filepath).build())
+        val objectName = storageInfo.getObjectName()
+        val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(storageInfo.bucket).`object`(objectName).build())
         IOUtils.copyLarge(inputStream, response.outputStream)
-        // TODO: remove
-        notificationService.triggerDownloadNotification(storageInfo, eventData ?: "")
     }
 
 //    override fun downloadFilesAsZip(storageInfo: StorageInfo, storageFiles: List<StorageFile>, response: HttpServletResponse, eventData: String?) {
@@ -132,16 +135,14 @@ class MinioStorageServiceImpl(
         val results: Iterable<Result<Item>> = minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).recursive(true).build())
         val objectSizeMapper = results.map { it.get().objectName() to it.get().size() }.toMap()
         return storageInfoList.map {
-            val fileSize = objectSizeMapper[it.getStoragePathWithoutBucketPrefix()] ?: 0
+            val fileSize = objectSizeMapper[it.getObjectName()] ?: 0
             StorageInfo(it.id, it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload)
         }
     }
 
     override fun deleteFile(storageInfo: StorageInfo, eventData: String?) {
         logger.info("[MINIO CLUSTER] Deleting ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
-        val objectName = storageInfo.getStoragePathWithoutBucketPrefix()
+        val objectName = storageInfo.getObjectName()
         minioClient.removeObject(RemoveObjectArgs.builder().bucket(storageInfo.bucket).`object`(objectName).build())
-        // TODO: remove
-        notificationService.triggerDeleteNotification(storageInfo, eventData ?: "")
     }
 }

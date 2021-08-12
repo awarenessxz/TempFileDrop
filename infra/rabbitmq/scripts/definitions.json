@@ -9,7 +9,7 @@
             "tags": "administrator"
         },
         {
-            "name": "storage_publisher",
+            "name": "storage_admin",
             "password_hash": "6hOheQ9PncrNh+aHyfOl0z9U83VVrolWnLXTiykldGkVX7u3",
             "hashing_algorithm": "rabbit_password_hashing_sha256",
             "tags": ""
@@ -17,6 +17,12 @@
         {
             "name": "storage_subscriber",
             "password_hash": "6hOheQ9PncrNh+aHyfOl0z9U83VVrolWnLXTiykldGkVX7u3",
+            "hashing_algorithm": "rabbit_password_hashing_sha256",
+            "tags": ""
+        },
+        {
+            "name": "minio_admin",
+            "password_hash": "0xxgICSIV5TrpxjZAt6OPs+zGmzDiimdRyLn5thgeL4oxPcr",
             "hashing_algorithm": "rabbit_password_hashing_sha256",
             "tags": ""
         }
@@ -31,11 +37,11 @@
             "read": ".*"
         },
         {
-            "user": "storage_publisher",
+            "user": "storage_admin",
             "vhost": "/",
             "configure": "",
             "write": ".*",
-            "read": ""
+            "read": ".*"
         },
         {
             "user": "storage_subscriber",
@@ -43,6 +49,12 @@
             "configure": "",
             "write": "",
             "read": ".*"
+        },        {
+            "user": "minio_admin",
+            "vhost": "/",
+            "configure": ".*",
+            "write": ".*",
+            "read": ""
         }
     ]
 }

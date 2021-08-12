@@ -30,7 +30,9 @@ Generate password hash - `python scripts/password_hash.py`
 
 | accounts | password |
 | --- | --- |
-| storage_user | storage123 |
+| storage_publisher | storage123 |
+| storage_subscriber | storage123 |
+| minio_publisher | minio123 |
 | admin | admin123 |
 
 ## References

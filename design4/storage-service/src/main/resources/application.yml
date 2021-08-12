@@ -64,14 +64,24 @@ spring.data.mongodb.uri: mongodb://storage_user:storage_pass@localhost:27017/sto
 spring:
   rabbitmq:
     addresses: localhost:5672
-    username: storage_publisher
+    username: storage_admin
     password: storage123
-  cloud.stream:
-    rabbit.bindings:
-      storageSvcChannel-out-0.producer:
-        routing-key-expression: headers.routingkey    # Get Routing key from streambridge header
-        declare-exchange: false                       # Disable exchange creation for access control
-    bindings:
-      storageSvcChannel-out-0.destination: storageSvcExchange       # mapping cloud stream output channel to rabbitmq exchange
+  cloud:
+    function:
+      definition: minioBucketEventsChannel
+    stream:
+      rabbit.bindings:
+        minioBucketEventsChannel-in-0.consumer:
+          binding-routing-key: bucketlogs
+          bind-queue: false                             # Disable queue binding for access control (create manually)
+          declare-exchange: false                       # Disable exchange creation for access control (create manually)
+        storageSvcChannel-out-0.producer:
+          routing-key-expression: headers.routingkey    # Get Routing key from streambridge header
+          declare-exchange: false                       # Disable exchange creation for access control
+      bindings:
+        minioBucketEventsChannel-in-0:
+          destination: minioBucketEvents                 # mapping cloud stream input channel to rabbitmq exchange
+          group: storage
+        storageSvcChannel-out-0.destination: storageSvcExchange       # mapping cloud stream output channel to rabbitmq exchange
 
 ---

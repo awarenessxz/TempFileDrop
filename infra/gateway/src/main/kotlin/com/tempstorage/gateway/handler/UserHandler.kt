@@ -23,17 +23,15 @@ class UserHandler {
 
         return ReactiveSecurityContextHolder.getContext()
                 .map { context ->
-                    logger.info("Token: ${context.authentication}")
                     val principal = (context.authentication as OAuth2AuthenticationToken).principal
-                    val token = principal as OidcUser
-                    logger.info("Token: ${token.idToken.tokenValue}")
-                    logger.info("Principal : $principal")
-                    JwtUser(
-                            principal.getAttribute("given_name") ?: principal.name,
-                            principal.name,
-                            principal.getAttribute("client-roles") ?: ArrayList(),
-                            token.idToken.tokenValue
-                    )
+                    val oidcUser = principal as OidcUser
+                    val name = principal.getAttribute("given_name") ?: principal.name
+                    val username = principal.name
+                    val roles = principal.getAttribute<List<String>>("client-roles") ?: ArrayList()
+                    val token = oidcUser.idToken.tokenValue
+                    logger.info("Token: $token")
+                    logger.info("Principal: $principal")
+                    JwtUser(name, username, roles, token)
                 }
                 .flatMap { user -> ServerResponse.ok().bodyValue(user) }
                 .switchIfEmpty(ServerResponse.notFound().build())

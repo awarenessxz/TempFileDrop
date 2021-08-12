@@ -59,8 +59,12 @@ class FileStorageServiceImpl(
         }
     }
 
+    override fun getUploadUrl(bucket: String, objectName: String): String {
+        return "/api/storagesvc/upload"
+    }
+
     @ExperimentalPathApi
-    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): StorageUploadResponse {
+    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageInfo> {
         logger.info("[FILE SYSTEM] Uploading files to Folder Storage using input stream.....")
         val uploadedFiles = ArrayList<StorageInfo>()
 
@@ -123,9 +127,7 @@ class FileStorageServiceImpl(
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
         }
         notificationService.triggerUploadNotification(uploadedFiles, metadata?.eventData ?: "")
-        val storageIdList = uploadedFiles.map { it.id }
-        val storagePathList = uploadedFiles.map { it.storageFullPath!! }
-        return StorageUploadResponse("Files uploaded successfully", storageIdList, storagePathList)
+        return uploadedFiles
     }
 
     override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String?) {

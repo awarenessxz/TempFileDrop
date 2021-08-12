@@ -24,8 +24,10 @@ rabbitmq_port = 5672
 rabbitmq_virtual_host = "/"
 #######################
 rabbitmq_exchange = None
+rabbitmq_exchange_type = "topic"
 rabbitmq_rcv_queue = None
 rabbitmq_rcv_keys = []
+rabbitmq_durable = False
 create_exchange = False
 create_queue = False
 bind_queue = False
@@ -40,12 +42,12 @@ def usage():
 def declare_exchange():
     if create_exchange:
         print("Declaring Exchange --- {}".format(rabbitmq_exchange))
-        channel.exchange_declare(exchange=rabbitmq_exchange, exchange_type='topic', durable=True, auto_delete=False)
+        channel.exchange_declare(exchange=rabbitmq_exchange, exchange_type=rabbitmq_exchange_type, durable=rabbitmq_durable, auto_delete=False)
 
 def declare_queue():
     if create_queue:
         print("Declaring Queue --- {}".format(rabbitmq_rcv_queue))
-        channel.queue_declare(queue=rabbitmq_rcv_queue)
+        channel.queue_declare(queue=rabbitmq_rcv_queue, durable=rabbitmq_durable)
 
 def bind_queue_to_exchange():
     if bind_queue:
@@ -64,7 +66,7 @@ def connect_to_rabbitmq():
     channel = connection.channel()
 
 def process():
-    print("Arguments ==> {}".format(rabbitmq_exchange, rabbitmq_rcv_queue, rabbitmq_rcv_keys, create_exchange, create_queue, bind_queue))
+    print("Arguments ==> {}".format(rabbitmq_exchange, rabbitmq_exchange_type, rabbitmq_durable, rabbitmq_rcv_queue, rabbitmq_rcv_keys, create_exchange, create_queue, bind_queue))
     connect_to_rabbitmq()
     declare_exchange()
     declare_queue()
@@ -94,20 +96,24 @@ def main(argv):
         usage()
 
     try:
-        short_options = "hq:e:r:"
+        short_options = "hdq:e:r:t:"
         long_options = ["help", "create-exchange", "create-queue", "bind-queue"]
         opts, args = getopt.getopt(argv, short_options, long_options)
     except getopt.GetoptError:
         print("Invalid options...\n")
         usage()
 
-    global rabbitmq_exchange, rabbitmq_rcv_queue, rabbitmq_rcv_keys, create_exchange, create_queue, bind_queue
+    global rabbitmq_exchange, rabbitmq_durable, rabbitmq_exchange_type, rabbitmq_rcv_queue, rabbitmq_rcv_keys, create_exchange, create_queue, bind_queue
 
     for opt, arg in opts:
         if opt == '-q':
             rabbitmq_rcv_queue = arg
+        elif opt == '-d':
+            rabbitmq_durable = True
         elif opt == '-e':
             rabbitmq_exchange = arg
+        elif opt == '-t':
+            rabbitmq_exchange_type = arg
         elif opt == '-r':
             rabbitmq_rcv_keys = arg.strip().split(",")
         elif opt in ("-h", "--help"):

@@ -47,4 +47,12 @@
 //        val events = eventDataService.getAllEventsFromDB()
 //        return ResponseEntity(events, HttpStatus.OK)
 //    }
+//
+//    @Operation(summary = "Get all events that were published to message queue for bucket")
+//    @GetMapping("/events/{bucket}")
+//    fun getAllEvents(@PathVariable("bucket") bucket: String): ResponseEntity<List<EventData>> {
+//        logger.info("Receiving Request to get all events that were published to message queue for $bucket")
+//        val events = eventDataService.getEventsByBucket(bucket)
+//        return ResponseEntity(events, HttpStatus.OK)
+//    }
 //}

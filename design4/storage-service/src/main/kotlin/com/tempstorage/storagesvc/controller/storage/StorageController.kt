@@ -1,8 +1,6 @@
 package com.tempstorage.storagesvc.controller.storage
 
 import com.tempstorage.storagesvc.exception.ErrorResponse
-import com.tempstorage.storagesvc.service.eventdata.EventData
-import com.tempstorage.storagesvc.service.eventdata.EventDataService
 import com.tempstorage.storagesvc.service.storage.StorageService
 import com.tempstorage.storagesvc.service.storage.FileSystemNode
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
@@ -22,8 +20,7 @@ import kotlin.io.path.ExperimentalPathApi
 @RestController
 @RequestMapping("/api/storagesvc")
 class StorageController(
-        private val storageService: StorageService,
-        private val eventDataService: EventDataService
+        private val storageService: StorageService
 ) {
     companion object {
         private val logger = LoggerFactory.getLogger(StorageController::class.java)
@@ -81,6 +78,22 @@ class StorageController(
         return ResponseEntity(StorageInfoBulkResponse(storageInfoList), HttpStatus.OK)
     }
 
+    @Operation(summary = "Get Upload URL")
+    @ApiResponses(value = [
+        ApiResponse(description = "Successful operation", responseCode = "200"),
+        ApiResponse(description = "Fail to obtain Upload Url", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
+    ])
+    @GetMapping("/upload-url")
+    fun getUploadUrl(
+            @RequestParam(value = "bucket", required = true, defaultValue = "") bucket: String,
+            @RequestParam(value = "objectName", required = true, defaultValue = "") objectName: String,
+    ): ResponseEntity<String> {
+        logger.info("Preparing Url to upload $objectName to $bucket...")
+        // TODO: VALIDATE if user have access to bucket
+        val url = storageService.getUploadUrl(bucket, objectName)
+        return ResponseEntity(url, HttpStatus.OK)
+    }
+
     @Operation(summary = "Upload single or multiple files to storage service")
     @ApiResponses(value = [
         ApiResponse(description = "File were uploaded successfully", responseCode = "200"),
@@ -95,7 +108,7 @@ class StorageController(
         return ResponseEntity(response, HttpStatus.OK)
     }
 
-    @Operation(summary = "Download files based on storageId or storagePath")
+    @Operation(summary = "Download files based on storageId or objectName")
     @ApiResponses(value = [
         ApiResponse(description = "Successful operation", responseCode = "200"),
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
@@ -103,15 +116,15 @@ class StorageController(
     @GetMapping("/download")
     fun downloadFile(
             @RequestParam(value = "storageId", required = false, defaultValue = "") storageId: String,
-            @RequestParam(value = "storagePath", required = false, defaultValue = "") storagePath: String,
+            @RequestParam(value = "objectName", required = false, defaultValue = "") objectName: String,
             @RequestParam(value = "eventData", required = false, defaultValue = "") eventData: String,
             response: HttpServletResponse
     ) {
         logger.info("Downloading files....")
-        storageService.downloadFileFromBucket(storageId, storagePath, response, eventData)
+        storageService.downloadFileFromBucket(storageId, objectName, response, eventData)
     }
 
-    @Operation(summary = "Delete files based on storageId or storagePath")
+    @Operation(summary = "Delete files based on storageId or objectName")
     @ApiResponses(value = [
         ApiResponse(description = "File were deleted successfully", responseCode = "200", content = [Content(mediaType = "string")]),
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))])
@@ -119,19 +132,11 @@ class StorageController(
     @DeleteMapping("/")
     fun deleteFilesInBucket(
             @RequestParam(value = "storageId", required = false, defaultValue = "") storageId: String,
-            @RequestParam(value = "storagePath", required = false, defaultValue = "") storagePath: String,
+            @RequestParam(value = "objectName", required = false, defaultValue = "") objectName: String,
             @RequestParam(value = "eventData", required = false, defaultValue = "") eventData: String,
     ): ResponseEntity<String> {
         logger.info("Deleting files....")
-        storageService.deleteFromBucket(storageId, storagePath, eventData)
+        storageService.deleteFromBucket(storageId, objectName, eventData)
         return ResponseEntity("Files deleted successfully", HttpStatus.OK)
-    }
-
-    @Operation(summary = "Get all events that were published to message queue for bucket")
-    @GetMapping("/events/{bucket}")
-    fun getAllEvents(@PathVariable("bucket") bucket: String): ResponseEntity<List<EventData>> {
-        logger.info("Receiving Request to get all events that were published to message queue for $bucket")
-        val events = eventDataService.getEventsByBucket(bucket)
-        return ResponseEntity(events, HttpStatus.OK)
     }
 }

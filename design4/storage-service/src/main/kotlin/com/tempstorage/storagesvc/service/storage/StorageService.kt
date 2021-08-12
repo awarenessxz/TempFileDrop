@@ -22,7 +22,8 @@ abstract class StorageService {
     }
 
     abstract fun initStorage()
-    abstract fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): StorageUploadResponse
+    abstract fun getUploadUrl(bucket: String, objectName: String): String
+    abstract fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageInfo>
     abstract fun deleteFile(storageInfo: StorageInfo, eventData: String? = "")
     abstract fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String? = "")
 //    abstract fun downloadFilesAsZip(storageInfo: StorageInfo, storageFiles: List<StorageFile>, response: HttpServletResponse, eventData: String? = "")
@@ -44,8 +45,8 @@ abstract class StorageService {
         return results.filter { validateStorageInfo(it, false) }
     }
 
-    fun getStorageInfoFromBucket(storageId: String, storagePath: String, throwError: Boolean? = true): StorageInfo {
-        val storageInfo = getStorageInfoFromDatabase(storageId, storagePath)
+    fun getStorageInfoFromBucket(storageId: String, objectName: String, throwError: Boolean? = true): StorageInfo {
+        val storageInfo = getStorageInfoFromDatabase(storageId, objectName)
         validateStorageInfo(storageInfo, throwError)
         return storageInfo
     }
@@ -54,19 +55,19 @@ abstract class StorageService {
     fun listFilesAndFoldersInBucket(bucket: String): FileSystemNode {
         val storageInfoList = getAllStorageInfoFromBucket(bucket)
         val fileSystemNodes = getAllFileSizeInBucket(bucket, storageInfoList).map {
-            FileSystemNode(true, it.originalFilename, it.getStoragePathWithoutBucketPrefix(), it.bucket, it.id, it.fileLength.toInt(), it.numOfDownloadsLeft, it.expiryDatetime)
+            FileSystemNode(true, it.originalFilename, it.getObjectName(), it.bucket, it.id, it.fileLength.toInt(), it.numOfDownloadsLeft, it.expiryDatetime)
         }
         return StorageUtils.buildFolderTreeStructure(bucket, fileSystemNodes)
     }
 
-    fun deleteFromBucket(storageId: String, storagePath: String, eventData: String) {
-        val storageInfo = getStorageInfoFromDatabase(storageId, storagePath)
+    fun deleteFromBucket(storageId: String, objectName: String, eventData: String) {
+        val storageInfo = getStorageInfoFromDatabase(storageId, objectName)
         validateStorageInfo(storageInfo)
         deleteFile(storageInfo, eventData)
     }
 
-    fun downloadFileFromBucket(storageId: String, storagePath: String, response: HttpServletResponse, eventData: String) {
-        val storageInfo = getStorageInfoFromDatabase(storageId, storagePath)
+    fun downloadFileFromBucket(storageId: String, objectName: String, response: HttpServletResponse, eventData: String) {
+        val storageInfo = getStorageInfoFromDatabase(storageId, objectName)
         validateStorageInfo(storageInfo)
         // download
         response.contentType = storageInfo.fileContentType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE
@@ -81,7 +82,10 @@ abstract class StorageService {
         if (!isMultipart) {
             throw ApiException("Invalid Multipart Request", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         }
-        return uploadFilesViaStream(request, isAnonymous) // upload file
+        val uploadedFiles = uploadFilesViaStream(request, isAnonymous) // upload files
+        val storageIdList = uploadedFiles.map { it.id }
+        val storagePathList = uploadedFiles.map { it.storageFullPath!! }
+        return StorageUploadResponse("Files uploaded successfully", storageIdList, storagePathList)
     }
 
     /*******************************************************************************************************
@@ -90,13 +94,13 @@ abstract class StorageService {
      *                                                                                                     *
      *******************************************************************************************************/
 
-    private fun getStorageInfoFromDatabase(storageId: String, storagePath: String): StorageInfo {
+    private fun getStorageInfoFromDatabase(storageId: String, objectName: String): StorageInfo {
         return if (storageId.isNotEmpty()) {
             storageInfoService.getStorageInfoById(storageId) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
-        } else if (storagePath.isNotEmpty()) {
-            storageInfoService.getStorageInfoByPath(storagePath) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
+        } else if (objectName.isNotEmpty()) {
+            storageInfoService.getStorageInfoByPath(objectName) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
         } else {
-            throw ApiException("Please provide either storageId or storagePath...", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
+            throw ApiException("Please provide either storageId or objectName...", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         }
     }
 
