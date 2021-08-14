@@ -24,8 +24,7 @@ import javax.servlet.http.HttpServletRequest
 @Service
 @ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "minio")
 class MinioStorageServiceImpl(
-        private val minioClient: MinioClient,
-        private val notificationService: NotificationService
+        private val minioClient: MinioClient
 ): StorageService() {
     companion object {
         private val logger = LoggerFactory.getLogger(MinioStorageServiceImpl::class.java)
@@ -33,10 +32,10 @@ class MinioStorageServiceImpl(
 
     override fun initStorage() { }
 
-    override fun getS3PutUploadUrl(bucket: String, objectName: String): String? {
+    override fun getS3PresignedUrl(bucket: String, objectName: String, method: Method): String? {
         return minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
-                        .method(Method.PUT)
+                        .method(method)
                         .bucket(bucket)
                         .`object`(objectName)
                         .expiry(1, TimeUnit.HOURS)

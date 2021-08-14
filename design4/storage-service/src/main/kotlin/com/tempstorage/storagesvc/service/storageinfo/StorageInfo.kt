@@ -16,6 +16,7 @@ class StorageInfo(
         val expiryDatetime: ZonedDateTime,      // expiry date time
         val allowAnonymousDownload: Boolean,    // allow anonymous download
         val status: StorageStatus,              // Uploaded / Pending / Deleted
+        val customEventData: String? = "",      // Custom Event Data Tagged to upload (for notification)
         @Id val id: ObjectId = ObjectId.get()   // mongoDB ID (Storage ID)
 ) {
     val storageFullPath = Paths.get(bucket).resolve(objectName).toString() // full storage path = bucket/storagePath/originalFilename

@@ -1,22 +1,22 @@
 package com.tempstorage.storagesvc.service.storage
 
+import com.tempstorage.storagesvc.config.StorageSvcProperties
+import com.tempstorage.storagesvc.controller.storage.StorageS3UploadUrlParams
 import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
 import com.tempstorage.storagesvc.controller.storage.StorageUploadResponse
-import com.tempstorage.storagesvc.controller.storage.StorageUploadUrlResponse
+import com.tempstorage.storagesvc.controller.storage.StorageS3UploadUrlResponse
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfoService
+import com.tempstorage.storagesvc.service.storageinfo.StorageStatus
 import com.tempstorage.storagesvc.util.StorageUtils
+import io.minio.http.Method
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
-import java.time.ZonedDateTime
 import javax.servlet.http.HttpServletRequest
-import javax.servlet.http.HttpServletResponse
 
 abstract class StorageService {
     companion object {
@@ -24,7 +24,7 @@ abstract class StorageService {
     }
 
     abstract fun initStorage()
-    abstract fun getS3PutUploadUrl(bucket: String, objectName: String): String?
+    abstract fun getS3PresignedUrl(bucket: String, objectName: String, method: Method): String?
     abstract fun getS3PostUploadUrl(bucket: String, objectName: String): Map<String, String>?
     abstract fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageInfo>
 //    abstract fun deleteFile(storageInfo: StorageInfo, eventData: String? = "")
@@ -33,10 +33,16 @@ abstract class StorageService {
 //    abstract fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo>
 
     private lateinit var storageInfoService: StorageInfoService
+    private lateinit var storageServiceProperties: StorageSvcProperties
 
     @Autowired
     fun setStorageInfoService(storageInfoService: StorageInfoService) {
         this.storageInfoService = storageInfoService
+    }
+
+    @Autowired
+    fun setStorageServiceProperties(storageServiceProperties: StorageSvcProperties) {
+        this.storageServiceProperties = storageServiceProperties
     }
 
 //    fun getAllBuckets(): List<String> {
@@ -68,7 +74,11 @@ abstract class StorageService {
 //        validateStorageInfo(storageInfo)
 //        deleteFile(storageInfo, eventData)
 //    }
-//
+
+    /***************************************************************************************************************************************************************
+     * Download Functions
+     ***************************************************************************************************************************************************************/
+
 //    fun downloadFileFromBucket(storageId: String, objectName: String, response: HttpServletResponse, eventData: String) {
 //        val storageInfo = getStorageInfoFromDatabase(storageId, objectName)
 //        validateStorageInfo(storageInfo)
@@ -79,23 +89,45 @@ abstract class StorageService {
 //        downloadFile(storageInfo, response, eventData) // IMPORTANT: ORDER MATTERS (MUST BE AFTER SETTING HEADER)
 //    }
 
-    // generate upload endpoints
-    fun generateUploadUrl(metadata: StorageUploadMetadata): StorageUploadUrlResponse {
-        val httpEndpoint = "/api/storagesvc/upload"
+    /***************************************************************************************************************************************************************
+     * Upload Functions
+     ***************************************************************************************************************************************************************/
+
+    // Generate Http Endpoints / S3 Presigned Urls (Put & Post) and store Metadata into Database (for publishing event after upload completes)
+    fun generateS3UploadUrl(params: StorageS3UploadUrlParams): StorageS3UploadUrlResponse {
+        // Generate Endpoints
+        val s3Endpoint = listOf(storageServiceProperties.objectStorage.minioEndpoint, params.bucket).filter { it.isNotEmpty() }.joinToString("/")
         val s3PutEndpoints = mutableMapOf<String, String>()
         val s3PostEndpoints = mutableMapOf<String, Map<String, String>>()
-        metadata.storageObjects?.forEach { objectName ->
-            getS3PutUploadUrl(metadata.bucket, objectName)?.let {
+        params.storageObjects.forEach { objectName ->
+            getS3PresignedUrl(params.bucket, objectName, Method.PUT)?.let {
                 s3PutEndpoints[objectName] = it
             }
-            getS3PostUploadUrl(metadata.bucket, objectName)?.let {
+            getS3PostUploadUrl(params.bucket, objectName)?.let {
                 s3PostEndpoints[objectName] = it
             }
         }
-        return StorageUploadUrlResponse(s3PutEndpoints, s3PostEndpoints, httpEndpoint)
+
+        // Store Metadata as Storage Info (Pending) in Database
+        params.storageObjects.map {
+            StorageInfo(
+                    params.bucket,
+                    it,
+                    "",
+                    -1,
+                    params.maxDownloads!!,
+                    StorageUtils.processExpiryPeriod(params.expiryPeriod!!),
+                    params.allowAnonymousDownload!!,
+                    StorageStatus.PENDING,
+                    params.customEventData
+            )
+        }.forEach { storageInfoService.addStorageInfo(it) }
+
+        // Return Response
+        return StorageS3UploadUrlResponse(s3PutEndpoints, s3PostEndpoints, s3Endpoint)
     }
 
-    // upload via apache commons fileupload streaming api
+    // upload files via apache commons fileupload streaming api
     fun uploadViaStreamToBucket(request: HttpServletRequest, isAnonymous: Boolean = false): StorageUploadResponse {
         val isMultipart = ServletFileUpload.isMultipartContent(request)
         if (!isMultipart) {

@@ -9,6 +9,7 @@ import com.tempstorage.storagesvc.service.notification.NotificationService
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
 import com.tempstorage.storagesvc.service.storageinfo.StorageStatus
 import com.tempstorage.storagesvc.util.StorageUtils
+import io.minio.http.Method
 import org.apache.commons.fileupload.FileItemIterator
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.io.IOUtils
@@ -60,7 +61,7 @@ class FileStorageServiceImpl(
         }
     }
 
-    override fun getS3PutUploadUrl(bucket: String, objectName: String): String? {
+    override fun getS3PresignedUrl(bucket: String, objectName: String, method: Method): String? {
         return null
     }
 
