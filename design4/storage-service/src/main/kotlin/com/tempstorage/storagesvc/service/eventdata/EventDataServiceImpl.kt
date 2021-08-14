@@ -1,6 +1,6 @@
 package com.tempstorage.storagesvc.service.eventdata
 
-import com.tempstorage.storagesvc.service.notification.EventMessage
+import com.tempstorage.storagesvc.service.notification.NotificationMessage
 import org.springframework.stereotype.Service
 import java.time.ZonedDateTime
 
@@ -8,8 +8,8 @@ import java.time.ZonedDateTime
 class EventDataServiceImpl(
         private val repository: EventDataRepository
 ): EventDataService {
-    override fun writeToDB(eventMsg: EventMessage) {
-        val eventData = EventData(eventMsg.bucket, eventMsg.storageId, eventMsg.originalFilename, eventMsg.eventType, ZonedDateTime.now())
+    override fun writeToDB(eventMsg: NotificationMessage) {
+        val eventData = EventData(eventMsg.bucket, "", "", "", ZonedDateTime.now())
         repository.save(eventData)
     }
 

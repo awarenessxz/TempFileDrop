@@ -41,7 +41,7 @@ db.auth("service_user", "service_pass");
 db = db.getSiblingDB('webDB');
 db.createCollection("users_upload_info");
 
-// for design 1
+// for design 1 only
 db.createCollection("users");
 db.users.insert([
     { username: "user1", password: "password", creationDate: new Date(Date.now()) },
@@ -58,9 +58,11 @@ db.auth("storage_user", "storage_pass");
 
 // Create Collections for Storage Service
 db = db.getSiblingDB('storageDB');
-db.createCollection("storage_info")
+// design 1-3 only
 db.createCollection("storage_files");
 db.createCollection("download_tokens");
+// all other designs
+db.createCollection("storage_files");
 
 // Create Collections for Storage Service Console
 db.createCollection("data_events");

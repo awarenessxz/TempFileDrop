@@ -8,6 +8,7 @@ import org.springframework.cloud.stream.function.StreamBridge
 import org.springframework.messaging.MessageHeaders
 import org.springframework.messaging.support.MessageBuilder
 import org.springframework.stereotype.Component
+import java.time.ZonedDateTime
 
 @Component
 class RabbitMQProducer(
@@ -21,13 +22,13 @@ class RabbitMQProducer(
 
     fun sendEvent(eventType: EventType, storageInfo: StorageInfo, customData: String) {
         logger.info("Publishing Event ($eventType.name) to $STORAGE_SERVICE_CHANNEL")
-        val message = EventMessage(eventType.name, customData, storageInfo.id, storageInfo.originalFilename, storageInfo.bucket, storageInfo.storageFullPath!!)
+        val message = NotificationMessage("", ZonedDateTime.now(), EventType.FILES_UPLOADED, "", "", "")
         streamBridge.send(STORAGE_SERVICE_CHANNEL, message)
         eventDataService.writeToDB(message)
     }
 
     fun sendEventwithHeader(eventType: EventType, storageInfo: StorageInfo, customData: String) {
-        val message = EventMessage(eventType.name, customData, storageInfo.id, storageInfo.originalFilename, storageInfo.bucket, storageInfo.storageFullPath!!)
+        val message = NotificationMessage("", ZonedDateTime.now(), EventType.FILES_UPLOADED, "", "", "")
         val routingKey = storageInfo.bucket
         logger.info("Publishing Event (${eventType.name}) to $STORAGE_SERVICE_CHANNEL with router Key ($routingKey)")
         // publish

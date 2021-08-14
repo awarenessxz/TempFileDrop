@@ -1,28 +1,24 @@
 package com.tempstorage.storagesvc.service.storageinfo
 
+import org.bson.types.ObjectId
 import org.springframework.data.annotation.Id
 import org.springframework.data.mongodb.core.mapping.Document
 import java.time.ZonedDateTime
 import java.nio.file.Paths
 
 @Document(collection="storage_info")
-data class StorageInfo(
-        @Id val id: String,                     // mongoDB ID (Storage ID)
+class StorageInfo(
         val bucket: String,                     // bucket_name
-        val storagePath: String,                // the directory
-        val originalFilename: String,           // original file name
-        val fileContentType: String?,           // content type
-        val fileLength: Long,                   // file size
+        val objectName: String,                 // s3 object name
+        val fileContentType: String,            // file content type
+        val fileSize: Long,                     // file size
         val numOfDownloadsLeft: Int,            // number of downloads left
         val expiryDatetime: ZonedDateTime,      // expiry date time
         val allowAnonymousDownload: Boolean,    // allow anonymous download
-        var storageFullPath: String? = "",      // full storage path = bucket/storagePath/originalFilename
+        val status: StorageStatus,              // Uploaded / Pending / Deleted
+        @Id val id: ObjectId = ObjectId.get()   // mongoDB ID (Storage ID)
 ) {
-    init {
-        storageFullPath = Paths.get(bucket).resolve(storagePath).resolve(originalFilename).toString()
-    }
-
-    fun getObjectName(): String {
-        return Paths.get(storagePath).resolve(originalFilename).toString()
-    }
+    val storageFullPath = Paths.get(bucket).resolve(objectName).toString() // full storage path = bucket/storagePath/originalFilename
+    val storagePath = objectName.substringBeforeLast("/")
+    val originalFilename = objectName.substringAfterLast("/")
 }

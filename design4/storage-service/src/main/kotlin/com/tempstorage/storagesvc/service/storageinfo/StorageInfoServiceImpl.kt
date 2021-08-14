@@ -52,18 +52,18 @@ class StorageInfoServiceImpl(
 
     override fun reduceDownloadCountById(storageId: String) {
         val storageInfo = repository.findByIdOrNull(storageId) ?: throw ApiException("Record not found!", ErrorCode.SERVER_ERROR, HttpStatus.BAD_REQUEST)
-        val newStorageInfo = StorageInfo(
-                storageInfo.id,
-                storageInfo.bucket,
-                storageInfo.storagePath,
-                storageInfo.originalFilename,
-                storageInfo.fileContentType,
-                storageInfo.fileLength,
-                storageInfo.numOfDownloadsLeft - 1,
-                storageInfo.expiryDatetime,
-                storageInfo.allowAnonymousDownload
-        )
-        repository.save(newStorageInfo)
+//        val newStorageInfo = StorageInfo(
+//                storageInfo.id,
+//                storageInfo.bucket,
+//                storageInfo.storagePath,
+//                storageInfo.originalFilename,
+//                storageInfo.fileContentType,
+//                storageInfo.fileLength,
+//                storageInfo.numOfDownloadsLeft - 1,
+//                storageInfo.expiryDatetime,
+//                storageInfo.allowAnonymousDownload
+//        )
+        repository.save(storageInfo)
     }
 
     override fun getBuckets(): List<String> {

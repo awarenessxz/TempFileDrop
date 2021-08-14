@@ -7,6 +7,7 @@ import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
 import com.tempstorage.storagesvc.service.notification.NotificationService
 import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
+import com.tempstorage.storagesvc.service.storageinfo.StorageStatus
 import com.tempstorage.storagesvc.util.StorageUtils
 import org.apache.commons.fileupload.FileItemIterator
 import org.apache.commons.fileupload.servlet.ServletFileUpload
@@ -59,8 +60,12 @@ class FileStorageServiceImpl(
         }
     }
 
-    override fun getUploadUrl(bucket: String, objectName: String): String {
-        return "/api/storagesvc/upload"
+    override fun getS3PutUploadUrl(bucket: String, objectName: String): String? {
+        return null
+    }
+
+    override fun getS3PostUploadUrl(bucket: String, objectName: String): Map<String, String>? {
+        return null
     }
 
     @ExperimentalPathApi
@@ -76,7 +81,7 @@ class FileStorageServiceImpl(
         try {
             while(iterStream.hasNext()) {
                 val item = iterStream.next()
-                logger.info("FILE ==> ${item.name}")
+                logger.info("|--- Uploaded File = ${item.name}")
 
                 // get metadata in first loop
                 if (metadata === null) {
@@ -96,7 +101,7 @@ class FileStorageServiceImpl(
                 // subsequent multipart files are uploads
                 if (item.fieldName == "files" && bucketPath != null) {
                     // if path is not found, create it
-                    val bucketStoragePath = bucketPath.resolve(metadata.storagePath)
+                    val bucketStoragePath = bucketPath.resolve(metadata.storagePrefix!!)
                     if (!Files.exists(bucketStoragePath)) {
                         bucketStoragePath.createDirectories()
                     }
@@ -106,15 +111,14 @@ class FileStorageServiceImpl(
                     Files.copy(item.openStream(), filepath)
                     // extract file info
                     val tempFile = StorageInfo(
-                            StorageUtils.generateStorageId(),
                             metadata.bucket,
-                            metadata.storagePath,
-                            item.name,
+                            listOf(metadata.storagePrefix!!, item.name).filter { it.isNotEmpty() }.joinToString("/"),
                             item.contentType,
                             -1,
-                            metadata.maxDownloads,
-                            StorageUtils.processExpiryPeriod(metadata.expiryPeriod),
-                            isAnonymous || metadata.allowAnonymousDownload
+                            metadata.maxDownloads!!,
+                            StorageUtils.processExpiryPeriod(metadata.expiryPeriod!!),
+                            isAnonymous || metadata.allowAnonymousDownload!!,
+                            StorageStatus.UPLOADED
                     )
                     uploadedFiles.add(tempFile)
                 } else {
@@ -126,17 +130,18 @@ class FileStorageServiceImpl(
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
         }
-        notificationService.triggerUploadNotification(uploadedFiles, metadata?.eventData ?: "")
+
+        notificationService.triggerUploadNotification(uploadedFiles, metadata?.customEventData ?: "")
         return uploadedFiles
     }
 
-    override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String?) {
-        logger.info("[FILE SYSTEM] Downloading ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
-        val filepath = root.resolve(storageInfo.storageFullPath!!).toString()
-        val inputStream = FileInputStream(filepath)
-        IOUtils.copyLarge(inputStream, response.outputStream)
-        notificationService.triggerDownloadNotification(storageInfo, eventData ?: "")
-    }
+//    override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String?) {
+//        logger.info("[FILE SYSTEM] Downloading ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
+//        val filepath = root.resolve(storageInfo.storageFullPath!!).toString()
+//        val inputStream = FileInputStream(filepath)
+//        IOUtils.copyLarge(inputStream, response.outputStream)
+//        notificationService.triggerDownloadNotification(storageInfo, eventData ?: "")
+//    }
 
 //    override fun downloadFilesAsZip(storageInfo: StorageInfo, storageFiles: List<StorageFile>, response: HttpServletResponse, eventData: String?) {
 //        logger.info("Downloading files as zip from Folder Storage.....")
@@ -155,28 +160,28 @@ class FileStorageServiceImpl(
 //        notificationService.triggerDownloadNotification(storageInfo, storageInfo.bucket, eventData ?: "")
 //    }
 
-    override fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo> {
-        logger.info("List all files and folders in Bucket - $bucket...")
-        try {
-            val results = Files.walk(root).filter(Files::isRegularFile).collect(Collectors.toList())
-            val objectSizeMapper = results.map { it.fileName.toString() to Files.size(it) }.toMap()
-            return storageInfoList.map {
-                val fileSize = objectSizeMapper[it.originalFilename] ?: 0
-                StorageInfo(it.id, it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload)
-            }
-        } catch (e: IOException) {
-            throw RuntimeException("Could not load the files!")
-        }
-    }
-
-    override fun deleteFile(storageInfo: StorageInfo, eventData: String?) {
-        logger.info("[FILE SYSTEM] Deleting ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
-        FileSystemUtils.deleteRecursively(root.resolve(storageInfo.storageFullPath!!))
-        notificationService.triggerDeleteNotification(storageInfo, eventData ?: "")
-    }
-
-    fun deleteAllFilesInFolder() {
-        logger.info("[FILE SYSTEM] DELETING ALL FILES IN FOLDER STORAGE.....")
-        FileSystemUtils.deleteRecursively(root.toFile())
-    }
+//    override fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo> {
+//        logger.info("List all files and folders in Bucket - $bucket...")
+//        try {
+//            val results = Files.walk(root).filter(Files::isRegularFile).collect(Collectors.toList())
+//            val objectSizeMapper = results.map { it.fileName.toString() to Files.size(it) }.toMap()
+//            return storageInfoList.map {
+//                val fileSize = objectSizeMapper[it.originalFilename] ?: 0
+//                StorageInfo(it.id, it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload)
+//            }
+//        } catch (e: IOException) {
+//            throw RuntimeException("Could not load the files!")
+//        }
+//    }
+//
+//    override fun deleteFile(storageInfo: StorageInfo, eventData: String?) {
+//        logger.info("[FILE SYSTEM] Deleting ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
+//        FileSystemUtils.deleteRecursively(root.resolve(storageInfo.storageFullPath!!))
+//        notificationService.triggerDeleteNotification(storageInfo, eventData ?: "")
+//    }
+//
+//    fun deleteAllFilesInFolder() {
+//        logger.info("[FILE SYSTEM] DELETING ALL FILES IN FOLDER STORAGE.....")
+//        FileSystemUtils.deleteRecursively(root.toFile())
+//    }
 }

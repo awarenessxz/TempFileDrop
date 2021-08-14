@@ -17,12 +17,12 @@ class NotificationService(
     }
 
     fun triggerDeleteNotification(storageInfo: StorageInfo, eventData: String) {
-        storageInfoService.deleteStorageInfoById(storageInfo.id)                        // update database
+        storageInfoService.deleteStorageInfoById(storageInfo.id.toString())                        // update database
         producer.sendEventwithHeader(EventType.FILES_DELETED, storageInfo, eventData)   // notify
     }
 
     fun triggerDownloadNotification(storageInfo: StorageInfo, eventData: String) {
-        storageInfoService.reduceDownloadCountById(storageInfo.id)                          // update database
+        storageInfoService.reduceDownloadCountById(storageInfo.id.toString())                          // update database
         producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageInfo, eventData)    // notify
     }
 }

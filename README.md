@@ -111,7 +111,11 @@ for more information.
     - **Option C - Two-step: Metadata + Upload**
         - Submit meta-data first using `POST` method and return a `201 Created` with the location of where to upload the content
         - Submit a `PUT` request to upload content
-4. Possible File Upload Vulnerabilities
+4. File Upload Patterns
+    - S3 Upload Proxies
+    - S3 Presigned Urls
+    - S3 Presigned Posts
+5. Possible File Upload Vulnerabilities
     - **Server Side Request Forgery Vulnerability**
     - **Defend Strategies**:
         - There should be a **whitelist** of allowed file types. This list determines the types of files that can be uploaded,
@@ -124,7 +128,7 @@ for more information.
         - All uploaded files should be **scanned by antivirus software** before they are opened. 
         - App should not use **file names** supplied by user. Uploaded files should be renamed according to a predetermined
         condition. This makes it harder for attacker to find their uploaded files.
-5. OAuth2 Pattern - We will make use of three common OAuth2 patterns, using Keycloak as the authorization server
+6. OAuth2 Pattern - We will make use of three common OAuth2 patterns, using Keycloak as the authorization server
     - **OpenID Connection Authentication** - pattern used for end-user authentication
     - **Token Relay** when a OAuth2 consumer service / application like the API gateway acts as a client and forwards the 
     incoming token to outgoing resource requests
@@ -133,26 +137,33 @@ for more information.
 
 ## Future Works
 
-1. Implement Security
-    - TLS (HTTPS) 
-    - IAM for MinIO Cluster
-    - Access Control of Storage Service
-2. Storage Service
-    - Monitoring Metrics with Grafana
-    - File upload with Tus.io protocol (chunk based file upload)
-        - Upgrade Storage Service
-        - Upgrade TempFileDrop
-    - Rate Limiting of API Gateway
-    - Storage Service Javascript Client (NPM)
-    - Storage Service Security Starter Library
-    - Understand Logging
-3. Misc
+1. Revamp Design 2
+    - Minio Cluster
+        - Keycloak Authentication
+        - Distributed Set up
+    - Storage Service
+        - get url from storage service & upload to storage medium
+        - Notification via RabbitMQ
+        - Notification via Websocket
+        - Remove Storage Id Concept
+        - Add a storage library for common classes / protobuf maybe
+        - Change Expiry Period to DateTime or MilliSeconds
+        - Update Documentation
+        - VALIDATE if user have access to bucket
+    - Others
+        - Update Storage JS Client
+        - Update Storage Component
+        - Update TempFileDrop
+    - Storage Gateway
+        - Rate Limiting
+        - Logging
+2. Misc
+    - Monitoring with Grafana
     - Upgrade to Reactive Web (use webclient instead of restTemplate)
     - Make Navbar reactive to small screen (Frontend)
     - Viewing Nginx Logs in Docker Logs
     - Kubernetes Deployment (Production Mode)
         - https / wss
-    - Websocket (with security)
     
 ## References
 - [Command Cheat Sheet](doc/CHEATSHEET.md)
@@ -202,6 +213,7 @@ for more information.
     - [Securing inter service communication in microservice architecture](https://medium.com/@radutoev/securing-inter-service-communication-in-a-microservice-architecture-f413937012d4)
     - [Spring Security Context](https://www.javacodegeeks.com/2018/02/securitycontext-securitycontextholder-spring-security.html)
 - Multipart upload / download
+    - [S3 Upload Proxies vs Presigned Urls vs Presigned Posts](https://zaccharles.medium.com/s3-uploads-proxies-vs-presigned-urls-vs-presigned-posts-9661e2b37932)
     - React & Axios
         - [React File Upload/Download Example with Spring Rest Api](https://bezkoder.com/react-file-upload-spring-boot/)
         - [React File Upload/Download Example with Spring Rest Api](https://bezkoder.com/react-file-upload-spring-boot/)
@@ -279,4 +291,4 @@ for more information.
     - [Stackoverflow - Spring Security 403 for POST/DELETE but ok for GET](https://stackoverflow.com/questions/19468209/spring-security-403-error)
     - [How microservies communicate](https://medium.com/geekculture/microservices-apis-a7b43ce850ee)
     - [Stackoverflow - Create-React-app reroute hot reload client](https://stackoverflow.com/questions/59936123/howto-re-route-webpack-hot-reload-client)
-    
+ 

@@ -23,7 +23,7 @@ class RabbitMQConsumer(
             logger.info("Event Type => ${event.eventType()}")
             logger.info("Event Details => ${event.bucketName()} ${event.objectName()}")
             when(event.eventType()) {
-                EventType.OBJECT_CREATED_PUT -> {
+                EventType.OBJECT_CREATED_PUT, EventType.OBJECT_CREATED_POST -> {
                     logger.info("File Have been Uploaded!")
                 }
                 EventType.OBJECT_ACCESSED_GET -> {

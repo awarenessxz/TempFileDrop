@@ -14,7 +14,7 @@ import java.nio.file.Files
 import java.nio.file.Paths
 import java.time.ZoneOffset
 import java.time.ZonedDateTime
-import java.util.*
+import kotlin.collections.ArrayList
 
 object StorageUtils {
     private const val ANONYMOUS_BUCKET = "anonymous"
@@ -73,46 +73,40 @@ object StorageUtils {
 
     fun getStorageUploadMetadata(isAnonymous: Boolean, fileItemStream: FileItemStream? = null): StorageUploadMetadata {
         if (isAnonymous) {
-            return StorageUploadMetadata(ANONYMOUS_BUCKET, "", 1, 1, true,"")
+            return StorageUploadMetadata(bucket = ANONYMOUS_BUCKET, allowAnonymousDownload =  true)
         } else {
             if(fileItemStream != null && fileItemStream.fieldName == "metadata") {
                 val mapper = ObjectMapper().registerKotlinModule()
-                val metadata = mapper.readValue(fileItemStream.openStream(), StorageUploadMetadata::class.java)
-                val storagePath = processStoragePath(metadata.storagePath) ?: throw ApiException("Storage path is invalid", ErrorCode.UPLOAD_FAILED, HttpStatus.BAD_REQUEST)
-                return StorageUploadMetadata(metadata.bucket, storagePath, metadata.maxDownloads, metadata.expiryPeriod, metadata.allowAnonymousDownload, metadata.eventData)
+                return mapper.readValue(fileItemStream.openStream(), StorageUploadMetadata::class.java)
             }
             throw ApiException("Metadata not found!", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         }
     }
 
-    fun buildFolderTreeStructure(bucket: String, fileSystemNodes: List<FileSystemNode>): FileSystemNode {
-        val root = FileSystemNode(false, bucket, "/$bucket", bucket)
-        for (fileSystemNode in fileSystemNodes) {
-            buildTree(fileSystemNode.storageFullPath, fileSystemNode, root)
-        }
-        return root
-    }
-
-    private fun buildTree(path: String, file: FileSystemNode, parent: FileSystemNode) {
-        if (path.contains("/")) {
-            val currentPath = path.substring(0, path.indexOf("/"))
-            val newPath = path.substring(currentPath.length + 1)
-            if (parent.containsPath(currentPath)) {
-                buildTree(newPath, file, parent.getFileSystemNode(currentPath)!!)
-            } else {
-                val newFolder = FileSystemNode(false, currentPath, "${parent.storageFullPath}/$currentPath", parent.storageBucket)
-                parent.children.add(newFolder)
-                buildTree(newPath, file, newFolder)
-            }
-        } else {
-            if (!parent.containsPath(path)) {
-                val newFile = FileSystemNode(true, file.label, file.storageFullPath, file.storageBucket, file.storageId, file.storageSize, file.storageDownloadLeft, file.storageExpiryDatetime)
-                parent.children.add(newFile)
-            }
-        }
-    }
-
-    fun generateStorageId(): String {
-        return UUID.randomUUID().toString()
-    }
+//    fun buildFolderTreeStructure(bucket: String, fileSystemNodes: List<FileSystemNode>): FileSystemNode {
+//        val root = FileSystemNode(false, bucket, "/$bucket", bucket)
+//        for (fileSystemNode in fileSystemNodes) {
+//            buildTree(fileSystemNode.storageFullPath, fileSystemNode, root)
+//        }
+//        return root
+//    }
+//
+//    private fun buildTree(path: String, file: FileSystemNode, parent: FileSystemNode) {
+//        if (path.contains("/")) {
+//            val currentPath = path.substring(0, path.indexOf("/"))
+//            val newPath = path.substring(currentPath.length + 1)
+//            if (parent.containsPath(currentPath)) {
+//                buildTree(newPath, file, parent.getFileSystemNode(currentPath)!!)
+//            } else {
+//                val newFolder = FileSystemNode(false, currentPath, "${parent.storageFullPath}/$currentPath", parent.storageBucket)
+//                parent.children.add(newFolder)
+//                buildTree(newPath, file, newFolder)
+//            }
+//        } else {
+//            if (!parent.containsPath(path)) {
+//                val newFile = FileSystemNode(true, file.label, file.storageFullPath, file.storageBucket, file.storageId, file.storageSize, file.storageDownloadLeft, file.storageExpiryDatetime)
+//                parent.children.add(newFile)
+//            }
+//        }
+//    }
 }
