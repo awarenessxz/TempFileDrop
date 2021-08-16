@@ -60,15 +60,19 @@ object StorageUtils {
      * @Param
      *      expiryPeriodIdx: 0 = 1 hour, 1 = 1 day, 2 = 1 week
      */
-    fun processExpiryPeriod(expiryPeriodIdx: Int): ZonedDateTime {
+    fun processExpiryPeriod(expiryPeriodIdx: Int?): ZonedDateTime? {
         val now = ZonedDateTime.now(ZoneOffset.UTC)
         return when(expiryPeriodIdx) {
             0 -> now.plusHours(1)
             1 -> now.plusDays(1)
             2 -> now.plusWeeks(1)
             3 -> now.plusMonths(1)
-            else -> throw ApiException("Invalid Expiry Period!", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
+            else -> null
         }
+    }
+
+    fun processMaxDownloadCount(maxDownloadCount: Int?): Int {
+        return maxDownloadCount ?: -999
     }
 
     fun getStorageUploadMetadata(isAnonymous: Boolean, fileItemStream: FileItemStream? = null): StorageUploadMetadata {

@@ -2,12 +2,10 @@ package com.tempstorage.storagesvc.service.storage
 
 import com.tempstorage.storagesvc.config.StorageSvcProperties
 import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
-import com.tempstorage.storagesvc.controller.storage.StorageUploadResponse
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
 import com.tempstorage.storagesvc.service.notification.NotificationService
-import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
-import com.tempstorage.storagesvc.service.storageinfo.StorageStatus
+import com.tempstorage.storagesvc.service.metadata.StorageMetadata
 import com.tempstorage.storagesvc.util.StorageUtils
 import io.minio.http.Method
 import org.apache.commons.fileupload.FileItemIterator
@@ -21,13 +19,11 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.util.FileSystemUtils
 import org.springframework.util.StreamUtils
-import org.springframework.web.multipart.MultipartFile
 import java.io.FileInputStream
 import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
-import java.util.stream.Collectors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletRequest
@@ -61,18 +57,18 @@ class FileStorageServiceImpl(
         }
     }
 
-    override fun getS3PresignedUrl(bucket: String, objectName: String, method: Method): String? {
+    override fun getS3PresignedUrl(metadata: StorageMetadata, method: Method): String? {
         return null
     }
 
-    override fun getS3PostUploadUrl(bucket: String, objectName: String): Map<String, String>? {
+    override fun getS3PostUploadUrl(metadata: StorageMetadata): Map<String, String>? {
         return null
     }
 
     @ExperimentalPathApi
-    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageInfo> {
+    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageMetadata> {
         logger.info("[FILE SYSTEM] Uploading files to Folder Storage using input stream.....")
-        val uploadedFiles = ArrayList<StorageInfo>()
+        val uploadedFiles = ArrayList<StorageMetadata>()
 
         // process upload
         val fileuploadHandler = ServletFileUpload()
@@ -110,18 +106,18 @@ class FileStorageServiceImpl(
                     // copy file into bucket
                     val filepath = bucketStoragePath.resolve(item.name)
                     Files.copy(item.openStream(), filepath)
-                    // extract file info
-                    val tempFile = StorageInfo(
+                    // define file info
+                    val fileMetadata = StorageMetadata(
                             metadata.bucket,
                             listOf(metadata.storagePrefix!!, item.name).filter { it.isNotEmpty() }.joinToString("/"),
                             item.contentType,
                             -1,
                             metadata.maxDownloads!!,
                             StorageUtils.processExpiryPeriod(metadata.expiryPeriod!!),
-                            isAnonymous || metadata.allowAnonymousDownload!!,
-                            StorageStatus.UPLOADED
+                            isAnonymous || metadata.allowAnonymousDownload!!
                     )
-                    uploadedFiles.add(tempFile)
+                    // add metadata to return object
+                    uploadedFiles.add(fileMetadata)
                 } else {
                     throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
                 }
@@ -132,34 +128,34 @@ class FileStorageServiceImpl(
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
         }
 
-        notificationService.triggerUploadNotification(uploadedFiles, metadata?.customEventData ?: "")
+        uploadedFiles.forEach { notificationService.triggerUploadNotification(it) }
         return uploadedFiles
     }
 
-//    override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String?) {
-//        logger.info("[FILE SYSTEM] Downloading ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
-//        val filepath = root.resolve(storageInfo.storageFullPath!!).toString()
-//        val inputStream = FileInputStream(filepath)
-//        IOUtils.copyLarge(inputStream, response.outputStream)
-//        notificationService.triggerDownloadNotification(storageInfo, eventData ?: "")
-//    }
+    override fun downloadFile(storageMetadata: StorageMetadata, response: HttpServletResponse) {
+        logger.info("[FILE SYSTEM] Downloading ${storageMetadata.getOriginalFilename()} from ${storageMetadata.bucket}...")
+        val filepath = root.resolve(storageMetadata.getStorageFullPath()).toString()
+        val inputStream = FileInputStream(filepath)
+        IOUtils.copyLarge(inputStream, response.outputStream)
+        notificationService.triggerDownloadNotification(storageMetadata)
+    }
 
-//    override fun downloadFilesAsZip(storageInfo: StorageInfo, storageFiles: List<StorageFile>, response: HttpServletResponse, eventData: String?) {
-//        logger.info("Downloading files as zip from Folder Storage.....")
-//        val zipOut = ZipOutputStream(response.outputStream)
-//        storageFiles.forEach {
-//            val filepath = root.resolve(it.getFullStoragePath())
-//            val resource = FileSystemResource(filepath)
-//            val zipEntry = ZipEntry(it.originalFilename)
-//            // zipEntry.size = resource.contentLength()
-//            zipOut.putNextEntry(zipEntry)
-//            StreamUtils.copy(resource.inputStream, zipOut)
-//            zipOut.closeEntry()
-//        }
-//        zipOut.finish()
-//        zipOut.close()
-//        notificationService.triggerDownloadNotification(storageInfo, storageInfo.bucket, eventData ?: "")
-//    }
+    override fun downloadFilesAsZip(storageMetadataList: List<StorageMetadata>, response: HttpServletResponse) {
+        logger.info("[FILE SYSTEM] Downloading ${storageMetadataList.map { it.getOriginalFilename() }} as zip...")
+        val zipOut = ZipOutputStream(response.outputStream)
+        storageMetadataList.forEach {
+            val filepath = root.resolve(it.getStorageFullPath())
+            val resource = FileSystemResource(filepath)
+            val zipEntry = ZipEntry(it.getOriginalFilename())
+            // zipEntry.size = resource.contentLength()
+            zipOut.putNextEntry(zipEntry)
+            StreamUtils.copy(resource.inputStream, zipOut)
+            zipOut.closeEntry()
+        }
+        zipOut.finish()
+        zipOut.close()
+        storageMetadataList.forEach { notificationService.triggerDownloadNotification(it) }
+    }
 
 //    override fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo> {
 //        logger.info("List all files and folders in Bucket - $bucket...")
@@ -174,13 +170,13 @@ class FileStorageServiceImpl(
 //            throw RuntimeException("Could not load the files!")
 //        }
 //    }
-//
-//    override fun deleteFile(storageInfo: StorageInfo, eventData: String?) {
-//        logger.info("[FILE SYSTEM] Deleting ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
-//        FileSystemUtils.deleteRecursively(root.resolve(storageInfo.storageFullPath!!))
-//        notificationService.triggerDeleteNotification(storageInfo, eventData ?: "")
-//    }
-//
+
+    override fun deleteFile(storageMetadata: StorageMetadata) {
+        logger.info("[FILE SYSTEM] Deleting ${storageMetadata.objectName} from ${storageMetadata.bucket}...")
+        FileSystemUtils.deleteRecursively(root.resolve(storageMetadata.getStorageFullPath()))
+        notificationService.triggerDeleteNotification(storageMetadata)
+    }
+
 //    fun deleteAllFilesInFolder() {
 //        logger.info("[FILE SYSTEM] DELETING ALL FILES IN FOLDER STORAGE.....")
 //        FileSystemUtils.deleteRecursively(root.toFile())

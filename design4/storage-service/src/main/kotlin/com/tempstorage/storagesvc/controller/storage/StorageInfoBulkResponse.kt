@@ -1,7 +1,7 @@
 package com.tempstorage.storagesvc.controller.storage
 
-import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
+import com.tempstorage.storagesvc.service.metadata.StorageMetadata
 
 data class StorageInfoBulkResponse(
-        val storageInfoList: List<StorageInfo>
+        val storageMetadataList: List<StorageMetadata>
 )

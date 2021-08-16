@@ -1,14 +1,13 @@
 package com.tempstorage.storagesvc.config
 
 import com.tempstorage.storagesvc.service.storage.StorageService
-import com.tempstorage.storagesvc.service.storageinfo.StorageInfoService
+import com.tempstorage.storagesvc.service.metadata.StorageMetadataService
 import org.slf4j.LoggerFactory
 import org.springframework.context.annotation.Configuration
-import org.springframework.scheduling.annotation.Scheduled
 
 @Configuration
 class CleanupScheduler(
-        private val storageInfoService: StorageInfoService,
+        private val storageMetadataService: StorageMetadataService,
         private val storageService: StorageService
 ) {
     companion object {

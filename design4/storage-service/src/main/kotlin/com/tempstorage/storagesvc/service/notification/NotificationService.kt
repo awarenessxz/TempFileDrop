@@ -1,28 +1,26 @@
 package com.tempstorage.storagesvc.service.notification
 
-import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
-import com.tempstorage.storagesvc.service.storageinfo.StorageInfoService
+import com.tempstorage.storagesvc.service.metadata.StorageMetadata
+import com.tempstorage.storagesvc.service.metadata.StorageMetadataService
 import org.springframework.stereotype.Service
 
 @Service
 class NotificationService(
         private val producer: RabbitMQProducer,
-        private val storageInfoService: StorageInfoService
+        private val storageMetadataService: StorageMetadataService
 ) {
-    fun triggerUploadNotification(uploadedFiles: List<StorageInfo>, eventData: String) {
-        uploadedFiles.forEach{ file ->
-            storageInfoService.addStorageInfo(file)                                     // update database
-            producer.sendEventwithHeader(EventType.FILES_UPLOADED, file, eventData)     // notify
-        }
+    fun triggerUploadNotification(storageMetadata: StorageMetadata) {
+        storageMetadataService.saveStorageMetadata(storageMetadata)                 // update database
+        producer.sendEventwithHeader(EventType.FILES_UPLOADED, storageMetadata)     // notify
     }
 
-    fun triggerDeleteNotification(storageInfo: StorageInfo, eventData: String) {
-        storageInfoService.deleteStorageInfoById(storageInfo.id.toString())                        // update database
-        producer.sendEventwithHeader(EventType.FILES_DELETED, storageInfo, eventData)   // notify
+    fun triggerDeleteNotification(storageMetadata: StorageMetadata) {
+        storageMetadataService.deleteStorageMetadataByObjectName(storageMetadata.objectName)  // update database
+        producer.sendEventwithHeader(EventType.FILES_DELETED, storageMetadata)                // notify
     }
 
-    fun triggerDownloadNotification(storageInfo: StorageInfo, eventData: String) {
-        storageInfoService.reduceDownloadCountById(storageInfo.id.toString())                          // update database
-        producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageInfo, eventData)    // notify
+    fun triggerDownloadNotification(storageMetadata: StorageMetadata) {
+        storageMetadataService.reduceDownloadCountByObjectName(storageMetadata.objectName)   // update database
+        producer.sendEventwithHeader(EventType.FILES_DOWNLOADED, storageMetadata)            // notify
     }
 }

@@ -61,8 +61,9 @@ db = db.getSiblingDB('storageDB');
 // design 1-3 only
 db.createCollection("storage_files");
 db.createCollection("download_tokens");
+db.createCollection("storage_info");
 // all other designs
-db.createCollection("storage_files");
+db.createCollection("storage_metadata");
 
 // Create Collections for Storage Service Console
 db.createCollection("data_events");

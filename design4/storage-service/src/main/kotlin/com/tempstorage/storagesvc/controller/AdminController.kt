@@ -4,7 +4,7 @@
 //import com.tempstorage.storagesvc.service.eventdata.EventDataService
 //import com.tempstorage.storagesvc.service.storage.FileSystemNode
 //import com.tempstorage.storagesvc.service.storage.StorageService
-//import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
+//import com.tempstorage.storagesvc.service.metadata.StorageInfo
 //import io.swagger.v3.oas.annotations.Operation
 //import org.slf4j.LoggerFactory
 //import org.springframework.http.HttpStatus

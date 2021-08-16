@@ -2,6 +2,7 @@ package com.tempstorage.storagesvc.controller.storage
 
 import com.tempstorage.storagesvc.exception.ErrorResponse
 import com.tempstorage.storagesvc.service.storage.StorageService
+import io.minio.http.Method
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
@@ -12,6 +13,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 import kotlin.io.path.ExperimentalPathApi
 
 @RestController
@@ -79,16 +81,15 @@ class StorageController(
      * Upload Endpoints
      ***************************************************************************************************************************************************************/
 
-    @Operation(summary = "Get Upload Endpoints")
+    @Operation(summary = "Get S3 Upload Endpoints")
     @ApiResponses(value = [
-        ApiResponse(description = "Successful operation", responseCode = "200"),
-        ApiResponse(description = "Fail to obtain Upload Url", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
+        ApiResponse(description = "Successful operation", responseCode = "200")
     ])
     @GetMapping("/s3-upload-url")
-    fun getS3UploadUrl(params: StorageS3UploadUrlParams): ResponseEntity<StorageS3UploadUrlResponse> {
+    fun getS3UploadUrl(params: StorageS3PresignedUrlParams): ResponseEntity<StorageS3PresignedUrlResponse> {
         logger.info("Preparing Url to upload ${params.storageObjects} to ${params.bucket}...")
         // TODO: VALIDATE if user have access to bucket
-        val response = storageService.generateS3UploadUrl(params)
+        val response = storageService.generateS3PresignedUrl(params, Method.PUT)
         return ResponseEntity(response, HttpStatus.OK)
     }
 
@@ -110,47 +111,47 @@ class StorageController(
      * Download Endpoints
      ***************************************************************************************************************************************************************/
 
-//    @Operation(summary = "Get Download Endpoints")
-//    @ApiResponses(value = [
-//        ApiResponse(description = "Successful operation", responseCode = "200"),
-//        ApiResponse(description = "Fail to obtain Upload Url", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
-//    ])
-//    @GetMapping("/download-url")
-//    fun getDownloadUrl(params: StorageDownloadParams): ResponseEntity<StorageUploadUrlResponse> {
-//        logger.info("Preparing Url to upload ${params.storageObjects} to ${params.bucket}...")
-//        // TODO: VALIDATE if user have access to bucket
-//        return ResponseEntity.noContent().build()
-//    }
-//
-//    @Operation(summary = "Download files based on storageId or objectName")
-//    @ApiResponses(value = [
-//        ApiResponse(description = "Successful operation", responseCode = "200"),
-//        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
-//    ])
-//    @GetMapping("/download")
-//    fun downloadFile(
-//            @RequestParam(value = "objectName", required = false, defaultValue = "") objectName: String,
-//            @RequestParam(value = "eventData", required = false, defaultValue = "") eventData: String,
-//            response: HttpServletResponse
-//    ) {
-//        logger.info("Downloading files....")
-//        storageService.downloadFileFromBucket(objectName, response, eventData)
-//    }
+    @Operation(summary = "Get S3 Download Endpoints")
+    @ApiResponses(value = [
+        ApiResponse(description = "Successful operation", responseCode = "200")
+    ])
+    @GetMapping("/s3-download-url")
+    fun getS3DownloadUrl(params: StorageS3PresignedUrlParams): ResponseEntity<StorageS3PresignedUrlResponse> {
+        logger.info("Preparing Url to download ${params.storageObjects} from ${params.bucket}...")
+        // TODO: VALIDATE if user have access to bucket
+        val response = storageService.generateS3PresignedUrl(params, Method.GET)
+        return ResponseEntity(response, HttpStatus.OK)
+    }
 
+    @Operation(summary = "Download single or multiple files")
+    @ApiResponses(value = [
+        ApiResponse(description = "Successful operation", responseCode = "200"),
+        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ])
+    @GetMapping("/download")
+    fun downloadFiles(
+            @RequestParam(value = "storageObjects", required = true, defaultValue = "") storageObjects: List<String>,
+            response: HttpServletResponse
+    ) {
+        logger.info("Downloading $storageObjects....")
+        storageService.downloadFilesFromBucket(storageObjects, response)
+    }
 
-//    @Operation(summary = "Delete files based on storageId or objectName")
-//    @ApiResponses(value = [
-//        ApiResponse(description = "File were deleted successfully", responseCode = "200", content = [Content(mediaType = "string")]),
-//        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))])
-//    ])
-//    @DeleteMapping("/")
-//    fun deleteFilesInBucket(
-//            @RequestParam(value = "storageId", required = false, defaultValue = "") storageId: String,
-//            @RequestParam(value = "objectName", required = false, defaultValue = "") objectName: String,
-//            @RequestParam(value = "eventData", required = false, defaultValue = "") eventData: String,
-//    ): ResponseEntity<String> {
-//        logger.info("Deleting files....")
-//        storageService.deleteFromBucket(storageId, objectName, eventData)
-//        return ResponseEntity("Files deleted successfully", HttpStatus.OK)
-//    }
+    /***************************************************************************************************************************************************************
+     * Delete Endpoints
+     ***************************************************************************************************************************************************************/
+
+    @Operation(summary = "Delete files using objectName")
+    @ApiResponses(value = [
+        ApiResponse(description = "Files were deleted successfully", responseCode = "200", content = [Content(mediaType = "string")]),
+        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))])
+    ])
+    @DeleteMapping("/")
+    fun deleteFilesInBucket(
+            @RequestParam(value = "storageObjects", required = true, defaultValue = "") storageObjects: List<String>,
+    ): ResponseEntity<Map<String, String>> {
+        logger.info("Deleting $storageObjects....")
+        val response = storageService.deleteFilesInBucket(storageObjects)
+        return ResponseEntity(response, HttpStatus.OK)
+    }
 }

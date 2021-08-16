@@ -7,6 +7,5 @@ data class NotificationMessage(
         val eventTime: ZonedDateTime,       // Notification Date time
         val eventType: EventType,           // Event Type
         val bucket: String,                 // Bucket
-        val objectName: String,             // Object Name
-        val customEventData: String         // custom event data attached to rest call
+        val objectName: String              // Object Name
 )

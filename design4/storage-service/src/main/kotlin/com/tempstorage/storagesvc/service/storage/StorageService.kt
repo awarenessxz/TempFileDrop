@@ -1,22 +1,24 @@
 package com.tempstorage.storagesvc.service.storage
 
 import com.tempstorage.storagesvc.config.StorageSvcProperties
-import com.tempstorage.storagesvc.controller.storage.StorageS3UploadUrlParams
-import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
+import com.tempstorage.storagesvc.controller.storage.StorageS3PresignedUrlParams
 import com.tempstorage.storagesvc.controller.storage.StorageUploadResponse
-import com.tempstorage.storagesvc.controller.storage.StorageS3UploadUrlResponse
+import com.tempstorage.storagesvc.controller.storage.StorageS3PresignedUrlResponse
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
-import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
-import com.tempstorage.storagesvc.service.storageinfo.StorageInfoService
-import com.tempstorage.storagesvc.service.storageinfo.StorageStatus
+import com.tempstorage.storagesvc.service.notification.NotificationService
+import com.tempstorage.storagesvc.service.metadata.StorageMetadata
+import com.tempstorage.storagesvc.service.metadata.StorageMetadataService
 import com.tempstorage.storagesvc.util.StorageUtils
 import io.minio.http.Method
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.slf4j.LoggerFactory
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpStatus
+import java.time.ZonedDateTime
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
 
 abstract class StorageService {
     companion object {
@@ -24,20 +26,26 @@ abstract class StorageService {
     }
 
     abstract fun initStorage()
-    abstract fun getS3PresignedUrl(bucket: String, objectName: String, method: Method): String?
-    abstract fun getS3PostUploadUrl(bucket: String, objectName: String): Map<String, String>?
-    abstract fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageInfo>
-//    abstract fun deleteFile(storageInfo: StorageInfo, eventData: String? = "")
-//    abstract fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String? = "")
-//    abstract fun downloadFilesAsZip(storageInfo: StorageInfo, storageFiles: List<StorageFile>, response: HttpServletResponse, eventData: String? = "")
+    abstract fun getS3PresignedUrl(metadata: StorageMetadata, method: Method): String?
+    abstract fun getS3PostUploadUrl(metadata: StorageMetadata): Map<String, String>?
+    abstract fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageMetadata>
+    abstract fun deleteFile(storageMetadata: StorageMetadata)
+    abstract fun downloadFile(storageMetadata: StorageMetadata, response: HttpServletResponse)
+    abstract fun downloadFilesAsZip(storageMetadataList: List<StorageMetadata>, response: HttpServletResponse)
 //    abstract fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo>
 
-    private lateinit var storageInfoService: StorageInfoService
+    private lateinit var storageMetadataService: StorageMetadataService
+    private lateinit var notificationService: NotificationService
     private lateinit var storageServiceProperties: StorageSvcProperties
 
     @Autowired
-    fun setStorageInfoService(storageInfoService: StorageInfoService) {
-        this.storageInfoService = storageInfoService
+    fun setStorageInfoService(storageMetadataService: StorageMetadataService) {
+        this.storageMetadataService = storageMetadataService
+    }
+
+    @Autowired
+    fun setNotificationService(notificationService: NotificationService) {
+        this.notificationService = notificationService
     }
 
     @Autowired
@@ -68,64 +76,82 @@ abstract class StorageService {
 //        }
 //        return StorageUtils.buildFolderTreeStructure(bucket, fileSystemNodes)
 //    }
-//
-//    fun deleteFromBucket(storageId: String, objectName: String, eventData: String) {
-//        val storageInfo = getStorageInfoFromDatabase(storageId, objectName)
-//        validateStorageInfo(storageInfo)
-//        deleteFile(storageInfo, eventData)
-//    }
+
 
     /***************************************************************************************************************************************************************
-     * Download Functions
+     * Delete Functions
      ***************************************************************************************************************************************************************/
 
-//    fun downloadFileFromBucket(storageId: String, objectName: String, response: HttpServletResponse, eventData: String) {
-//        val storageInfo = getStorageInfoFromDatabase(storageId, objectName)
-//        validateStorageInfo(storageInfo)
-//        // download
-//        response.contentType = storageInfo.fileContentType ?: MediaType.APPLICATION_OCTET_STREAM_VALUE
-//        // response.setContentLengthLong(storageFile.fileLength)
-//        response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${storageInfo.originalFilename}\"")
-//        downloadFile(storageInfo, response, eventData) // IMPORTANT: ORDER MATTERS (MUST BE AFTER SETTING HEADER)
-//    }
+    fun deleteFilesInBucket(storageObjects: List<String>): Map<String, String> {
+        // get and validate object
+        val results: MutableMap<String, String> = HashMap()
+        val storageMetadataList = storageObjects.map { objectName -> getStorageMetadataFromDatabase(objectName) }
+        storageMetadataList.forEach { metadata ->
+            if (validateStorageMetadata(metadata, false)) {
+                deleteFile(metadata)
+                results[metadata.objectName] = "File Pending Deletion"
+            } else {
+                results[metadata.objectName] = "File Not Found"
+            }
+        }
+        return results
+    }
 
     /***************************************************************************************************************************************************************
-     * Upload Functions
+     * Presigned Url Functions
      ***************************************************************************************************************************************************************/
 
-    // Generate Http Endpoints / S3 Presigned Urls (Put & Post) and store Metadata into Database (for publishing event after upload completes)
-    fun generateS3UploadUrl(params: StorageS3UploadUrlParams): StorageS3UploadUrlResponse {
+    fun generateS3PresignedUrl(params: StorageS3PresignedUrlParams, method: Method): StorageS3PresignedUrlResponse {
         // Generate Endpoints
         val s3Endpoint = listOf(storageServiceProperties.objectStorage.minioEndpoint, params.bucket).filter { it.isNotEmpty() }.joinToString("/")
         val s3PutEndpoints = mutableMapOf<String, String>()
         val s3PostEndpoints = mutableMapOf<String, Map<String, String>>()
         params.storageObjects.forEach { objectName ->
-            getS3PresignedUrl(params.bucket, objectName, Method.PUT)?.let {
+            val metadata = StorageMetadata(params.bucket, objectName, "", -1, StorageUtils.processMaxDownloadCount(params.maxDownloads), StorageUtils.processExpiryPeriod(params.expiryPeriod ?: 1), false)
+            getS3PresignedUrl(metadata, method)?.let {
                 s3PutEndpoints[objectName] = it
             }
-            getS3PostUploadUrl(params.bucket, objectName)?.let {
-                s3PostEndpoints[objectName] = it
+            if (method == Method.PUT) {
+                getS3PostUploadUrl(metadata)?.let {
+                    s3PostEndpoints[objectName] = it
+                }
             }
         }
 
-        // Store Metadata as Storage Info (Pending) in Database
-        params.storageObjects.map {
-            StorageInfo(
-                    params.bucket,
-                    it,
-                    "",
-                    -1,
-                    params.maxDownloads!!,
-                    StorageUtils.processExpiryPeriod(params.expiryPeriod!!),
-                    params.allowAnonymousDownload!!,
-                    StorageStatus.PENDING,
-                    params.customEventData
-            )
-        }.forEach { storageInfoService.addStorageInfo(it) }
-
         // Return Response
-        return StorageS3UploadUrlResponse(s3PutEndpoints, s3PostEndpoints, s3Endpoint)
+        return StorageS3PresignedUrlResponse(s3PutEndpoints, s3PostEndpoints, s3Endpoint)
     }
+
+    /***************************************************************************************************************************************************************
+     * Download Functions
+     ***************************************************************************************************************************************************************/
+
+    fun downloadFilesFromBucket(storageObjects: List<String>, response: HttpServletResponse) {
+        // get and validate object
+        val storageMetadataList = storageObjects.map { objectName -> getStorageMetadataFromDatabase(objectName) }
+        storageMetadataList.forEach { metadata -> validateStorageMetadata(metadata) }
+
+        // download files
+        if (storageMetadataList.size > 1) {
+            // multiple file (download as zip)
+            logger.info("Zip File Download...")
+            response.status = HttpServletResponse.SC_OK
+            response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"storage.zip\"")
+            downloadFilesAsZip(storageMetadataList, response) // IMPORTANT: ORDER MATTERS (MUST BE AFTER SETTING HEADER)
+        } else {
+            // single file download
+            logger.info("Single File Download...")
+            val storageInfo = storageMetadataList[0]
+            response.contentType = storageInfo.fileContentType
+            // response.setContentLengthLong(storageFile.fileLength)
+            response.addHeader(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"${storageInfo.getOriginalFilename()}\"")
+            downloadFile(storageInfo, response) // IMPORTANT: ORDER MATTERS (MUST BE AFTER SETTING HEADER)
+        }
+    }
+
+    /***************************************************************************************************************************************************************
+     * Upload Functions
+     ***************************************************************************************************************************************************************/
 
     // upload files via apache commons fileupload streaming api
     fun uploadViaStreamToBucket(request: HttpServletRequest, isAnonymous: Boolean = false): StorageUploadResponse {
@@ -134,7 +160,7 @@ abstract class StorageService {
             throw ApiException("Invalid Multipart Request", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         }
         val uploadedFiles = uploadFilesViaStream(request, isAnonymous) // upload files
-        val storagePathList = uploadedFiles.map { it.storageFullPath }
+        val storagePathList = uploadedFiles.map { it.getStorageFullPath() }
         return StorageUploadResponse("Files uploaded successfully", storagePathList)
     }
 
@@ -144,27 +170,24 @@ abstract class StorageService {
      *                                                                                                     *
      *******************************************************************************************************/
 
-//    private fun getStorageInfoFromDatabase(storageId: String, objectName: String): StorageInfo {
-//        return if (storageId.isNotEmpty()) {
-//            storageInfoService.getStorageInfoById(storageId) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
-//        } else if (objectName.isNotEmpty()) {
-//            storageInfoService.getStorageInfoByPath(objectName) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
-//        } else {
-//            throw ApiException("Please provide either storageId or objectName...", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
-//        }
-//    }
-//
-//    private fun validateStorageInfo(storageInfo: StorageInfo, throwError: Boolean? = true): Boolean {
-//        var isValid = true
-//        if (storageInfo.numOfDownloadsLeft <= 0 || storageInfo.expiryDatetime.isBefore(ZonedDateTime.now())) {
-//            // storage expired. Delete the records and objects
-//            deleteFile(storageInfo)
-//            storageInfoService.deleteStorageInfoById(storageInfo.id)
-//            isValid = false
-//        }
-//        if (throwError!! && !isValid) {
-//            throw ApiException("File have expired!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
-//        }
-//        return isValid
-//    }
+    private fun getStorageMetadataFromDatabase(objectName: String): StorageMetadata {
+        return if (objectName.isNotEmpty()) {
+            storageMetadataService.getStorageMetadataByObjectName(objectName) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
+        } else {
+            throw ApiException("Please provide either storageId or objectName...", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
+        }
+    }
+
+    private fun validateStorageMetadata(storageMetadata: StorageMetadata, throwError: Boolean? = true): Boolean {
+        var isValid = true
+        if ((storageMetadata.numOfDownloadsLeft != -999 && storageMetadata.numOfDownloadsLeft <= 0)
+                || (storageMetadata.expiryDatetime != null && storageMetadata.expiryDatetime.isBefore(ZonedDateTime.now()))) {
+            deleteFile(storageMetadata) // storage expired. Delete the object
+            isValid = false
+        }
+        if (throwError!! && !isValid) {
+            throw ApiException("File have expired!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
+        }
+        return isValid
+    }
 }

@@ -113,8 +113,13 @@ for more information.
         - Submit a `PUT` request to upload content
 4. File Upload Patterns
     - S3 Upload Proxies
-    - S3 Presigned Urls
-    - S3 Presigned Posts
+    
+        ![proxy](doc/file_upload_pattern_minio_proxy.png)
+        
+    - S3 Presigned Urls (PUT) / Presigned Posts
+    
+        ![presigned](doc/file_upload_pattern_minio_presigned.png)
+        
 5. Possible File Upload Vulnerabilities
     - **Server Side Request Forgery Vulnerability**
     - **Defend Strategies**:

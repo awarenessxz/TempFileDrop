@@ -3,22 +3,28 @@ package com.tempstorage.storagesvc.service.storage
 import com.tempstorage.storagesvc.controller.storage.StorageUploadMetadata
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
-import com.tempstorage.storagesvc.service.notification.NotificationService
-import com.tempstorage.storagesvc.service.storageinfo.StorageInfo
-import com.tempstorage.storagesvc.service.storageinfo.StorageStatus
+import com.tempstorage.storagesvc.service.metadata.StorageMetadata
 import com.tempstorage.storagesvc.util.StorageUtils
 import io.minio.*
 import io.minio.http.Method
 import org.apache.commons.fileupload.FileItemIterator
 import org.apache.commons.fileupload.servlet.ServletFileUpload
+import org.apache.commons.io.IOUtils
 import org.slf4j.LoggerFactory
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty
 import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
+import org.springframework.util.StreamUtils
 import java.nio.file.Paths
 import java.time.ZonedDateTime
+import java.util.*
 import java.util.concurrent.TimeUnit
+import java.util.zip.ZipEntry
+import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletRequest
+import javax.servlet.http.HttpServletResponse
+import kotlin.collections.ArrayList
+import kotlin.collections.set
 
 
 @Service
@@ -32,33 +38,44 @@ class MinioStorageServiceImpl(
 
     override fun initStorage() { }
 
-    override fun getS3PresignedUrl(bucket: String, objectName: String, method: Method): String? {
+    override fun getS3PresignedUrl(metadata: StorageMetadata, method: Method): String? {
+        val reqParams: MutableMap<String, String> = HashMap()
+        if (method == Method.PUT) {
+            reqParams[StorageMetadata.EXPIRY_PERIOD] = metadata.expiryDatetime.toString()
+            reqParams[StorageMetadata.MAX_DOWNLOAD_COUNT] = metadata.numOfDownloadsLeft.toString()
+        }
         return minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()
                         .method(method)
-                        .bucket(bucket)
-                        .`object`(objectName)
+                        .bucket(metadata.bucket)
+                        .`object`(metadata.objectName)
                         .expiry(1, TimeUnit.HOURS)
+                        .extraQueryParams(reqParams)
                         .build()
         )
     }
 
-    override fun getS3PostUploadUrl(bucket: String, objectName: String): Map<String, String>? {
-        val policy = PostPolicy(bucket, ZonedDateTime.now().plusHours(1))
-        policy.addEqualsCondition("key", objectName)
+    override fun getS3PostUploadUrl(metadata: StorageMetadata): Map<String, String>? {
+        val policy = PostPolicy(metadata.bucket, ZonedDateTime.now().plusHours(1))
+        policy.addEqualsCondition("key", metadata.objectName)
+        policy.addEqualsCondition(StorageMetadata.EXPIRY_PERIOD, metadata.expiryDatetime.toString())
+        policy.addEqualsCondition(StorageMetadata.MAX_DOWNLOAD_COUNT, metadata.numOfDownloadsLeft.toString())
         val formData = minioClient.getPresignedPostFormData(policy)
-        formData["key"] = objectName
+        formData["key"] = metadata.objectName
+        formData[StorageMetadata.EXPIRY_PERIOD] = metadata.expiryDatetime.toString()
+        formData[StorageMetadata.MAX_DOWNLOAD_COUNT] = metadata.numOfDownloadsLeft.toString()
         return formData
     }
 
-    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageInfo> {
+    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageMetadata> {
         logger.info("[MINIO CLUSTER] Uploading files to MinIO Cluster using input streams.....")
-        val uploadedFiles = ArrayList<StorageInfo>()
+        val uploadedFiles = ArrayList<StorageMetadata>()
 
         // process upload
         val fileuploadHandler = ServletFileUpload()
         val iterStream: FileItemIterator = fileuploadHandler.getItemIterator(request)
         var metadata: StorageUploadMetadata? = null
+        val userMetadata: MutableMap<String, String> = HashMap()
         try {
             while(iterStream.hasNext()) {
                 val item = iterStream.next()
@@ -76,31 +93,36 @@ class MinioStorageServiceImpl(
                     if (!isAnonymous) {
                         continue
                     }
+                    // generate minio metadata
                 }
 
                 // subsequent multipart files are uploads
                 if (item.fieldName == "files") {
                     // upload to bucket
                     val objectName = Paths.get(metadata.storagePrefix!!).resolve(item.name!!)
-                    minioClient.putObject(PutObjectArgs.builder()
-                            .bucket(metadata.bucket)
-                            .contentType(item.contentType)
-                            .`object`(objectName.toString())
-                            .stream(item.openStream(), -1, 10485760)
-                            .build()
-                    )
-                    // extract file info
-                    val tempFile = StorageInfo(
+                    // define metadata for object
+                    val objectMetadata = StorageMetadata(
                             metadata.bucket,
                             listOf(metadata.storagePrefix!!, item.name).filter { it.isNotEmpty() }.joinToString("/"),
                             item.contentType,
                             -1,
                             metadata.maxDownloads!!,
                             StorageUtils.processExpiryPeriod(metadata.expiryPeriod!!),
-                            isAnonymous || metadata.allowAnonymousDownload!!,
-                            StorageStatus.UPLOADED
+                            isAnonymous || metadata.allowAnonymousDownload!!
                     )
-                    uploadedFiles.add(tempFile)
+                    userMetadata[StorageMetadata.EXPIRY_PERIOD] = objectMetadata.expiryDatetime.toString()
+                    userMetadata[StorageMetadata.MAX_DOWNLOAD_COUNT] = objectMetadata.numOfDownloadsLeft.toString()
+                    // store into minio
+                    minioClient.putObject(PutObjectArgs.builder()
+                            .bucket(metadata.bucket)
+                            .contentType(item.contentType)
+                            .`object`(objectName.toString())
+                            .userMetadata(userMetadata)
+                            .stream(item.openStream(), -1, 10485760)
+                            .build()
+                    )
+                    // add to return object
+                    uploadedFiles.add(objectMetadata)
                 } else {
                     throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
                 }
@@ -113,29 +135,27 @@ class MinioStorageServiceImpl(
         return uploadedFiles
     }
 
-//    override fun downloadFile(storageInfo: StorageInfo, response: HttpServletResponse, eventData: String?) {
-//        logger.info("[MINIO CLUSTER] Downloading ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
-//        val objectName = storageInfo.getObjectName()
-//        val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(storageInfo.bucket).`object`(objectName).build())
-//        IOUtils.copyLarge(inputStream, response.outputStream)
-//    }
+    override fun downloadFile(storageMetadata: StorageMetadata, response: HttpServletResponse) {
+        logger.info("[MINIO CLUSTER] Downloading ${storageMetadata.objectName} from ${storageMetadata.bucket}...")
+        val objectName = storageMetadata.objectName
+        val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(storageMetadata.bucket).`object`(objectName).build())
+        IOUtils.copyLarge(inputStream, response.outputStream)
+    }
 
-//    override fun downloadFilesAsZip(storageInfo: StorageInfo, storageFiles: List<StorageFile>, response: HttpServletResponse, eventData: String?) {
-//        logger.info("Downloading files as zip from MinIO Cluster.....")
-//        val zipOut = ZipOutputStream(response.outputStream)
-//        storageFiles.forEach {
-//            val filepath = it.getFileStoragePath()
-//            val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(it.bucket).`object`(filepath).build())
-//            val zipEntry = ZipEntry(it.originalFilename)
-//            // zipEntry.size = it.fileLength
-//            zipOut.putNextEntry(zipEntry)
-//            StreamUtils.copy(inputStream, zipOut)
-//            zipOut.closeEntry()
-//        }
-//        zipOut.finish()
-//        zipOut.close()
-//        notificationService.triggerDownloadNotification(storageInfo, storageInfo.bucket, eventData ?: "")
-//    }
+    override fun downloadFilesAsZip(storageMetadataList: List<StorageMetadata>, response: HttpServletResponse) {
+        logger.info("[MINIO CLUSTER] Downloading ${storageMetadataList.map { it.objectName }} as zip...")
+        val zipOut = ZipOutputStream(response.outputStream)
+        storageMetadataList.forEach {
+            val inputStream = minioClient.getObject(GetObjectArgs.builder().bucket(it.bucket).`object`(it.objectName).build())
+            val zipEntry = ZipEntry(it.getOriginalFilename())
+            // zipEntry.size = it.fileLength
+            zipOut.putNextEntry(zipEntry)
+            StreamUtils.copy(inputStream, zipOut)
+            zipOut.closeEntry()
+        }
+        zipOut.finish()
+        zipOut.close()
+    }
 
 //    override fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo> {
 //        logger.info("List all files and folders in Bucket - $bucket...")
@@ -146,10 +166,9 @@ class MinioStorageServiceImpl(
 //            StorageInfo(it.id, it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload)
 //        }
 //    }
-//
-//    override fun deleteFile(storageInfo: StorageInfo, eventData: String?) {
-//        logger.info("[MINIO CLUSTER] Deleting ${storageInfo.originalFilename} from ${storageInfo.bucket}...")
-//        val objectName = storageInfo.getObjectName()
-//        minioClient.removeObject(RemoveObjectArgs.builder().bucket(storageInfo.bucket).`object`(objectName).build())
-//    }
+
+    override fun deleteFile(storageMetadata: StorageMetadata) {
+        logger.info("[MINIO CLUSTER] Deleting ${storageMetadata.objectName} from ${storageMetadata.bucket}...")
+        minioClient.removeObject(RemoveObjectArgs.builder().bucket(storageMetadata.bucket).`object`(storageMetadata.objectName).build())
+    }
 }
