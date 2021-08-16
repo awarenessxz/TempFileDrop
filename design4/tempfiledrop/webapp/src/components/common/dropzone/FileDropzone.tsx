@@ -1,7 +1,7 @@
-import React, { MouseEvent, useState, useRef } from "react";
+import React, { MouseEvent, useEffect, useState, useRef } from "react";
 import { FaCopy } from "react-icons/fa";
 import { useDropzone } from 'react-dropzone'
-import StorageClient, { FileUploadMetadata, FileUploadResponse } from "storage-js-client";
+import StorageClient, { FileUploadMetadata, FileUploadResponse, FileMap } from "storage-js-client";
 import Button from "react-bootstrap/cjs/Button";
 import Col from "react-bootstrap/cjs/Col";
 import Container from "react-bootstrap/cjs/Container";
@@ -23,6 +23,10 @@ interface FileDropzoneProps {
 
 const ExpiryPeriod = ["1 Hour", "1 Day", "1 Week"];
 
+interface FileUploadStatus {
+    [key: string]: number;
+}
+
 const FileDropzone = ({
     showUploads = false,
     showConfigs = false,
@@ -37,6 +41,8 @@ const FileDropzone = ({
     const [errorMsg, setErrorMsg] = useState("");
     const [uploadRes, setUploadRes] = useState<FileUploadResponse|null>(null);
     const [loading, setLoading] = useState(false);
+    const [fileUploadStatus, setFileUploadStatus] = useState<FileUploadStatus>({});
+    const [uploadProgressUpdate, setUploadProgressUpdate] = useState({ id: "", value: 0 });
     const [uploadPercentage, setUploadPercentage] = useState(0);
     const [maxDownloads, setMaxDownloads] = useState<number|"">("");
     const [copiedText, setCopiedText] = useState("Copy to Clipboard");
@@ -45,6 +51,21 @@ const FileDropzone = ({
     const anonDownloadRef = useRef(null);
     const selectRef = useRef(null);
 
+    // https://stackoverflow.com/questions/58520189/react-hooks-what-is-the-correct-way-to-handle-async-setstate-inside-component
+    useEffect(() => {
+        setFileUploadStatus({
+            ...fileUploadStatus,
+            [uploadProgressUpdate.id]: uploadProgressUpdate.value
+        });
+    }, [uploadProgressUpdate]);
+
+    useEffect(() => {
+        const totalPercent = Object.values(fileUploadStatus).reduce((sum, num) => sum + num, 0);
+        const averagePercent = Math.round(totalPercent / acceptedFiles.length);
+        console.log(totalPercent, averagePercent, acceptedFiles.length);
+        setUploadPercentage(averagePercent);
+    }, [fileUploadStatus]);
+
     const handleUpload = (e: MouseEvent<HTMLButtonElement>) => {
         // reset states
         setUploadPercentage(0);
@@ -52,7 +73,7 @@ const FileDropzone = ({
 
         const handleUploadSuccess = (uploadRes: FileUploadResponse) => {
             setLoading(false);
-            setDownloadLinks(uploadRes.storageIdList.map(id => joinURLs(window.location.origin, "tempfiledrop", "download", id)));
+            // setDownloadLinks(uploadRes.storageIdList.map(id => joinURLs(window.location.origin, "tempfiledrop", "download", id)));
             setUploadRes(uploadRes);
         };
 
@@ -61,6 +82,27 @@ const FileDropzone = ({
             setErrorMsg("Upload Failed!");
         };
 
+        StorageClient.uploadViaPresignedUrl({
+            files: acceptedFiles.reduce((result, item, index) => {
+                const key = `${userToken ? userToken.username : ""}/${item.name}`
+                result[key] = item;
+                return result;
+            }, {} as FileMap),
+            metadata: {
+                bucket: Data.bucket,
+                storageObjects: acceptedFiles.map(file => `${userToken ? userToken.username : ""}/${file.name}`)
+            },
+            onUploadPercentage: (objectName, percentage) => {
+                console.log("Incoming...", objectName, percentage, fileUploadStatus);
+                setUploadProgressUpdate({ id: objectName, value: percentage });
+            },
+            onSuccess: () => {
+                console.log("Generate Download Links --> Tag Link to URL");
+            },
+            onError: handleUploadFailure
+        });
+
+        /*
         if (isAuthenticated) {
             // @ts-ignore
             const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
@@ -68,11 +110,10 @@ const FileDropzone = ({
             const anonDownload = anonDownloadRef.current === null ? false : anonDownloadRef.current.checked;
             const metadata: FileUploadMetadata = {
                 bucket: Data.bucket,
-                storagePath: userToken ? userToken.username : "",
+                storagePrefix: userToken ? userToken.username : "",
                 maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
                 expiryPeriod,
-                allowAnonymousDownload: anonDownload,
-                eventData: JSON.stringify({ username: userToken?.username })
+                allowAnonymousDownload: anonDownload
             };
             const token = window.accessToken ? window.accessToken : "dummy_token";
             StorageClient.upload({
@@ -93,6 +134,7 @@ const FileDropzone = ({
                 onSuccess: handleUploadSuccess,
             });
         }
+         */
     };
 
     const copyToClipboard = (idx: number) => {

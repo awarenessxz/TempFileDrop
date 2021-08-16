@@ -1,4 +1,7 @@
-import { upload, uploadAnonymously, FileUploadMetadata, FileUploadResponse, AnonymousUploadParams, UploadParams } from "./upload";
+import { FileMap, RequestParams } from "./common";
+import { FileUploadResponse } from "./upload/base";
+import { upload, uploadAnonymously, FileUploadMetadata, AnonymousUploadParams, UploadParams } from "./upload/proxy";
+import { uploadViaPresignedUrl, StorageS3PresignedUrlParams, S3PresignedUploadParams, StorageS3PresignedUrlResponse } from "./upload/presignedurl";
 import { downloadFileByStorageId, downloadFileByStoragePath, DownloadByStorageIdParams, DownloadByStoragePathParams } from "./download";
 import { deleteFileByStorageId, deleteFileByStoragePath, DeleteStorageIdParams, DeleteStoragePathParams } from "./delete";
 import { getStorageInfoByStoragePath, getStorageInfoByStorageId, StorageInfo, StorageInfoByStorageIdParams, StorageInfoByStoragePathParams } from "./storage";
@@ -9,6 +12,7 @@ const StorageClient = {
     downloadFileByStoragePath,
     upload,
     uploadAnonymously,
+    uploadViaPresignedUrl,
     extractFilenameFromContentDisposition,
     deleteFileByStorageId,
     deleteFileByStoragePath,
@@ -17,6 +21,8 @@ const StorageClient = {
 };
 
 export {
+    FileMap,
+    RequestParams,
     FileUploadMetadata,
     FileUploadResponse,
     AnonymousUploadParams,
@@ -27,7 +33,10 @@ export {
     DeleteStoragePathParams,
     StorageInfo,
     StorageInfoByStorageIdParams,
-    StorageInfoByStoragePathParams
+    StorageInfoByStoragePathParams,
+    S3PresignedUploadParams,
+    StorageS3PresignedUrlParams,
+    StorageS3PresignedUrlResponse
 };
 
 export default StorageClient;

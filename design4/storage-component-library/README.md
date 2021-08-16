@@ -131,7 +131,7 @@ yarn run test:watch
 
 Verify the following:
 1. **Components are exported correctly**
-    - [index.ts](src/index.ts)
+    - [base.ts](src/index.ts)
 2. **Third Party Library have been added to build directory**
     - You can expose third party library stylesheet. Refer to [rollup.config.js](rollup.config.js) for an example
 

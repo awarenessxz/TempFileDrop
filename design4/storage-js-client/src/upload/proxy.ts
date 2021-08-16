@@ -1,27 +1,21 @@
 import axios  from "axios";
+import { BaseUploadParams } from "./base";
+
+/********************************************************************************************************
+ * Type Definitions
+ ********************************************************************************************************/
 
 export interface FileUploadMetadata {
     bucket: string;
-    storagePath: string;
+    storagePrefix: string;
     maxDownloads: number;
     expiryPeriod: number;
     allowAnonymousDownload: boolean;
-    eventData?: string;
 }
 
 export interface FileUploadResponse {
     message: string;
-    storageIdList: string[];
-    storagePathList: string[];
-}
-
-export interface BaseUploadParams {
-    files: File[];
-    onSuccess?: (uploadRes: FileUploadResponse) => void;
-    onError?: (err: any) => void;
-    headers?: any;
-    url?: string;
-    onUploadPercentage?: (percentage: number) => void;
+    storageObjectList: string[];
 }
 
 interface FinalUploadParams {
@@ -48,6 +42,10 @@ interface FinalUploadParams {
     formData: FormData;
 }
 
+/********************************************************************************************************
+ * Functions
+ ********************************************************************************************************/
+
 const uploadToStorageService = (params: FinalUploadParams) => {
     const options = {
         onUploadProgress: (progressEvent: any) => {
@@ -73,6 +71,26 @@ const uploadToStorageService = (params: FinalUploadParams) => {
         .catch(err => params.onError(err));
 };
 
+export const uploadAnonymously = ({
+    files,
+    onSuccess = (uploadRes: FileUploadResponse) => {},
+    onError = (err: any) => {},
+    headers = {},
+    onUploadPercentage = (percentage: number) => {},
+    url = "/api/storagesvc/anonymous/upload"
+}: AnonymousUploadParams) => {
+    const formData = new FormData();
+    files.forEach(file => formData.append("files", file));
+    return uploadToStorageService({
+        onSuccess: onSuccess,
+        onError: onError,
+        headers: headers,
+        onUploadPercentage: onUploadPercentage,
+        url: url,
+        formData: formData
+    });
+};
+
 export const upload = ({
     files,
     metadata,
@@ -86,26 +104,6 @@ export const upload = ({
     formData.append("metadata", new Blob([JSON.stringify(metadata)], {
         type: "application/json"
     }));
-    files.forEach(file => formData.append("files", file));
-    return uploadToStorageService({
-        onSuccess: onSuccess,
-        onError: onError,
-        headers: headers,
-        onUploadPercentage: onUploadPercentage,
-        url: url,
-        formData: formData
-    });
-};
-
-export const uploadAnonymously = ({
-    files,
-    onSuccess = (uploadRes: FileUploadResponse) => {},
-    onError = (err: any) => {},
-    headers = {},
-    onUploadPercentage = (percentage: number) => {},
-    url = "/api/storagesvc/anonymous/upload"
-}: AnonymousUploadParams) => {
-    const formData = new FormData();
     files.forEach(file => formData.append("files", file));
     return uploadToStorageService({
         onSuccess: onSuccess,
