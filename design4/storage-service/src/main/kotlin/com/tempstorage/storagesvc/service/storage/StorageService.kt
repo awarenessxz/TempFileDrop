@@ -1,6 +1,7 @@
 package com.tempstorage.storagesvc.service.storage
 
 import com.tempstorage.storagesvc.config.StorageSvcProperties
+import com.tempstorage.storagesvc.controller.storage.StorageMetadataResponse
 import com.tempstorage.storagesvc.controller.storage.StorageS3PresignedUrlParams
 import com.tempstorage.storagesvc.controller.storage.StorageUploadResponse
 import com.tempstorage.storagesvc.controller.storage.StorageS3PresignedUrlResponse
@@ -56,17 +57,6 @@ abstract class StorageService {
 //    fun getAllBuckets(): List<String> {
 //        return storageInfoService.getBuckets()
 //    }
-//
-//    fun getAllStorageInfoFromBucket(bucket: String): List<StorageInfo> {
-//        val results = storageInfoService.getAllStorageInfoInBucket(bucket)
-//        return results.filter { validateStorageInfo(it, false) }
-//    }
-//
-//    fun getStorageInfoFromBucket(storageId: String, objectName: String, throwError: Boolean? = true): StorageInfo {
-//        val storageInfo = getStorageInfoFromDatabase(storageId, objectName)
-//        validateStorageInfo(storageInfo, throwError)
-//        return storageInfo
-//    }
 
 //    // convert list of all storage in bucket into folder like structure
 //    fun listFilesAndFoldersInBucket(bucket: String): FileSystemNode {
@@ -77,24 +67,31 @@ abstract class StorageService {
 //        return StorageUtils.buildFolderTreeStructure(bucket, fileSystemNodes)
 //    }
 
+    /***************************************************************************************************************************************************************
+     * Delete Functions
+     ***************************************************************************************************************************************************************/
+
+    fun getStorageMetadataFromBucket(storageObjects: List<String>): StorageMetadataResponse {
+        val results: MutableMap<String, StorageMetadata> = HashMap()
+        val errors: MutableList<String> = ArrayList()
+        val storageMetadataList = storageObjects.map { objectName -> getStorageMetadataFromDatabase(objectName) }
+        storageMetadataList.forEach { metadata ->
+            if (validateStorageMetadata(metadata, false)) {
+                results[metadata.objectName] = metadata
+            } else {
+                errors.add(metadata.objectName) // not found or invalid
+            }
+        }
+        return StorageMetadataResponse(results, errors)
+    }
 
     /***************************************************************************************************************************************************************
      * Delete Functions
      ***************************************************************************************************************************************************************/
 
-    fun deleteFilesInBucket(storageObjects: List<String>): Map<String, String> {
-        // get and validate object
-        val results: MutableMap<String, String> = HashMap()
+    fun deleteFilesInBucket(storageObjects: List<String>) {
         val storageMetadataList = storageObjects.map { objectName -> getStorageMetadataFromDatabase(objectName) }
-        storageMetadataList.forEach { metadata ->
-            if (validateStorageMetadata(metadata, false)) {
-                deleteFile(metadata)
-                results[metadata.objectName] = "File Pending Deletion"
-            } else {
-                results[metadata.objectName] = "File Not Found"
-            }
-        }
-        return results
+        storageMetadataList.forEach { metadata -> deleteFile(metadata) }
     }
 
     /***************************************************************************************************************************************************************
@@ -172,7 +169,7 @@ abstract class StorageService {
 
     private fun getStorageMetadataFromDatabase(objectName: String): StorageMetadata {
         return if (objectName.isNotEmpty()) {
-            storageMetadataService.getStorageMetadataByObjectName(objectName) ?: throw ApiException("Files not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
+            storageMetadataService.getStorageMetadataByObjectName(objectName) ?: throw ApiException("$objectName not found!", ErrorCode.FILE_NOT_FOUND, HttpStatus.BAD_REQUEST)
         } else {
             throw ApiException("Please provide either storageId or objectName...", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         }

@@ -1,6 +1,7 @@
 package com.tempstorage.storagesvc.controller.storage
 
 import com.tempstorage.storagesvc.exception.ErrorResponse
+import com.tempstorage.storagesvc.service.metadata.StorageMetadata
 import com.tempstorage.storagesvc.service.storage.StorageService
 import io.minio.http.Method
 import io.swagger.v3.oas.annotations.Operation
@@ -48,34 +49,25 @@ class StorageController(
 //        val storageInfoList = storageService.getAllStorageInfoFromBucket(bucket)
 //        return ResponseEntity(storageInfoList, HttpStatus.OK)
 //    }
-//
-//    @Operation(summary = "Get Storage Information based on storageId or storagePath")
-//    @ApiResponses(value = [
-//        ApiResponse(description = "Successful operation", responseCode = "200"),
-//        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
-//    ])
-//    @GetMapping("/storageinfo", produces = ["application/json"])
-//    fun getStorageInfoByStorageId(
-//            @RequestParam(value = "storageId", required = false, defaultValue = "") storageId: String,
-//            @RequestParam(value = "storagePath", required = false, defaultValue = "") storagePath: String
-//    ): ResponseEntity<StorageInfo> {
-//        logger.info("Retrieving file information....")
-//        val storageInfo = storageService.getStorageInfoFromBucket(storageId, storagePath)
-//        // TODO: Implement checks to see if storageId can be retrieved by anonymous users
-//        return ResponseEntity(storageInfo, HttpStatus.OK)
-//    }
-//
-//    @Operation(summary = "Get Multiple Storage Information based on list of storageId")
-//    @ApiResponses(value = [
-//        ApiResponse(description = "Successful operation", responseCode = "200"),
-//        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(schema = Schema(implementation = ErrorResponse::class))])
-//    ])
-//    @PostMapping("/storageinfo/bulk")
-//    fun getMultipleStorageInfoByStorageId(@RequestBody storageInfoBulkReq: StorageInfoBulkRequest): ResponseEntity<StorageInfoBulkResponse> {
-//        logger.info("Bulk request for retrieving file information....")
-//        val storageInfoList = storageInfoBulkReq.storageIdList.map { storageService.getStorageInfoFromBucket(it, "", false) }
-//        return ResponseEntity(StorageInfoBulkResponse(storageInfoList), HttpStatus.OK)
-//    }
+
+    /***************************************************************************************************************************************************************
+     * Metadata Endpoints
+     ***************************************************************************************************************************************************************/
+
+    @Operation(summary = "Get Storage Metadata using objectName")
+    @ApiResponses(value = [
+        ApiResponse(description = "Successful operation", responseCode = "200"),
+        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ])
+    @GetMapping("/metadata", produces = ["application/json"])
+    fun getStorageMetadata(
+            @RequestParam(value = "storageObjects", required = true, defaultValue = "") storageObjects: List<String>,
+    ): ResponseEntity<StorageMetadataResponse> {
+        logger.info("Retrieving Storage Metadata for $storageObjects.....")
+        val response = storageService.getStorageMetadataFromBucket(storageObjects)
+        // TODO: Implement checks to see if storageId can be retrieved by anonymous users
+        return ResponseEntity(response, HttpStatus.OK)
+    }
 
     /***************************************************************************************************************************************************************
      * Upload Endpoints
@@ -144,14 +136,14 @@ class StorageController(
     @Operation(summary = "Delete files using objectName")
     @ApiResponses(value = [
         ApiResponse(description = "Files were deleted successfully", responseCode = "200", content = [Content(mediaType = "string")]),
-        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))])
+        ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ])
     @DeleteMapping("/")
     fun deleteFilesInBucket(
             @RequestParam(value = "storageObjects", required = true, defaultValue = "") storageObjects: List<String>,
-    ): ResponseEntity<Map<String, String>> {
+    ): ResponseEntity<String> {
         logger.info("Deleting $storageObjects....")
-        val response = storageService.deleteFilesInBucket(storageObjects)
-        return ResponseEntity(response, HttpStatus.OK)
+        storageService.deleteFilesInBucket(storageObjects)
+        return ResponseEntity("Files are pending for deletion", HttpStatus.OK)
     }
 }
