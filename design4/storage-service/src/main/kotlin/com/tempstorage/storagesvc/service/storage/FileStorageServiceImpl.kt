@@ -66,9 +66,8 @@ class FileStorageServiceImpl(
     }
 
     @ExperimentalPathApi
-    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageMetadata> {
+    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean) {
         logger.info("[FILE SYSTEM] Uploading files to Folder Storage using input stream.....")
-        val uploadedFiles = ArrayList<StorageMetadata>()
 
         // process upload
         val fileuploadHandler = ServletFileUpload()
@@ -112,12 +111,12 @@ class FileStorageServiceImpl(
                             listOf(metadata.storagePrefix!!, item.name).filter { it.isNotEmpty() }.joinToString("/"),
                             item.contentType,
                             -1,
-                            metadata.maxDownloads!!,
-                            StorageUtils.processExpiryPeriod(metadata.expiryPeriod!!),
+                            StorageUtils.processMaxDownloadCount(metadata.maxDownloads),
+                            StorageUtils.processExpiryPeriod(metadata.expiryPeriod),
                             isAnonymous || metadata.allowAnonymousDownload!!
                     )
-                    // add metadata to return object
-                    uploadedFiles.add(fileMetadata)
+                    // notify
+                    notificationService.triggerUploadNotification(fileMetadata)
                 } else {
                     throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
                 }
@@ -127,9 +126,6 @@ class FileStorageServiceImpl(
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
         }
-
-        uploadedFiles.forEach { notificationService.triggerUploadNotification(it) }
-        return uploadedFiles
     }
 
     override fun downloadFile(storageMetadata: StorageMetadata, response: HttpServletResponse) {

@@ -3,7 +3,6 @@ package com.tempstorage.storagesvc.service.storage
 import com.tempstorage.storagesvc.config.StorageSvcProperties
 import com.tempstorage.storagesvc.controller.storage.StorageMetadataResponse
 import com.tempstorage.storagesvc.controller.storage.StorageS3PresignedUrlParams
-import com.tempstorage.storagesvc.controller.storage.StorageUploadResponse
 import com.tempstorage.storagesvc.controller.storage.StorageS3PresignedUrlResponse
 import com.tempstorage.storagesvc.exception.ApiException
 import com.tempstorage.storagesvc.exception.ErrorCode
@@ -29,7 +28,7 @@ abstract class StorageService {
     abstract fun initStorage()
     abstract fun getS3PresignedUrl(metadata: StorageMetadata, method: Method): String?
     abstract fun getS3PostUploadUrl(metadata: StorageMetadata): Map<String, String>?
-    abstract fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageMetadata>
+    abstract fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean)
     abstract fun deleteFile(storageMetadata: StorageMetadata)
     abstract fun downloadFile(storageMetadata: StorageMetadata, response: HttpServletResponse)
     abstract fun downloadFilesAsZip(storageMetadataList: List<StorageMetadata>, response: HttpServletResponse)
@@ -151,14 +150,12 @@ abstract class StorageService {
      ***************************************************************************************************************************************************************/
 
     // upload files via apache commons fileupload streaming api
-    fun uploadViaStreamToBucket(request: HttpServletRequest, isAnonymous: Boolean = false): StorageUploadResponse {
+    fun uploadViaStreamToBucket(request: HttpServletRequest, isAnonymous: Boolean = false) {
         val isMultipart = ServletFileUpload.isMultipartContent(request)
         if (!isMultipart) {
             throw ApiException("Invalid Multipart Request", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
         }
-        val uploadedFiles = uploadFilesViaStream(request, isAnonymous) // upload files
-        val storagePathList = uploadedFiles.map { it.getStorageFullPath() }
-        return StorageUploadResponse("Files uploaded successfully", storagePathList)
+        uploadFilesViaStream(request, isAnonymous) // upload files
     }
 
     /*******************************************************************************************************

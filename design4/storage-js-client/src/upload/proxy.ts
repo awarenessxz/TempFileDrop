@@ -13,104 +13,56 @@ export interface FileUploadMetadata {
     allowAnonymousDownload: boolean;
 }
 
-export interface FileUploadResponse {
-    message: string;
-    storageObjectList: string[];
-}
-
-interface FinalUploadParams {
-    onSuccess: (uploadRes: FileUploadResponse) => void;
-    onError: (err: any) => void;
-    headers: any;
-    url: string;
-    onUploadPercentage: (percentage: number) => void;
-    formData: FormData;
-}
-
 export interface UploadParams extends BaseUploadParams {
-    metadata: FileUploadMetadata;
-}
-
-export type AnonymousUploadParams = BaseUploadParams;
-
-interface FinalUploadParams {
-    onSuccess: (uploadRes: FileUploadResponse) => void;
-    onError: (err: any) => void;
-    headers: any;
-    url: string;
-    onUploadPercentage: (percentage: number) => void;
-    formData: FormData;
+    metadata?: FileUploadMetadata;
+    isAnonymous?: boolean;
 }
 
 /********************************************************************************************************
  * Functions
  ********************************************************************************************************/
 
-const uploadToStorageService = (params: FinalUploadParams) => {
+export const uploadToStorageService = ({
+    files,
+    metadata = undefined,
+    onSuccess = (uploadRes: any) => {},
+    onError = (err: any) => {},
+    headers = {},
+    onUploadPercentage = (percentage: number) => {},
+    isAnonymous = false,
+    url = isAnonymous ? "/api/storagesvc/anonymous/upload" : "/api/storagesvc/upload",
+}: UploadParams) => {
+    const formData = new FormData();
+    if (!isAnonymous) {
+        if (metadata === undefined) {
+            throw new Error("Metadata is undefined!");
+        }
+        formData.append("metadata", new Blob([JSON.stringify(metadata)], {
+            type: "application/json"
+        }));
+    }
+    files.forEach(file => formData.append("files", file));
+
     const options = {
         onUploadProgress: (progressEvent: any) => {
             const {loaded, total} = progressEvent;
             const percent = Math.floor((loaded * 100) / total);
             if (percent <= 100) {
-                params.onUploadPercentage(percent);
+                onUploadPercentage(percent);
             }
         },
-        headers: params.headers
+        headers: headers
     };
 
     // send request
-    axios.post(params.url, params.formData, options)
+    axios.post(url, formData, options)
         .then(res => {
             if (res.status === 200) {
-                const uploadResponse: FileUploadResponse = res.data;
-                params.onSuccess(uploadResponse);
+                onSuccess(res.data);
             } else {
-                params.onError({ message: "Fail to upload file" });
+                onError({ message: "Fail to upload file" });
             }
         })
-        .catch(err => params.onError(err));
+        .catch(err => onError(err));
 };
 
-export const uploadAnonymously = ({
-    files,
-    onSuccess = (uploadRes: FileUploadResponse) => {},
-    onError = (err: any) => {},
-    headers = {},
-    onUploadPercentage = (percentage: number) => {},
-    url = "/api/storagesvc/anonymous/upload"
-}: AnonymousUploadParams) => {
-    const formData = new FormData();
-    files.forEach(file => formData.append("files", file));
-    return uploadToStorageService({
-        onSuccess: onSuccess,
-        onError: onError,
-        headers: headers,
-        onUploadPercentage: onUploadPercentage,
-        url: url,
-        formData: formData
-    });
-};
-
-export const upload = ({
-    files,
-    metadata,
-    onSuccess = (uploadRes: FileUploadResponse) => {},
-    onError = (err: any) => {},
-    headers = {},
-    onUploadPercentage = (percentage: number) => {},
-    url = "/api/storagesvc/upload"
-}: UploadParams) => {
-    const formData = new FormData();
-    formData.append("metadata", new Blob([JSON.stringify(metadata)], {
-        type: "application/json"
-    }));
-    files.forEach(file => formData.append("files", file));
-    return uploadToStorageService({
-        onSuccess: onSuccess,
-        onError: onError,
-        headers: headers,
-        onUploadPercentage: onUploadPercentage,
-        url: url,
-        formData: formData
-    });
-};

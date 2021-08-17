@@ -93,10 +93,10 @@ class StorageController(
     ])
     @ExperimentalPathApi
     @PostMapping("/upload")
-    fun uploadFilesViaStream(request: HttpServletRequest): ResponseEntity<StorageUploadResponse> {
+    fun uploadFilesViaStream(request: HttpServletRequest): ResponseEntity<Void> {
         logger.info("Receiving upload request via stream")
-        val response = storageService.uploadViaStreamToBucket(request) // store files
-        return ResponseEntity(response, HttpStatus.OK)
+        storageService.uploadViaStreamToBucket(request) // store files
+        return ResponseEntity.ok().build()
     }
 
     /***************************************************************************************************************************************************************

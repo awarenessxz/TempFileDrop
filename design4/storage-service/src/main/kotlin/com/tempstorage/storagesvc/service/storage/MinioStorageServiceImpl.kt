@@ -67,9 +67,8 @@ class MinioStorageServiceImpl(
         return formData
     }
 
-    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean): List<StorageMetadata> {
+    override fun uploadFilesViaStream(request: HttpServletRequest, isAnonymous: Boolean) {
         logger.info("[MINIO CLUSTER] Uploading files to MinIO Cluster using input streams.....")
-        val uploadedFiles = ArrayList<StorageMetadata>()
 
         // process upload
         val fileuploadHandler = ServletFileUpload()
@@ -106,8 +105,8 @@ class MinioStorageServiceImpl(
                             listOf(metadata.storagePrefix!!, item.name).filter { it.isNotEmpty() }.joinToString("/"),
                             item.contentType,
                             -1,
-                            metadata.maxDownloads!!,
-                            StorageUtils.processExpiryPeriod(metadata.expiryPeriod!!),
+                            StorageUtils.processMaxDownloadCount(metadata.maxDownloads),
+                            StorageUtils.processExpiryPeriod(metadata.expiryPeriod),
                             isAnonymous || metadata.allowAnonymousDownload!!
                     )
                     userMetadata[StorageMetadata.EXPIRY_PERIOD] = objectMetadata.expiryDatetime.toString()
@@ -121,8 +120,6 @@ class MinioStorageServiceImpl(
                             .stream(item.openStream(), -1, 10485760)
                             .build()
                     )
-                    // add to return object
-                    uploadedFiles.add(objectMetadata)
                 } else {
                     throw ApiException("Invalid upload", ErrorCode.CLIENT_ERROR, HttpStatus.BAD_REQUEST)
                 }
@@ -132,7 +129,6 @@ class MinioStorageServiceImpl(
         } catch (e: Exception) {
             throw ApiException("Could not store the files... ${e.message}", ErrorCode.UPLOAD_FAILED, HttpStatus.INTERNAL_SERVER_ERROR)
         }
-        return uploadedFiles
     }
 
     override fun downloadFile(storageMetadata: StorageMetadata, response: HttpServletResponse) {

@@ -1,40 +1,36 @@
-import { FileMap, RequestParams } from "./common";
-import { FileUploadResponse } from "./upload/base";
-import { upload, uploadAnonymously, FileUploadMetadata, AnonymousUploadParams, UploadParams } from "./upload/proxy";
-import { uploadViaPresignedUrl, StorageS3PresignedUrlParams, S3PresignedUploadParams, StorageS3PresignedUrlResponse } from "./upload/presignedurl";
-import { downloadFileByStorageId, downloadFileByStoragePath, DownloadByStorageIdParams, DownloadByStoragePathParams } from "./download";
+import { FileMap, RequestParams, StorageS3PresignedUrlParams, StorageS3PresignedUrlResponse } from "./common";
+import { uploadToStorageService, UploadParams, FileUploadMetadata } from "./upload/proxy";
+import { uploadViaPresignedUrl, S3PresignedUploadParams } from "./upload/presignedurl";
+import { downloadFromStorageService, DownloadParams } from "./download/proxy";
+import { downloadViaPresignedUrl, S3PresignedDownloadParams } from "./download/presignedurl";
+
 import { deleteFileByStorageId, deleteFileByStoragePath, DeleteStorageIdParams, DeleteStoragePathParams } from "./delete";
 import { getStorageInfoByStoragePath, getStorageInfoByStorageId, StorageInfo, StorageInfoByStorageIdParams, StorageInfoByStoragePathParams } from "./storage";
-import { extractFilenameFromContentDisposition } from "./utils/file-utils";
 
 const StorageClient = {
-    downloadFileByStorageId,
-    downloadFileByStoragePath,
-    upload,
-    uploadAnonymously,
+    downloadViaPresignedUrl,
+    downloadFromStorageService,
     uploadViaPresignedUrl,
-    extractFilenameFromContentDisposition,
     deleteFileByStorageId,
     deleteFileByStoragePath,
     getStorageInfoByStoragePath,
-    getStorageInfoByStorageId
+    getStorageInfoByStorageId,
+    uploadToStorageService
 };
 
 export {
     FileMap,
-    RequestParams,
-    FileUploadMetadata,
-    FileUploadResponse,
-    AnonymousUploadParams,
     UploadParams,
-    DownloadByStorageIdParams,
-    DownloadByStoragePathParams,
+    RequestParams,
+    DownloadParams,
+    FileUploadMetadata,
     DeleteStorageIdParams,
     DeleteStoragePathParams,
     StorageInfo,
     StorageInfoByStorageIdParams,
     StorageInfoByStoragePathParams,
     S3PresignedUploadParams,
+    S3PresignedDownloadParams,
     StorageS3PresignedUrlParams,
     StorageS3PresignedUrlResponse
 };
