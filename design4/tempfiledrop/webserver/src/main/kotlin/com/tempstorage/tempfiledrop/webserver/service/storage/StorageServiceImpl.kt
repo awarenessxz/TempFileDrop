@@ -1,16 +1,10 @@
 package com.tempstorage.tempfiledrop.webserver.service.storage
 
-import com.fasterxml.jackson.databind.ObjectMapper
-import com.fasterxml.jackson.module.kotlin.registerKotlinModule
-import com.tempstorage.tempfiledrop.webserver.exception.ApiException
-import com.tempstorage.tempfiledrop.webserver.exception.ErrorCode
-import com.tempstorage.tempfiledrop.webserver.service.event.EventDataDelete
-import com.tempstorage.tempfiledrop.webserver.service.event.EventDataUpload
-import com.tempstorage.tempfiledrop.webserver.service.event.EventMessage
+import com.tempstorage.tempfiledrop.webserver.service.event.NotificationMessage
 import com.tempstorage.tempfiledrop.webserver.service.useruploads.UserUploadInfo
 import com.tempstorage.tempfiledrop.webserver.service.useruploads.UserUploadInfoService
+import com.tempstorage.tempfiledrop.webserver.util.FileUtil
 import org.slf4j.LoggerFactory
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 
 @Service
@@ -21,28 +15,17 @@ class StorageServiceImpl(
         private val logger = LoggerFactory.getLogger(StorageServiceImpl::class.java)
     }
 
-    override fun processFilesDeletedEvent(eventMessage: EventMessage) {
-        // extract event data which we added from frontend first
-        val objectMapper = ObjectMapper().registerKotlinModule()
-        val data = objectMapper.readValue(eventMessage.customData, EventDataDelete::class.java)
-
-        // process
-        logger.info("Deleting user's upload record...")
-        val record = uploadedFilesRecordService.getUploadedFilesRecordById(data.recordId) ?: throw ApiException("Record not found!", ErrorCode.NO_MATCHING_RECORD, HttpStatus.INTERNAL_SERVER_ERROR)
-        uploadedFilesRecordService.deleteUploadedFilesRecordById(record.id!!)
+    override fun processFilesDeletedEvent(eventMessage: NotificationMessage) {
+        logger.info("Deleting user's upload record... ${eventMessage.objectName}")
+        uploadedFilesRecordService.deleteUploadedFilesRecordByObjectName(eventMessage.objectName)
     }
 
-    override fun processFilesDownloadedEvent(eventMessage: EventMessage) {
+    override fun processFilesDownloadedEvent(eventMessage: NotificationMessage) {
     }
 
-    override fun processFilesUploadedEvent(eventMessage: EventMessage) {
-        // extract event data which we added from frontend first
-        val objectMapper = ObjectMapper().registerKotlinModule()
-        val data = objectMapper.readValue(eventMessage.customData, EventDataUpload::class.java)
-
-        // store the storage information into database
-        logger.info("Adding <user, upload record> mapping to database -->  <${data.username}, ${eventMessage.storageId}>")
-        val uploadRecord = UserUploadInfo(null, data.username, eventMessage.storageId)
-        uploadedFilesRecordService.addUploadedFilesRecord(uploadRecord)
+    override fun processFilesUploadedEvent(eventMessage: NotificationMessage) {
+        val username = FileUtil.getUsernameFromObjectName(eventMessage.objectName)
+        logger.info("Adding <user, upload record> mapping to database -->  <$username, ${eventMessage.objectName}>")
+        uploadedFilesRecordService.addUploadedFilesRecord(UserUploadInfo(username, eventMessage.objectName))
     }
 }

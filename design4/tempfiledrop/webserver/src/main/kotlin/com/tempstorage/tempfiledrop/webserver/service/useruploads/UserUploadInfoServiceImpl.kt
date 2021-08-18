@@ -8,15 +8,15 @@ class UserUploadInfoServiceImpl(
         private val repository: UserUploadInfoRepository
 ): UserUploadInfoService {
     override fun addUploadedFilesRecord(record: UserUploadInfo) {
+        val prevRecord = repository.findByObjectName(record.objectName)
+        if (prevRecord != null) {
+            record.id = prevRecord.id
+        }
         repository.save(record)
     }
 
     override fun getUploadedFilesRecordById(id: String): UserUploadInfo? {
         return repository.findByIdOrNull(id)
-    }
-
-    override fun getUploadedFilesRecordByStorageId(storageId: String): UserUploadInfo? {
-        return repository.findByStorageId(storageId)
     }
 
     override fun getUploadedFilesRecordsForUser(user: String): List<UserUploadInfo> {
@@ -27,7 +27,7 @@ class UserUploadInfoServiceImpl(
         repository.deleteById(id)
     }
 
-    override fun deleteUploadedFilesRecordByStorageId(storageId: String) {
-        repository.deleteByStorageId(storageId)
+    override fun deleteUploadedFilesRecordByObjectName(objectName: String) {
+        repository.deleteByObjectName(objectName)
     }
 }

@@ -20,7 +20,7 @@ export const downloadViaPresignedUrl = ({
     onError = (err: any) => {},
     onSuccess = () => {},
     headers = {},
-    url = "/api/storagesvc/s3-upload-url"
+    url = "/api/storagesvc/s3-download-url"
 }: S3PresignedDownloadParams) => {
     getPresignedUrl({ url: url, metadata: metadata, headers: headers})
         .then(res => {

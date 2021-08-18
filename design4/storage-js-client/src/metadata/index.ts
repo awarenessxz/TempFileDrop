@@ -44,7 +44,7 @@ export const getStorageMetadata = ({
     onSuccess,
     onError = (err: any) => {},
     headers = {},
-    url = "/api/storagesvc/storageinfo"
+    url = "/api/storagesvc/metadata"
 }: StorageMetadataParams) => {
     const reqParams: RequestParams = { };
     reqParams["storageObjects"] = storageObjects;

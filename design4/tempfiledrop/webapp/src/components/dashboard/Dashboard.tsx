@@ -2,7 +2,7 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import axios from "axios";
 import moment from "moment";
-import StorageClient from "storage-js-client";
+import StorageClient, { StorageMetadata } from "storage-js-client";
 import { FaTrash, FaDownload } from "react-icons/fa";
 import Alert from "react-bootstrap/cjs/Alert";
 import Button from "react-bootstrap/cjs/Button";
@@ -15,12 +15,11 @@ import FileDropzone from "../common/dropzone/FileDropzone";
 import { useAuthState } from "../../utils/auth-context";
 import { joinURLs } from "../../utils/toolkit";
 import Data from "../../config/app.json";
-import { UserUploadInfo } from "../../types/api-types";
 import "./Dashboard.css";
 
 const Dashboard = () => {
     const [modalShow, setModalShow] = useState(false);
-    const [records, setRecords] = useState<UserUploadInfo[]>([]);
+    const [records, setRecords] = useState<StorageMetadata[]>([]);
     const [message, setMessage] = useState("");
     const [isError, setIsError] = useState(false);
     const [rerender, setRerender] = useState(false);
@@ -31,7 +30,7 @@ const Dashboard = () => {
             axios.get(`${Data.api_endpoints.uploaded_files}/${userToken.username}`)
                 .then(res => {
                     if (res.status === 200) {
-                        const records: UserUploadInfo[] = res.data;
+                        const records: StorageMetadata[] = res.data;
                         setRecords(records);
                     }
                 })
@@ -43,17 +42,16 @@ const Dashboard = () => {
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [userToken, rerender]);
 
-    const handleDeleteRecord = (idx: number, recordId: string, storageId: string) => {
+    const handleDeleteRecord = (idx: number, objectName: string) => {
         // remove from view
         records.splice(idx, 1);
         setRecords([...records]);
 
         // call backend
         const token = window.accessToken ? window.accessToken : "dummy_token";
-        StorageClient.deleteFileByStorageId({
-            storageId: storageId,
+        StorageClient.deleteFromStorageService({
+            storageObjects: [objectName],
             headers: { 'Authorization': 'Bearer ' + token },
-            eventData: JSON.stringify({ recordId: recordId }),
             onSuccess: () => {
                 setMessage("Delete Success!");
                 setIsError(false);
@@ -65,10 +63,13 @@ const Dashboard = () => {
         });
     };
 
-    const handleDownloadRecord = (storageId: string) => {
+    const handleDownloadRecord = (storageMetadata: StorageMetadata) => {
         const token = window.accessToken ? window.accessToken : "dummy_token";
-        StorageClient.downloadFileByStorageId({
-            storageId: storageId,
+        StorageClient.downloadViaPresignedUrl({
+            metadata: {
+                bucket: storageMetadata.bucket,
+                storageObjects: [storageMetadata.objectName]
+            },
             headers: { 'Authorization': 'Bearer ' + token },
             onError(err: any): void {
                 console.log(err);
@@ -124,16 +125,16 @@ const Dashboard = () => {
                         {records.map((record, idx) => (
                             <tr key={idx}>
                                 <td>{idx+1}</td>
-                                <td>{record.storageInfo.originalFilename}</td>
-                                <td>{record.storageInfo.numOfDownloadsLeft}</td>
-                                <td>{moment(record.storageInfo.expiryDatetime).format("DD MMM YYYY h:mma")}</td>
-                                <td>{record.storageInfo.allowAnonymousDownload ? "Yes" : "No"}</td>
-                                <td><Link to={`/download/${record.storageInfo.id}`}>{joinURLs(window.location.origin, "download", record.storageInfo.id)}</Link></td>
+                                <td>{record.objectName}</td>
+                                <td>{record.numOfDownloadsLeft}</td>
+                                <td>{moment(record.expiryDatetime).format("DD MMM YYYY h:mma")}</td>
+                                <td>{record.allowAnonymousDownload ? "Yes" : "No"}</td>
+                                <td><Link to={`/download/${record.objectName}`}>{joinURLs(window.location.origin, "tempfiledrop", "download", record.objectName)}</Link></td>
                                 <td className="action-btn-group">
-                                    <Button className="action-btn" size="sm" variant="info" onClick={() => handleDownloadRecord(record.storageInfo.id)}>
+                                    <Button className="action-btn" size="sm" variant="info" onClick={() => handleDownloadRecord(record)}>
                                         <FaDownload />
                                     </Button>
-                                    <Button className="action-btn" size="sm" variant="danger" onClick={() => handleDeleteRecord(idx, record.id, record.storageInfo.id)}>
+                                    <Button className="action-btn" size="sm" variant="danger" onClick={() => handleDeleteRecord(idx, record.objectName)}>
                                         <FaTrash />
                                     </Button>
                                 </td>

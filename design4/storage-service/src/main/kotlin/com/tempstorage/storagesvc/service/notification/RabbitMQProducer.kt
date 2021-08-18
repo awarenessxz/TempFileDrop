@@ -21,13 +21,13 @@ class RabbitMQProducer(
 
     fun sendEvent(eventType: EventType, storageMetadata: StorageMetadata) {
         logger.info("Publishing Event ($eventType.name) to $STORAGE_SERVICE_CHANNEL")
-        val message = NotificationMessage("", ZonedDateTime.now(), EventType.FILES_UPLOADED, "", "")
+        val message = NotificationMessage(ZonedDateTime.now(), EventType.FILES_UPLOADED, storageMetadata.bucket, storageMetadata.objectName)
         streamBridge.send(STORAGE_SERVICE_CHANNEL, message)
         eventDataService.writeToDB(message)
     }
 
     fun sendEventwithHeader(eventType: EventType, storageMetadata: StorageMetadata) {
-        val message = NotificationMessage("", ZonedDateTime.now(), EventType.FILES_UPLOADED, "", "")
+        val message = NotificationMessage(ZonedDateTime.now(), EventType.FILES_UPLOADED, storageMetadata.bucket, storageMetadata.objectName)
         val routingKey = storageMetadata.bucket
         logger.info("Publishing Event (${eventType.name}) to $STORAGE_SERVICE_CHANNEL with router Key ($routingKey)")
         // publish

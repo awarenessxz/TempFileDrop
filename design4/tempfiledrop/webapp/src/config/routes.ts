@@ -30,7 +30,7 @@ const routes: AppRouteProps[] = [
         isPrivate: true
     },
     {
-        path: "/download/:storageId",
+        path: "/download/:objectName*",
         component: DownloadPage,
         isPrivate: false
     }

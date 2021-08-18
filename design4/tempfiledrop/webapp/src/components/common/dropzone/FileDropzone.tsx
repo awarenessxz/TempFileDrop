@@ -1,7 +1,7 @@
 import React, { MouseEvent, useEffect, useState, useRef } from "react";
 import { FaCopy } from "react-icons/fa";
 import { useDropzone } from 'react-dropzone'
-import StorageClient, { FileUploadMetadata, FileUploadResponse, FileMap } from "storage-js-client";
+import StorageClient, { FileMap } from "storage-js-client";
 import Button from "react-bootstrap/cjs/Button";
 import Col from "react-bootstrap/cjs/Col";
 import Container from "react-bootstrap/cjs/Container";
@@ -39,7 +39,7 @@ const FileDropzone = ({
     });
     const uploadExceeded = (acceptedFiles.reduce((a, b) => a + b.size, 0) + fileRejections.reduce((a, b) => a + b.file.size, 0)) > maxUploadSize;
     const [errorMsg, setErrorMsg] = useState("");
-    const [uploadRes, setUploadRes] = useState<FileUploadResponse|null>(null);
+    const [successMsg, setSuccessMsg] = useState("");
     const [loading, setLoading] = useState(false);
     const [fileUploadStatus, setFileUploadStatus] = useState<FileUploadStatus>({});
     const [uploadProgressUpdate, setUploadProgressUpdate] = useState({ id: "", value: 0 });
@@ -57,13 +57,14 @@ const FileDropzone = ({
             ...fileUploadStatus,
             [uploadProgressUpdate.id]: uploadProgressUpdate.value
         });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [uploadProgressUpdate]);
 
     useEffect(() => {
         const totalPercent = Object.values(fileUploadStatus).reduce((sum, num) => sum + num, 0);
         const averagePercent = Math.round(totalPercent / acceptedFiles.length);
-        console.log(totalPercent, averagePercent, acceptedFiles.length);
         setUploadPercentage(averagePercent);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [fileUploadStatus]);
 
     const handleUpload = (e: MouseEvent<HTMLButtonElement>) => {
@@ -71,10 +72,13 @@ const FileDropzone = ({
         setUploadPercentage(0);
         setLoading(true);
 
-        const handleUploadSuccess = (uploadRes: FileUploadResponse) => {
+        const handleUploadSuccess = () => {
             setLoading(false);
-            // setDownloadLinks(uploadRes.storageIdList.map(id => joinURLs(window.location.origin, "tempfiledrop", "download", id)));
-            setUploadRes(uploadRes);
+            setDownloadLinks(acceptedFiles.map(item => {
+                const key = `${userToken ? userToken.username : ""}/${item.name}`;
+                return joinURLs(window.location.origin, "tempfiledrop", "download", key);
+            }));
+            setSuccessMsg("Files have been uploaded successfully");
         };
 
         const handleUploadFailure = (err: any) => {
@@ -82,59 +86,39 @@ const FileDropzone = ({
             setErrorMsg("Upload Failed!");
         };
 
-        StorageClient.uploadViaPresignedUrl({
-            files: acceptedFiles.reduce((result, item, index) => {
-                const key = `${userToken ? userToken.username : ""}/${item.name}`
-                result[key] = item;
-                return result;
-            }, {} as FileMap),
-            metadata: {
-                bucket: Data.bucket,
-                storageObjects: acceptedFiles.map(file => `${userToken ? userToken.username : ""}/${file.name}`)
-            },
-            onUploadPercentage: (objectName, percentage) => {
-                console.log("Incoming...", objectName, percentage, fileUploadStatus);
-                setUploadProgressUpdate({ id: objectName, value: percentage });
-            },
-            onSuccess: () => {
-                console.log("Generate Download Links --> Tag Link to URL");
-            },
-            onError: handleUploadFailure
-        });
-
-        /*
         if (isAuthenticated) {
             // @ts-ignore
             const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
             // @ts-ignore
-            const anonDownload = anonDownloadRef.current === null ? false : anonDownloadRef.current.checked;
-            const metadata: FileUploadMetadata = {
-                bucket: Data.bucket,
-                storagePrefix: userToken ? userToken.username : "",
-                maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
-                expiryPeriod,
-                allowAnonymousDownload: anonDownload
-            };
-            const token = window.accessToken ? window.accessToken : "dummy_token";
-            StorageClient.upload({
-                files: acceptedFiles,
-                metadata: metadata,
-                headers: {
-                    'Authorization': 'Bearer ' + token
+            const allowAnonymousDownload = anonDownloadRef.current === null ? false : anonDownloadRef.current.checked;
+            console.log(maxDownloads);
+            StorageClient.uploadViaPresignedUrl({
+                files: acceptedFiles.reduce((result, item, index) => {
+                    const key = `${userToken ? userToken.username : ""}/${item.name}`
+                    result[key] = item;
+                    return result;
+                }, {} as FileMap),
+                metadata: {
+                    bucket: Data.bucket,
+                    storageObjects: acceptedFiles.map(file => `${userToken ? userToken.username : ""}/${file.name}`),
+                    maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
+                    expiryPeriod,
+                    allowAnonymousDownload
                 },
-                onUploadPercentage: (percentage) => setUploadPercentage(percentage),
-                onError: handleUploadFailure,
+                onUploadPercentage: (objectName, percentage) => {
+                    setUploadProgressUpdate({ id: objectName, value: percentage });
+                },
                 onSuccess: handleUploadSuccess,
+                onError: handleUploadFailure
             });
         } else {
-            StorageClient.uploadAnonymously({
+            StorageClient.uploadToStorageService({
                 files: acceptedFiles,
                 onUploadPercentage: (percentage) => setUploadPercentage(percentage),
                 onError: handleUploadFailure,
-                onSuccess: handleUploadSuccess,
+                onSuccess: handleUploadSuccess
             });
         }
-         */
     };
 
     const copyToClipboard = (idx: number) => {
@@ -145,6 +129,14 @@ const FileDropzone = ({
             setCopiedText("Copied!");
         }
     };
+
+    const handleDownloadLinkClick = (event: MouseEvent<HTMLInputElement>, idx: number) => {
+        event.preventDefault();
+        if (downloadLinksRef.current !== null) {
+            // @ts-ignore
+            window.location = downloadLinksRef.current[idx]?.value;
+        }
+    }
 
     return (
         <Container className="dropzone-container">
@@ -177,14 +169,14 @@ const FileDropzone = ({
                         {errorMsg}
                     </div>
                 )}
-                {uploadRes && (
+                {successMsg && (
                     <div className="dropzone-box message-success">
-                        {uploadRes.message}
+                        {successMsg}
                         <div className="dropzone-share-link-wrapper">
                             {downloadLinks.map((downloadLink, idx) => {
                                 return (
                                     <div className="dropzone-share-link" key={idx}>
-                                        <input ref={(ref) => downloadLinksRef.current.push(ref)} value={downloadLink} onChange={() => {}}/>
+                                        <input ref={(ref) => downloadLinksRef.current.push(ref)} value={downloadLink} onChange={() => {}} onClick={e => handleDownloadLinkClick(e, idx)}/>
                                         <div className="copy-tooltip">
                                             <Button onClick={() => copyToClipboard(idx)} onMouseOut={() => setCopiedText("Copy to Clipboard")}>
                                                 <span className="copy-tooltiptext">{copiedText}</span>
@@ -204,7 +196,7 @@ const FileDropzone = ({
                 )}
                 {loading && uploadPercentage >= 100 && <Spinner spinnerType="ThreeDots" backgroundColor="#92b0b3" spinnerColor="#fff" />}
             </div>
-            {showConfigs && !loading && !uploadRes && (
+            {showConfigs && !loading && !successMsg && (
                 <div className="dropzone-config-box">
                     <h5>Upload Settings</h5>
                     <Form>

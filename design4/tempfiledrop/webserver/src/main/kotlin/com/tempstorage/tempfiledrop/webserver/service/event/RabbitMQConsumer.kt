@@ -15,9 +15,9 @@ class RabbitMQConsumer(
     }
 
     @Bean
-    fun storageSvcChannel(): Consumer<EventMessage> = Consumer {
+    fun storageSvcChannel(): Consumer<NotificationMessage> = Consumer {
         logger.info("Received Event (${it.eventType}) From Storage Service: $it")
-        when (EventType.valueOf(it.eventType)) {
+        when (it.eventType) {
             EventType.FILES_DELETED -> storageService.processFilesDeletedEvent(it)
             EventType.FILES_DOWNLOADED -> storageService.processFilesDownloadedEvent(it)
             EventType.FILES_UPLOADED -> storageService.processFilesUploadedEvent(it)

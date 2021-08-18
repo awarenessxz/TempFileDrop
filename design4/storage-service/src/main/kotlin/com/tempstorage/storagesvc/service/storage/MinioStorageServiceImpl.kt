@@ -17,15 +17,13 @@ import org.springframework.stereotype.Service
 import org.springframework.util.StreamUtils
 import java.nio.file.Paths
 import java.time.ZonedDateTime
-import java.util.*
 import java.util.concurrent.TimeUnit
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import kotlin.collections.ArrayList
+import kotlin.collections.HashMap
 import kotlin.collections.set
-
 
 @Service
 @ConditionalOnProperty(prefix = "storagesvc", name = ["storage-mode"], havingValue = "minio")
@@ -43,6 +41,9 @@ class MinioStorageServiceImpl(
         if (method == Method.PUT) {
             reqParams[StorageMetadata.EXPIRY_PERIOD] = metadata.expiryDatetime.toString()
             reqParams[StorageMetadata.MAX_DOWNLOAD_COUNT] = metadata.numOfDownloadsLeft.toString()
+        }
+        if (method == Method.GET) {
+            reqParams["response-content-disposition"] =  "attachment; filename=\"${metadata.getOriginalFilename()}\""
         }
         return minioClient.getPresignedObjectUrl(
                 GetPresignedObjectUrlArgs.builder()

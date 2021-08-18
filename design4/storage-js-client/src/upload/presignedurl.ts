@@ -32,8 +32,8 @@ export const uploadViaPresignedUrl =({
             const allRequestPromise = [];
             const presignedResponse = res.data as StorageS3PresignedUrlResponse;
             if (mode === "POST") {
-                const formData = new FormData();
                 for (let objectName in files) {
+                    const formData = new FormData();
                     if (presignedResponse.s3PresignedPosts.hasOwnProperty(objectName)) {
                         // set form data
                         const storageFormData = presignedResponse.s3PresignedPosts[objectName];

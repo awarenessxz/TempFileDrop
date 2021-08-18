@@ -1,4 +1,4 @@
-package com.tempstorage.storagesvc.service.notification
+package com.tempstorage.tempfiledrop.webserver.service.event
 
 import java.time.ZonedDateTime
 

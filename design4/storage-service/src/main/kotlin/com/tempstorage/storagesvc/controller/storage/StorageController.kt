@@ -79,7 +79,7 @@ class StorageController(
     ])
     @GetMapping("/s3-upload-url")
     fun getS3UploadUrl(params: StorageS3PresignedUrlParams): ResponseEntity<StorageS3PresignedUrlResponse> {
-        logger.info("Preparing Url to upload ${params.storageObjects} to ${params.bucket}...")
+        logger.info("Preparing Url to upload ${params.storageObjects} to ${params.bucket}... Params = $params")
         // TODO: VALIDATE if user have access to bucket
         val response = storageService.generateS3PresignedUrl(params, Method.PUT)
         return ResponseEntity(response, HttpStatus.OK)
