@@ -1,20 +1,17 @@
 import { FileMap, RequestParams, StorageS3PresignedUrlParams, StorageS3PresignedUrlResponse } from "./common";
+import { getStorageMetadata, StorageMetadata, StorageMetadataParams, StorageMetadataResponse } from "./metadata";
 import { uploadToStorageService, UploadParams, FileUploadMetadata } from "./upload/proxy";
 import { uploadViaPresignedUrl, S3PresignedUploadParams } from "./upload/presignedurl";
 import { downloadFromStorageService, DownloadParams } from "./download/proxy";
 import { downloadViaPresignedUrl, S3PresignedDownloadParams } from "./download/presignedurl";
-
-import { deleteFileByStorageId, deleteFileByStoragePath, DeleteStorageIdParams, DeleteStoragePathParams } from "./delete";
-import { getStorageInfoByStoragePath, getStorageInfoByStorageId, StorageInfo, StorageInfoByStorageIdParams, StorageInfoByStoragePathParams } from "./storage";
+import { deleteFromStorageService, DeleteParams } from "./delete";
 
 const StorageClient = {
+    deleteFromStorageService,
     downloadViaPresignedUrl,
     downloadFromStorageService,
+    getStorageMetadata,
     uploadViaPresignedUrl,
-    deleteFileByStorageId,
-    deleteFileByStoragePath,
-    getStorageInfoByStoragePath,
-    getStorageInfoByStorageId,
     uploadToStorageService
 };
 
@@ -22,13 +19,12 @@ export {
     FileMap,
     UploadParams,
     RequestParams,
+    DeleteParams,
     DownloadParams,
     FileUploadMetadata,
-    DeleteStorageIdParams,
-    DeleteStoragePathParams,
-    StorageInfo,
-    StorageInfoByStorageIdParams,
-    StorageInfoByStoragePathParams,
+    StorageMetadata,
+    StorageMetadataParams,
+    StorageMetadataResponse,
     S3PresignedUploadParams,
     S3PresignedDownloadParams,
     StorageS3PresignedUrlParams,
