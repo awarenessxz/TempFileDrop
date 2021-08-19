@@ -13,6 +13,7 @@ import Table from "react-bootstrap/cjs/Table";
 import VerticallyCenteredModal from "../common/modal/VerticallyCenteredModal";
 import FileDropzone from "../common/dropzone/FileDropzone";
 import { useAuthState } from "../../utils/auth-context";
+import { useSocketState } from "../../utils/socket-context";
 import { joinURLs } from "../../utils/toolkit";
 import Data from "../../config/app.json";
 import "./Dashboard.css";
@@ -20,27 +21,31 @@ import "./Dashboard.css";
 const Dashboard = () => {
     const [modalShow, setModalShow] = useState(false);
     const [records, setRecords] = useState<StorageMetadata[]>([]);
-    const [message, setMessage] = useState("");
+    const [displayMsg, setDisplayMsg] = useState("");
     const [isError, setIsError] = useState(false);
     const [rerender, setRerender] = useState(false);
-    const { userToken } = useAuthState();
+    const authState = useAuthState();
+    const socketState = useSocketState();
 
     useEffect(() => {
-        if (userToken) {
-            axios.get(`${Data.api_endpoints.uploaded_files}/${userToken.username}`)
-                .then(res => {
-                    if (res.status === 200) {
-                        const records: StorageMetadata[] = res.data;
-                        setRecords(records);
-                    }
-                })
-                .catch(err => {
-                    setIsError(true);
-                    setMessage("Fail to fetch records...");
-                });
+        if (authState || socketState) {
+            const { userToken } = authState;
+            if (userToken) {
+                axios.get(`${Data.api_endpoints.uploaded_files}/${userToken.username}`)
+                    .then(res => {
+                        if (res.status === 200) {
+                            const records: StorageMetadata[] = res.data;
+                            setRecords(records);
+                        }
+                    })
+                    .catch(err => {
+                        setIsError(true);
+                        setDisplayMsg("Fail to fetch records...");
+                    });
+            }
         }
         // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [userToken, rerender]);
+    }, [authState, socketState]);
 
     const handleDeleteRecord = (idx: number, objectName: string) => {
         // remove from view
@@ -53,7 +58,7 @@ const Dashboard = () => {
             storageObjects: [objectName],
             headers: { 'Authorization': 'Bearer ' + token },
             onSuccess: () => {
-                setMessage("Delete Success!");
+                setDisplayMsg("Delete Success!");
                 setIsError(false);
                 setRerender(!rerender);
             },
@@ -75,25 +80,25 @@ const Dashboard = () => {
                 console.log(err);
             },
             onSuccess(): void {
-                setMessage("You have downloaded the files!");
+                setDisplayMsg("You have downloaded the files!");
                 setRerender(!rerender);
             }
         });
     };
 
     const onSuccessfulUpload = () => {
-        setMessage(""); // reset
+        setDisplayMsg(""); // reset
         setRerender(!rerender);
     };
 
     return (
         <div className="dashboard-container">
             <Container>
-                {message && (
+                {displayMsg && (
                     <Row>
                         <Col>
                             <Alert variant={`${isError ? "danger" : "success" }`}>
-                                {message}
+                                {displayMsg}
                             </Alert>
                         </Col>
                     </Row>

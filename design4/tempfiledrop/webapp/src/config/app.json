@@ -42,11 +42,5 @@
         "storagesvc_swagger": "/swagger/storagesvc/api-docs",
         "storagesvc_storage_info": "/api/storagesvc/storageinfo",
         "storagesvc": "/api/storagesvc"
-    },
-    "websocket_stomp_endpoint": "/ws/websocket-stomp",
-    "websocket_endpoints": {
-        "on_files_deleted": "/topic/onfilesdeleted",
-        "on_files_downloaded": "/topic/onfilesdownloaded",
-        "on_files_uploaded": "/topic/onfilesuploaded"
     }
 }

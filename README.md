@@ -289,6 +289,7 @@ for more information.
     - [dzone.com - Build a secure app using spring boot and websocket](https://dzone.com/articles/build-a-secure-app-using-spring-boot-and-websocket)
     - [okta - java spring websocket secure](https://developer.okta.com/blog/2019/10/09/java-spring-websocket-tutorial)
     - [Stomp Spring Boot Websocket](https://www.toptal.com/java/stomp-spring-boot-websocket)
+    - [Using React Context with Socket.io](https://alexboots.medium.com/using-react-context-with-socket-io-3b7205c86a6d)
 - React / Javascript
     - [Eslint for Typescript](https://khalilstemmler.com/blogs/typescript/eslint-for-typescript/)
 - Misc

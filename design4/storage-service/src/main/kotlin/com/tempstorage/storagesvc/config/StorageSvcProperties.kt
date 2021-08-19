@@ -6,7 +6,7 @@ import org.springframework.boot.context.properties.ConstructorBinding
 @ConstructorBinding
 @ConfigurationProperties(prefix = "storagesvc")
 data class StorageSvcProperties(
-        val storageMode: String = "object",
+        val storageMode: String = "minio",
         val cors: CorsProps,
         val anonymousUpload: AnonymousUploadProps,
         val fileStorage: FileStorageProps,

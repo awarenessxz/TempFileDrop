@@ -27,6 +27,7 @@ gateway:
     - /swagger/storagesvc/api-docs
     - /tempfiledrop/**
     - /auth/user
+    - /storage-ws/**
 
 ---
 
@@ -99,3 +100,12 @@ spring.cloud.gateway:
         - Path=/api/tempfiledrop/**
 #      filters:
 #        - RemoveRequestHeader=Cookie
+    ####################################### Web Socket Routes
+    - id: websocket_sockjs_route
+      uri: http://localhost:8001/
+      predicates:
+        - Path=/storage-ws/**
+    - id: websocket_route
+      uri: ws://localhost:8001/
+      predicates:
+        - Path=/storage-ws/**

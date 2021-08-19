@@ -2,6 +2,8 @@ import React from 'react';
 import ReactDOM from 'react-dom';
 import App from './components/core/App';
 import { AuthProvider } from "./utils/auth-context";
+import { SocketProvider } from "./utils/socket-context";
+import WebSocketManager from "./utils/websocket/WebSocketManager";
 import reportWebVitals from './reportWebVitals';
 import 'bootstrap/dist/css/bootstrap.min.css';
 import "./utils/axios-interceptors";
@@ -9,9 +11,13 @@ import "./utils/axios-interceptors";
 const render = (AppComponent: React.FC): void => {
     ReactDOM.render(
         <React.StrictMode>
-            <AuthProvider>
-                <AppComponent />
-            </AuthProvider>
+            <SocketProvider>
+                <AuthProvider>
+                    <WebSocketManager>
+                        <AppComponent />
+                    </WebSocketManager>
+                </AuthProvider>
+            </SocketProvider>
         </React.StrictMode>,
         document.getElementById('root')
     );

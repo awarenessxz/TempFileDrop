@@ -5,6 +5,7 @@ import { uploadViaPresignedUrl, S3PresignedUploadParams } from "./upload/presign
 import { downloadFromStorageService, DownloadParams } from "./download/proxy";
 import { downloadViaPresignedUrl, S3PresignedDownloadParams } from "./download/presignedurl";
 import { deleteFromStorageService, DeleteParams } from "./delete";
+import { EventType, NotificationMessage, NotificationWebSocketTopics, NotificationWebSocketEndpoint } from "./notification";
 
 const StorageClient = {
     deleteFromStorageService,
@@ -22,6 +23,10 @@ export {
     DeleteParams,
     DownloadParams,
     FileUploadMetadata,
+    EventType,
+    NotificationMessage,
+    NotificationWebSocketTopics,
+    NotificationWebSocketEndpoint,
     StorageMetadata,
     StorageMetadataParams,
     StorageMetadataResponse,
