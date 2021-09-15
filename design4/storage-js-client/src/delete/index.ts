@@ -12,6 +12,7 @@ export interface DeleteParams {
     headers?: any;
     url?: string;
     storageObjects: string[];
+    bucket: string;
 }
 
 /********************************************************************************************************
@@ -19,6 +20,7 @@ export interface DeleteParams {
  ********************************************************************************************************/
 
 export const deleteFromStorageService = ({
+    bucket,
     storageObjects,
     onSuccess = (res: any) => {},
     onError = (err: any) => {},
@@ -28,7 +30,7 @@ export const deleteFromStorageService = ({
     const reqParams: RequestParams = { };
     reqParams["storageObjects"] = storageObjects;
 
-    axios.delete(url, {
+    axios.delete(`${url}/${bucket}`, {
         headers: headers,
         params: reqParams,
         paramsSerializer: (params) => qs.stringify(params, { arrayFormat: "repeat" })

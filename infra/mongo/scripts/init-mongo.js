@@ -11,7 +11,7 @@ db.createUser({
     user: "admin",
     pwd: "1234",
     roles: [{ role: "userAdminAnyDatabase", db: "admin" }]
-})
+});
 
 /********************************************************************************
  * Create Users
@@ -64,6 +64,6 @@ db.createCollection("download_tokens");
 db.createCollection("storage_info");
 // all other designs
 db.createCollection("storage_metadata");
-
-// Create Collections for Storage Service Console
 db.createCollection("data_events");
+db.createCollection("scheduled_jobs");
+db.createCollection("watchlist");

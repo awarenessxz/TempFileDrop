@@ -1,4 +1,4 @@
-import React, { MouseEvent, useRef, useState } from 'react';
+import React, { MouseEvent, useEffect, useRef, useState } from 'react';
 import { useDropzone } from 'react-dropzone';
 import Button from '@material-ui/core/Button';
 import Container from '@material-ui/core/Container';
@@ -21,9 +21,9 @@ import TextField from '@material-ui/core/TextField';
 import Paper from '@material-ui/core/Paper';
 import { makeStyles, withStyles } from '@material-ui/core/styles';
 import Spinner from "../Spinner/Spinner";
-import StorageClient, { FileUploadMetadata, FileUploadResponse } from "storage-js-client";
+import StorageClient, { FileMap } from "storage-js-client";
 import { ExpiryPeriod, joinURLs, formatBytes } from "./StorageFileDropzone.util";
-import { StorageFileDropzoneProps } from './StorageFileDropzone.types';
+import { StorageFileDropzoneProps, FileUploadStatus } from './StorageFileDropzone.types';
 import styles from "./StorageFileDropzone.module.scss";
 
 const BorderLinearProgress = withStyles((theme) => ({
@@ -64,8 +64,10 @@ const StorageFileDropzone = ({
     });
     const uploadExceeded = (acceptedFiles.reduce((a, b) => a + b.size, 0) + fileRejections.reduce((a, b) => a + b.file.size, 0)) > maxSizeInBytes;
     const [errorMsg, setErrorMsg] = useState("");
-    const [uploadRes, setUploadRes] = useState<FileUploadResponse|null>(null);
+    const [successMsg, setSuccessMsg] = useState("");
     const [loading, setLoading] = useState(false);
+    const [fileUploadStatus, setFileUploadStatus] = useState<FileUploadStatus>({});
+    const [uploadProgressUpdate, setUploadProgressUpdate] = useState({ id: "", value: 0 });
     const [uploadPercentage, setUploadPercentage] = useState(0);
     const [copiedText, setCopiedText] = useState("Copy to Clipboard");
     const [downloadLinks, setDownloadLinks] = useState<string[]>([]);
@@ -74,15 +76,30 @@ const StorageFileDropzone = ({
     const [isAnonDownloadChecked, setIsAnonDownloadChecked] = useState(false);
     const [expiryPeriodIdx, setExpiryPeriodIdx] = useState(0);
 
+    useEffect(() => {
+        setFileUploadStatus({
+            ...fileUploadStatus,
+            [uploadProgressUpdate.id]: uploadProgressUpdate.value
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [uploadProgressUpdate]);
+
+    useEffect(() => {
+        const totalPercent = Object.values(fileUploadStatus).reduce((sum, num) => sum + num, 0);
+        const averagePercent = Math.round(totalPercent / acceptedFiles.length);
+        setUploadPercentage(averagePercent);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [fileUploadStatus]);
+
     const handleUpload = (e: MouseEvent<HTMLButtonElement>) => {
         // reset states
         setUploadPercentage(0);
         setLoading(true);
 
-        const handleUploadSuccess = (uploadRes: FileUploadResponse) => {
+        const handleUploadSuccess = () => {
             setLoading(false);
-            setDownloadLinks(uploadRes.storageIdList.map(id => joinURLs(window.location.origin, "download", id)));
-            setUploadRes(uploadRes);
+            setDownloadLinks(acceptedFiles.map(item => joinURLs(window.location.origin, "download", item.name)));
+            setSuccessMsg("Files have been uploaded successfully");
             onSuccessfulUploadCallback();
         };
 
@@ -93,30 +110,38 @@ const StorageFileDropzone = ({
         };
 
         if (isAnonymousUpload) {
-            StorageClient.uploadAnonymously({
+            StorageClient.uploadToStorageService({
                 files: acceptedFiles,
+                isAnonymous: true,
                 onUploadPercentage: (percentage) => setUploadPercentage(percentage),
                 onError: handleUploadFailure,
-                onSuccess: handleUploadSuccess,
+                onSuccess: handleUploadSuccess
             });
         } else {
             if (uploadMetadata === undefined) {
                 setErrorMsg("FileDropzone is missing metadata! Please provide metadata parameters...");
             } else {
-                const metadata: FileUploadMetadata = {
-                    bucket: uploadMetadata.bucket,
-                    storagePath: uploadMetadata.storagePath,
-                    maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
-                    expiryPeriod: expiryPeriodIdx,
-                    allowAnonymousDownload: isAnonDownloadChecked,
-                    eventData: uploadMetadata?.eventData
-                };
-                StorageClient.upload({
-                    files: acceptedFiles,
-                    metadata: metadata,
-                    onUploadPercentage: (percentage) => setUploadPercentage(percentage),
-                    onError: handleUploadFailure,
+                // @ts-ignore
+                const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
+                // @ts-ignore
+                const allowAnonymousDownload = anonDownloadRef.current === null ? false : anonDownloadRef.current.checked;
+                StorageClient.uploadViaPresignedUrl({
+                    files: acceptedFiles.reduce((result, item, index) => {
+                        result[item.name] = item;
+                        return result;
+                    }, {} as FileMap),
+                    metadata: {
+                        bucket: uploadMetadata.bucket,
+                        storageObjects: acceptedFiles.map(file => file.name),
+                        maxDownloads: maxDownloads === "" ? 1 : maxDownloads,
+                        expiryPeriod,
+                        allowAnonymousDownload
+                    },
+                    onUploadPercentage: (objectName, percentage) => {
+                        setUploadProgressUpdate({ id: objectName, value: percentage });
+                    },
                     onSuccess: handleUploadSuccess,
+                    onError: handleUploadFailure
                 });
             }
         }
@@ -130,6 +155,14 @@ const StorageFileDropzone = ({
             setCopiedText("Copied!");
         }
     };
+
+    const handleDownloadLinkClick = (event: MouseEvent<HTMLInputElement>, idx: number) => {
+        event.preventDefault();
+        if (downloadLinksRef.current !== null) {
+            // @ts-ignore
+            window.location = downloadLinksRef.current[idx]?.value;
+        }
+    }
 
     return (
         <Container className={styles.dropzoneContainer}>
@@ -162,21 +195,21 @@ const StorageFileDropzone = ({
                         {errorMsg}
                     </div>
                 )}
-                {uploadRes && (
+                {successMsg && (
                     <div className={`${styles.dropzoneBox} ${styles.messageSuccess}`}>
-                        <p>{uploadRes.message}</p>
+                        {successMsg}
                         <div className={styles.dropzoneShareLinkWrapper}>
                             {downloadLinks.map((downloadLink, idx) => {
                                 return (
                                     <div className={styles.dropzoneShareLink} key={idx}>
-                                        <input ref={(ref) => downloadLinksRef.current.push(ref)} value={downloadLink} onChange={() => {}}/>
+                                        <input ref={(ref) => downloadLinksRef.current.push(ref)} value={downloadLink} onChange={() => {}} onClick={e => handleDownloadLinkClick(e, idx)} />
                                         <div className={styles.copyTooltip}>
                                             <Button variant="contained" color="primary" onClick={() => copyToClipboard(idx)} onMouseOut={() => setCopiedText("Copy to Clipboard")}>
                                                 <span className={styles.copyTooltiptext}>{copiedText}</span>
                                                 <FileCopyIcon />
                                             </Button>
                                         </div>
-                                    </div >
+                                    </div>
                                 );
                             })}
                         </div>
@@ -189,7 +222,7 @@ const StorageFileDropzone = ({
                 )}
                 {loading && uploadPercentage >= 100 && <Spinner spinnerType="ThreeDots" backgroundColor="#92b0b3" spinnerColor="#fff" />}
             </div>
-            {showConfigs && !isAnonymousUpload && !loading && !uploadRes && (
+            {showConfigs && !isAnonymousUpload && !loading && !successMsg && (
                 <div className={styles.dropzoneConfigBox}>
                     <h5>Upload Settings</h5>
                     <div className={styles.dropzoneConfigRow}>

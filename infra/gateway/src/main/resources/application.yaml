@@ -79,6 +79,10 @@ spring.cloud.gateway:
       uri: http://localhost:3000/
       predicates:
         - Path=/tempfiledrop/**
+    - id: consoleApp
+      uri: http://localhost:3001/
+      predicates:
+        - Path=/console/**
     ######################################## Swagger Routes
     - id: swaggerStorageService
       uri: http://localhost:8001/
@@ -92,14 +96,14 @@ spring.cloud.gateway:
       uri: http://localhost:8001/
       predicates:
         - Path=/api/storagesvc/**
-#      filters:
-#        - RemoveRequestHeader=Cookie
     - id: tempfiledropWebServer
       uri: http://localhost:7001/
       predicates:
         - Path=/api/tempfiledrop/**
-#      filters:
-#        - RemoveRequestHeader=Cookie
+    - id: consoleService
+      uri: http://localhost:8282/
+      predicates:
+        - Path=/api/console/**
     ####################################### Web Socket Routes
     - id: websocket_sockjs_route
       uri: http://localhost:8001/

@@ -22,7 +22,7 @@ function App() {
 
     return (
         <div id="page-top">
-            <Router  basename="/tempfiledrop">
+            <Router basename="/tempfiledrop">
                 <NavBar />
                 {(!isAuthReady) && <Spinner isFullPage spinnerHeight={400} spinnerWidth={400} spinnerType="Puff" spinnerColor="#64a19d" backgroundColor="#000" />}
                 {authErrorMsg && <VerticallyCenteredModal title="Login Error" content={<Alert variant="danger">{ authErrorMsg }</Alert>} show={modalShow} onHide={() => setModalShow(false)} />}

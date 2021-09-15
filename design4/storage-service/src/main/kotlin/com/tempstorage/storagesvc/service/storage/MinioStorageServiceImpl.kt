@@ -7,6 +7,7 @@ import com.tempstorage.storagesvc.service.metadata.StorageMetadata
 import com.tempstorage.storagesvc.util.StorageUtils
 import io.minio.*
 import io.minio.http.Method
+import io.minio.messages.Item
 import org.apache.commons.fileupload.FileItemIterator
 import org.apache.commons.fileupload.servlet.ServletFileUpload
 import org.apache.commons.io.IOUtils
@@ -154,15 +155,15 @@ class MinioStorageServiceImpl(
         zipOut.close()
     }
 
-//    override fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo> {
-//        logger.info("List all files and folders in Bucket - $bucket...")
-//        val results: Iterable<Result<Item>> = minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).recursive(true).build())
-//        val objectSizeMapper = results.map { it.get().objectName() to it.get().size() }.toMap()
-//        return storageInfoList.map {
-//            val fileSize = objectSizeMapper[it.getObjectName()] ?: 0
-//            StorageInfo(it.id, it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload)
-//        }
-//    }
+    override fun getAllFileSizeInBucket(bucket: String, storageMetadataList: List<StorageMetadata>): List<StorageMetadata> {
+        logger.info("List all files and folders in Bucket - $bucket...")
+        val results: Iterable<Result<Item>> = minioClient.listObjects(ListObjectsArgs.builder().bucket(bucket).recursive(true).build())
+        val objectSizeMapper = results.map { it.get().objectName() to it.get().size() }.toMap()
+        return storageMetadataList.map {
+            it.fileSize = objectSizeMapper[it.objectName] ?: 0
+            it
+        }
+    }
 
     override fun deleteFile(storageMetadata: StorageMetadata) {
         logger.info("[MINIO CLUSTER] Deleting ${storageMetadata.objectName} from ${storageMetadata.bucket}...")

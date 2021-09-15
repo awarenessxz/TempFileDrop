@@ -1,7 +1,0 @@
-{
-    "app_name": "Storage Console",
-    "api_endpoints": {
-        "storagesvc": "/api/storagesvc"
-    },
-    "exchangeName": "storageSvcExchange"
-}

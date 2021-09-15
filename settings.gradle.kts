@@ -3,6 +3,7 @@ rootProject.name = "TempFileDrop"
 // order does matters
 include("design4:tempfiledrop:webserver")
 include("design4:storage-service")
+include("design4:storage-console:webserver")
 include("infra:gateway")
 
 // archive files

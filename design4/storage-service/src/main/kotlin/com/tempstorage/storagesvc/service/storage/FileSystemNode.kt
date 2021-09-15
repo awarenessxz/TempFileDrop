@@ -7,7 +7,6 @@ data class FileSystemNode(
         val label: String,
         val storageFullPath: String,
         val storageBucket: String,
-        val storageId: String? = null,
         val storageSize: Int = 0,
         val storageDownloadLeft: Int = 0,
         val storageExpiryDatetime: ZonedDateTime? = null,

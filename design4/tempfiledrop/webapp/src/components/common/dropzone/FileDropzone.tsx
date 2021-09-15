@@ -91,7 +91,6 @@ const FileDropzone = ({
             const expiryPeriod = selectRef.current === null ? 1 : selectRef.current.options.selectedIndex;
             // @ts-ignore
             const allowAnonymousDownload = anonDownloadRef.current === null ? false : anonDownloadRef.current.checked;
-            console.log(maxDownloads);
             StorageClient.uploadViaPresignedUrl({
                 files: acceptedFiles.reduce((result, item, index) => {
                     const key = `${userToken ? userToken.username : ""}/${item.name}`
@@ -114,6 +113,7 @@ const FileDropzone = ({
         } else {
             StorageClient.uploadToStorageService({
                 files: acceptedFiles,
+                isAnonymous: true,
                 onUploadPercentage: (percentage) => setUploadPercentage(percentage),
                 onError: handleUploadFailure,
                 onSuccess: handleUploadSuccess
@@ -176,7 +176,7 @@ const FileDropzone = ({
                             {downloadLinks.map((downloadLink, idx) => {
                                 return (
                                     <div className="dropzone-share-link" key={idx}>
-                                        <input ref={(ref) => downloadLinksRef.current.push(ref)} value={downloadLink} onChange={() => {}} onClick={e => handleDownloadLinkClick(e, idx)}/>
+                                        <input ref={(ref) => downloadLinksRef.current.push(ref)} value={downloadLink} onChange={() => {}} onClick={e => handleDownloadLinkClick(e, idx)} />
                                         <div className="copy-tooltip">
                                             <Button onClick={() => copyToClipboard(idx)} onMouseOut={() => setCopiedText("Copy to Clipboard")}>
                                                 <span className="copy-tooltiptext">{copiedText}</span>

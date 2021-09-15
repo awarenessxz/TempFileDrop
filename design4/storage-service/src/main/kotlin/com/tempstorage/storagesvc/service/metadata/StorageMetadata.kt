@@ -11,7 +11,7 @@ class StorageMetadata(
         val bucket: String,                                 // bucket_name
         val objectName: String,                             // s3 object name
         val fileContentType: String,                        // file content type
-        val fileSize: Long,                                 // file size
+        var fileSize: Long,                                 // file size
         var numOfDownloadsLeft: Int,                        // number of downloads left
         val expiryDatetime: ZonedDateTime?,                 // expiry date time
         val allowAnonymousDownload: Boolean,                // allow anonymous download

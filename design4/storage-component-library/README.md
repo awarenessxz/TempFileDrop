@@ -34,7 +34,7 @@ This library is designed using the following technology decisions:
 
 ## Usage
 
-To use `storage-component-libray` in your project, do the following:
+To use `storage-component-library` in your project, do the following:
 
 1. Adding Library as dependency
     - `yarn add storage-component-library axios moment`

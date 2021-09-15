@@ -24,11 +24,11 @@ import java.io.IOException
 import java.nio.file.Files
 import java.nio.file.Path
 import java.nio.file.Paths
+import java.util.stream.Collectors
 import java.util.zip.ZipEntry
 import java.util.zip.ZipOutputStream
 import javax.servlet.http.HttpServletRequest
 import javax.servlet.http.HttpServletResponse
-import kotlin.collections.ArrayList
 import kotlin.io.path.ExperimentalPathApi
 import kotlin.io.path.createDirectories
 
@@ -153,19 +153,19 @@ class FileStorageServiceImpl(
         storageMetadataList.forEach { notificationService.triggerDownloadNotification(it) }
     }
 
-//    override fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo> {
-//        logger.info("List all files and folders in Bucket - $bucket...")
-//        try {
-//            val results = Files.walk(root).filter(Files::isRegularFile).collect(Collectors.toList())
-//            val objectSizeMapper = results.map { it.fileName.toString() to Files.size(it) }.toMap()
-//            return storageInfoList.map {
-//                val fileSize = objectSizeMapper[it.originalFilename] ?: 0
-//                StorageInfo(it.id, it.bucket, it.storagePath, it.originalFilename, it.fileContentType, fileSize, it.numOfDownloadsLeft, it.expiryDatetime, it.allowAnonymousDownload)
-//            }
-//        } catch (e: IOException) {
-//            throw RuntimeException("Could not load the files!")
-//        }
-//    }
+    override fun getAllFileSizeInBucket(bucket: String, storageMetadataList: List<StorageMetadata>): List<StorageMetadata> {
+        logger.info("List all files and folders in Bucket - $bucket...")
+        try {
+            val results = Files.walk(root).filter(Files::isRegularFile).collect(Collectors.toList())
+            val objectSizeMapper = results.map { it.fileName.toString() to Files.size(it) }.toMap()
+            return storageMetadataList.map {
+                it.fileSize = objectSizeMapper[it.getOriginalFilename()] ?: 0
+                it
+            }
+        } catch (e: IOException) {
+            throw RuntimeException("Could not load the files!")
+        }
+    }
 
     override fun deleteFile(storageMetadata: StorageMetadata) {
         logger.info("[FILE SYSTEM] Deleting ${storageMetadata.objectName} from ${storageMetadata.bucket}...")

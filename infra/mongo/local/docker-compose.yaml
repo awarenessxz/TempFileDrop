@@ -14,7 +14,7 @@ services:
     ports:
       - 27017:27017
     volumes:
-      - ./scripts:/docker-entrypoint-initdb.d # scripts will not run if /data/db is not empty
+      - ../scripts:/docker-entrypoint-initdb.d # scripts will not run if /data/db is not empty
       - ./storage:/data/db # for persistent storage
 
 networks:

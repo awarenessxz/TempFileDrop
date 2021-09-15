@@ -2,6 +2,7 @@ package com.tempstorage.storagesvc.controller.storage
 
 import com.tempstorage.storagesvc.exception.ErrorResponse
 import com.tempstorage.storagesvc.service.metadata.StorageMetadata
+import com.tempstorage.storagesvc.service.storage.FileSystemNode
 import com.tempstorage.storagesvc.service.storage.StorageService
 import io.minio.http.Method
 import io.swagger.v3.oas.annotations.Operation
@@ -34,14 +35,6 @@ class StorageController(
 //        return ResponseEntity(count, HttpStatus.OK)
 //    }
 //
-//    @Operation(summary = "Get all files and folders inside bucket in folder like structure")
-//    @GetMapping("/tree/{bucket}")
-//    fun getStorageFromBucket(@PathVariable("bucket") bucket: String): ResponseEntity<FileSystemNode> {
-//        logger.info("Receiving Request to get content inside $bucket")
-//        val filesystemNode = storageService.listFilesAndFoldersInBucket(bucket)
-//        return ResponseEntity(filesystemNode, HttpStatus.OK)
-//    }
-//
 //    @Operation(summary = "Get all files in bucket")
 //    @GetMapping("/{bucket}")
 //    fun getAllStorageInfoInBucket(@PathVariable("bucket") bucket: String): ResponseEntity<List<StorageInfo>> {
@@ -49,6 +42,29 @@ class StorageController(
 //        val storageInfoList = storageService.getAllStorageInfoFromBucket(bucket)
 //        return ResponseEntity(storageInfoList, HttpStatus.OK)
 //    }
+
+    /***************************************************************************************************************************************************************
+     * List Endpoints
+     ***************************************************************************************************************************************************************/
+
+    @Operation(summary = "Get all files and folders inside bucket in folder like structure")
+    @GetMapping("/list")
+    fun getStorageFromBucket(): ResponseEntity<List<FileSystemNode>> {
+        logger.info("Receiving Request to get content from all buckets")
+        val buckets = storageService.getAllBuckets()
+        val results = buckets.map {
+            storageService.listFilesAndFoldersInBucket(it)
+        }
+        return ResponseEntity(results, HttpStatus.OK)
+    }
+
+    @Operation(summary = "Get all files and folders inside bucket in folder like structure")
+    @GetMapping("/list/{bucket}")
+    fun getStorageFromBucket(@PathVariable("bucket") bucket: String): ResponseEntity<FileSystemNode> {
+        logger.info("Receiving Request to get content inside $bucket")
+        val filesystemNode = storageService.listFilesAndFoldersInBucket(bucket)
+        return ResponseEntity(filesystemNode, HttpStatus.OK)
+    }
 
     /***************************************************************************************************************************************************************
      * Metadata Endpoints
@@ -138,7 +154,7 @@ class StorageController(
         ApiResponse(description = "Files were deleted successfully", responseCode = "200", content = [Content(mediaType = "string")]),
         ApiResponse(description = "Files not found", responseCode = "400", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ])
-    @DeleteMapping("/")
+    @DeleteMapping("/{bucket}")
     fun deleteFilesInBucket(
             @RequestParam(value = "storageObjects", required = true, defaultValue = "") storageObjects: List<String>,
     ): ResponseEntity<String> {

@@ -87,30 +87,30 @@ object StorageUtils {
         }
     }
 
-//    fun buildFolderTreeStructure(bucket: String, fileSystemNodes: List<FileSystemNode>): FileSystemNode {
-//        val root = FileSystemNode(false, bucket, "/$bucket", bucket)
-//        for (fileSystemNode in fileSystemNodes) {
-//            buildTree(fileSystemNode.storageFullPath, fileSystemNode, root)
-//        }
-//        return root
-//    }
-//
-//    private fun buildTree(path: String, file: FileSystemNode, parent: FileSystemNode) {
-//        if (path.contains("/")) {
-//            val currentPath = path.substring(0, path.indexOf("/"))
-//            val newPath = path.substring(currentPath.length + 1)
-//            if (parent.containsPath(currentPath)) {
-//                buildTree(newPath, file, parent.getFileSystemNode(currentPath)!!)
-//            } else {
-//                val newFolder = FileSystemNode(false, currentPath, "${parent.storageFullPath}/$currentPath", parent.storageBucket)
-//                parent.children.add(newFolder)
-//                buildTree(newPath, file, newFolder)
-//            }
-//        } else {
-//            if (!parent.containsPath(path)) {
-//                val newFile = FileSystemNode(true, file.label, file.storageFullPath, file.storageBucket, file.storageId, file.storageSize, file.storageDownloadLeft, file.storageExpiryDatetime)
-//                parent.children.add(newFile)
-//            }
-//        }
-//    }
+    fun buildFolderTreeStructure(bucket: String, fileSystemNodes: List<FileSystemNode>): FileSystemNode {
+        val root = FileSystemNode(false, bucket, "/$bucket", bucket)
+        for (fileSystemNode in fileSystemNodes) {
+            buildTree(fileSystemNode.storageFullPath, fileSystemNode, root)
+        }
+        return root
+    }
+
+    private fun buildTree(path: String, file: FileSystemNode, parent: FileSystemNode) {
+        if (path.contains("/")) {
+            val currentPath = path.substring(0, path.indexOf("/"))
+            val newPath = path.substring(currentPath.length + 1)
+            if (parent.containsPath(currentPath)) {
+                buildTree(newPath, file, parent.getFileSystemNode(currentPath)!!)
+            } else {
+                val newFolder = FileSystemNode(false, currentPath, "${parent.storageFullPath}/$currentPath", parent.storageBucket)
+                parent.children.add(newFolder)
+                buildTree(newPath, file, newFolder)
+            }
+        } else {
+            if (!parent.containsPath(path)) {
+                val newFile = FileSystemNode(true, file.label, file.storageFullPath, file.storageBucket, file.storageSize, file.storageDownloadLeft, file.storageExpiryDatetime)
+                parent.children.add(newFile)
+            }
+        }
+    }
 }

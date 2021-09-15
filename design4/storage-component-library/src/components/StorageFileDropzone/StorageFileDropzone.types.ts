@@ -26,3 +26,6 @@ export interface UploadMetadata {
     eventData?: string;
 }
 
+export interface FileUploadStatus {
+    [key: string]: number;
+}

@@ -32,7 +32,7 @@ abstract class StorageService {
     abstract fun deleteFile(storageMetadata: StorageMetadata)
     abstract fun downloadFile(storageMetadata: StorageMetadata, response: HttpServletResponse)
     abstract fun downloadFilesAsZip(storageMetadataList: List<StorageMetadata>, response: HttpServletResponse)
-//    abstract fun getAllFileSizeInBucket(bucket: String, storageInfoList: List<StorageInfo>): List<StorageInfo>
+    abstract fun getAllFileSizeInBucket(bucket: String, storageMetadataList: List<StorageMetadata>): List<StorageMetadata>
 
     private lateinit var storageMetadataService: StorageMetadataService
     private lateinit var notificationService: NotificationService
@@ -53,18 +53,22 @@ abstract class StorageService {
         this.storageServiceProperties = storageServiceProperties
     }
 
-//    fun getAllBuckets(): List<String> {
-//        return storageInfoService.getBuckets()
-//    }
+    /***************************************************************************************************************************************************************
+     * List Functions
+     ***************************************************************************************************************************************************************/
 
-//    // convert list of all storage in bucket into folder like structure
-//    fun listFilesAndFoldersInBucket(bucket: String): FileSystemNode {
-//        val storageInfoList = getAllStorageInfoFromBucket(bucket)
-//        val fileSystemNodes = getAllFileSizeInBucket(bucket, storageInfoList).map {
-//            FileSystemNode(true, it.originalFilename, it.objectName, it.bucket, it.id, it.fileLength.toInt(), it.numOfDownloadsLeft, it.expiryDatetime)
-//        }
-//        return StorageUtils.buildFolderTreeStructure(bucket, fileSystemNodes)
-//    }
+    fun getAllBuckets(): List<String> {
+        return storageMetadataService.getBuckets()
+    }
+
+    // convert list of all storage in bucket into folder like structure
+    fun listFilesAndFoldersInBucket(bucket: String): FileSystemNode {
+        val storageInfoList = storageMetadataService.getAllStorageMetadataInBucket(bucket)
+        val fileSystemNodes = getAllFileSizeInBucket(bucket, storageInfoList).map {
+            FileSystemNode(true, it.getOriginalFilename(), it.objectName, it.bucket, it.fileSize.toInt(), it.numOfDownloadsLeft, it.expiryDatetime)
+        }
+        return StorageUtils.buildFolderTreeStructure(bucket, fileSystemNodes)
+    }
 
     /***************************************************************************************************************************************************************
      * Delete Functions

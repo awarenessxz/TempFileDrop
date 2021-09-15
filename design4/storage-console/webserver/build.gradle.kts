@@ -1,0 +1,71 @@
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+
+plugins {
+	id("org.springframework.boot") version "2.4.5"
+	id("io.spring.dependency-management") version "1.0.11.RELEASE"
+	id("com.google.cloud.tools.jib") version "3.1.1"
+	kotlin("jvm")
+	kotlin("plugin.spring")
+}
+
+group = "com.tempstorage"
+version = "0.0.1-SNAPSHOT"
+java.sourceCompatibility = JavaVersion.VERSION_11
+
+repositories {
+	mavenCentral()
+	jcenter()
+}
+
+dependencies {
+	// Web
+	implementation("org.springframework.boot:spring-boot-starter-web")
+	implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+	// Database
+	implementation("org.springframework.boot:spring-boot-starter-data-mongodb") // Mongo Database
+
+	// Scheduling
+	implementation("org.springframework.boot:spring-boot-starter-quartz")
+	implementation("com.novemberain:quartz-mongodb:2.2.0-rc2")
+
+	// Kotlin
+	annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
+	implementation("com.fasterxml.jackson.module:jackson-module-kotlin")
+	implementation("org.jetbrains.kotlin:kotlin-reflect")
+	implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+
+	// Testing
+	testImplementation("org.springframework.boot:spring-boot-starter-test")
+}
+
+dependencyManagement {
+	imports {
+		mavenBom("org.springframework.cloud:spring-cloud-dependencies:2020.0.3")
+	}
+}
+
+tasks.withType<KotlinCompile> {
+	kotlinOptions {
+		freeCompilerArgs = listOf("-Xjsr305=strict")
+		jvmTarget = "11"
+	}
+}
+
+tasks.withType<Test> {
+	useJUnitPlatform()
+}
+
+jib {
+	from {
+		image = "gcr.io/distroless/java:11"
+	}
+	to {
+		image = "tempstorage/tempfiledrop/webserver"
+		tags = setOf("latest")
+	}
+	container {
+		jvmFlags = listOf("-Xms512m", "-Dserver.port=8080")
+		ports = listOf("8080")
+	}
+}

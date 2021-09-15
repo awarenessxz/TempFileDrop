@@ -9,7 +9,7 @@ class EventDataServiceImpl(
         private val repository: EventDataRepository
 ): EventDataService {
     override fun writeToDB(eventMsg: NotificationMessage) {
-        val eventData = EventData(eventMsg.bucket, "", "", "", ZonedDateTime.now())
+        val eventData = EventData(eventMsg.bucket, eventMsg.objectName, eventMsg.eventType.name, ZonedDateTime.now())
         repository.save(eventData)
     }
 

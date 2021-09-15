@@ -1,8 +1,8 @@
 import { Dispatch } from "react";
 import axios from "axios";
 import { AuthActionTypes, CHECK_SSO } from "./auth-types";
+import { UserToken } from "../../types/api-types";
 import Data from "../../config/app.json";
-import { UserToken } from "../keycloak-utils";
 
 export const dispatchCheckSSO = (dispatch: Dispatch<AuthActionTypes> | null) => {
     if (dispatch === null) {

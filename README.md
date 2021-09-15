@@ -292,6 +292,10 @@ for more information.
     - [Using React Context with Socket.io](https://alexboots.medium.com/using-react-context-with-socket-io-3b7205c86a6d)
 - React / Javascript
     - [Eslint for Typescript](https://khalilstemmler.com/blogs/typescript/eslint-for-typescript/)
+- Scheduling
+    - [Guide to Quartz with Spring Boot Scheduling and Automation](https://stackabuse.com/guide-to-quartz-with-spring-boot-job-scheduling-and-automation/)
+    - [Clustered Quartz Scheduler with Spring boot and Mongo](https://dzone.com/articles/clustered-quartz-scheduler-with-spring-boot-and-mo)
+    - [Quartz Scheduler using Rest API with Spring boot and Mongo](https://medium.com/geekculture/quartz-scheduler-using-rest-api-with-spring-boot-and-mongodb-onload-code-9e70a13d88cc)
 - Misc
     - [Stackoverflow - Algorithm for folder structure](https://stackoverflow.com/questions/7433414/help-to-write-an-algorithm-for-folders-structure)
     - [Stackoverflow - Spring Security 403 for POST/DELETE but ok for GET](https://stackoverflow.com/questions/19468209/spring-security-403-error)

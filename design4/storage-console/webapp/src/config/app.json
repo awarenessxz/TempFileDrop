@@ -1,0 +1,12 @@
+{
+    "app_name": "Storage Console",
+    "admin_role": "storage|admin",
+    "api_endpoints": {
+        "login": "/auth/login/tempfiledrop",
+        "logout": "/logout",
+        "get_user": "/auth/user",
+        "storagesvc": "/api/storagesvc",
+        "scheduler": "/api/console/watch"
+    },
+    "exchangeName": "storageSvcExchange"
+}
