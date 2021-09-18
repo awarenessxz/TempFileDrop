@@ -1,6 +1,9 @@
-import React, {useEffect, useState} from "react";
+import React, { MouseEvent, useEffect, useState } from "react";
 import axios from "axios";
-import {createStyles, makeStyles, Theme} from "@material-ui/core/styles";
+import moment, { Moment } from "moment";
+import MomentUtils from "@date-io/moment";
+import cronValidator from "cron-expression-validator";
+import { createStyles, makeStyles, Theme } from "@material-ui/core/styles";
 import AddAlarmIcon from '@material-ui/icons/AddAlarm';
 import Button from "@material-ui/core/Button";
 import Paper from "@material-ui/core/Paper";
@@ -17,9 +20,11 @@ import InputLabel from '@material-ui/core/InputLabel';
 import MenuItem from '@material-ui/core/MenuItem';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
+import LinearProgress from '@material-ui/core/LinearProgress';
+import { DateTimePicker, MuiPickersUtilsProvider  } from "@material-ui/pickers";
 import VerticallyCenteredModal from "./common/VerticallyCenteredModal";
-import {useAuthState} from "../util/auth-context";
-import {SchedulerJob, SchedulerJobStatus, SchedulerJobType, WatchListJob} from "../types/api-types";
+import { useAuthState } from "../util/auth-context";
+import { SchedulerJob, SchedulerJobStatus, SchedulerJobType, WatchListJob } from "../types/api-types";
 import Data from "../config/app.json";
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -48,6 +53,13 @@ const useStyles = makeStyles((theme: Theme) =>
         },
         formControl: {
             width: '100%',
+        },
+        linearProgressRoot: {
+            width: '100%',
+            '& > * + *': {
+                marginTop: theme.spacing(2),
+            },
+            margin: theme.spacing(1),
         }
     }),
 );
@@ -56,14 +68,19 @@ const SchedulerConsole = () => {
     const classes = useStyles();
     const { userToken } = useAuthState();
     const [errorMsg, setErrorMsg] = useState("");
+    const [submitErrorMsg, setSubmitErrorMsg] = useState("");
     const [watchList, setWatchList] = useState<WatchListJob[]>([]);
     const [showModal, setShowModal] = useState(false);
     const [newWatchlist, setNewWatchList] = useState<SchedulerJob>({
         jobType: SchedulerJobType.MONITOR_OBJECT_CRONJOB,
         jobName: "",
+        startTime: moment(),
         description: "",
-        cronExpression: "* * * * *"
+        cronExpression: "0 */2 * ? * *"
     });
+    // 0 0 * ? * * *
+    const [newMonitorJobFormErrorState, setNewMonitorJobFormErrorState] = useState([false, false]);
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     useEffect(() => {
         if (userToken) {
@@ -77,6 +94,39 @@ const SchedulerConsole = () => {
                 });
         }
     }, [userToken]);
+
+    const handleSubmitCreateJob = (e: MouseEvent<HTMLButtonElement>) => {
+        e.preventDefault();
+        setSubmitErrorMsg("");
+        setNewMonitorJobFormErrorState([false, false]);
+
+        // validate
+        const isCronValid = cronValidator.isValidCronExpression(newWatchlist.cronExpression);
+        const isJobNameValid = newWatchlist.jobName.trim() !== "";
+        if (isCronValid && isJobNameValid) {
+            setIsSubmitting(true);
+            console.log(newWatchlist);
+            axios.post(`${Data.api_endpoints.scheduler}/create/${userToken?.username}`, newWatchlist)
+                .then(res => console.log(res))
+                .catch(err => console.error(err));
+        } else {
+            let message = "";
+            const invalidIdx: number[] = [];
+            if (!isCronValid) {
+                message += "Invalid Cron Expression...";
+                invalidIdx.push(1);
+            }
+            if (!isJobNameValid) {
+                if (message !== "") {
+                    message += " && "
+                }
+                message += "Please Enter Job Name...";
+                invalidIdx.push(0);
+            }
+            setNewMonitorJobFormErrorState(newMonitorJobFormErrorState.map((state, idx) => invalidIdx.includes(idx)));
+            setSubmitErrorMsg(message);
+        }
+    };
 
     return (
         <div>
@@ -124,23 +174,23 @@ const SchedulerConsole = () => {
                                                     <TableCell>{job.isObjectValid ? "VALID" : "INVALID"}</TableCell>
                                                     <TableCell>{job.description}</TableCell>
                                                     <TableCell>
-                                                        <Button variant="contained" color="primary">
+                                                        <Button variant="contained" color="primary" className={classes.button}>
                                                             Run Once
                                                         </Button>
                                                         {job.jobStatus === SchedulerJobStatus.PAUSED && (
-                                                            <Button variant="contained" color="primary">
+                                                            <Button variant="contained" color="primary" className={classes.button}>
                                                                 Resume
                                                             </Button>
                                                         )}
                                                         {(job.jobStatus !== SchedulerJobStatus.PAUSED && job.jobStatus !== SchedulerJobStatus.COMPLETED && job.jobStatus !== SchedulerJobStatus.COMPLETED_WITH_ERROR) && (
-                                                            <Button variant="contained" color="primary">
+                                                            <Button variant="contained" color="primary" className={classes.button}>
                                                                 Pause
                                                             </Button>
                                                         )}
-                                                        <Button variant="contained" color="primary">
+                                                        <Button variant="contained" color="primary" className={classes.button}>
                                                             Edit
                                                         </Button>
-                                                        <Button variant="contained" color="secondary">
+                                                        <Button variant="contained" color="secondary" className={classes.button}>
                                                             Delete
                                                         </Button>
                                                     </TableCell>
@@ -163,56 +213,84 @@ const SchedulerConsole = () => {
                 onClose={() => setShowModal(!showModal)}
                 content={(
                     <Grid container spacing={3}>
-                        <Grid item xs={12}>
-                            <TextField
-                                required
-                                fullWidth
-                                label="Job Name"
-                                value={newWatchlist.jobName}
-                                variant="outlined"
-                                onChange={(e) => setNewWatchList({ ...newWatchlist, jobName: e.target.value as string })}
-                            />
-                        </Grid>
-                        <Grid item xs={12}>
-                            <FormControl variant="outlined" className={classes.formControl}>
-                                <InputLabel id="jobtype-select">Job Type</InputLabel>
-                                <Select
-                                    labelId="jobtype-select"
-                                    label="Job Type"
-                                    value={newWatchlist.jobType}
-                                    onChange={(e) => setNewWatchList({ ...newWatchlist, jobType: e.target.value as SchedulerJobType })}
-                                >
-                                    {Object.keys(SchedulerJobType).map((value) => <MenuItem value={value}>{value}</MenuItem>)}
-                                </Select>
-                            </FormControl>
-                        </Grid>
-                        {newWatchlist.jobType === SchedulerJobType.MONITOR_OBJECT_CRONJOB && (
-                            <Grid item xs={12}>
-                                <TextField
-                                    required
-                                    fullWidth
-                                    label="Cron Expression"
-                                    value={newWatchlist.description}
-                                    variant="outlined"
-                                    onChange={(e) => setNewWatchList({ ...newWatchlist, cronExpression: e.target.value as string })}
-                                />
-                            </Grid>
+                        {isSubmitting ? (
+                            <div className={classes.linearProgressRoot}>
+                                <LinearProgress />
+                            </div>
+                        ) : (
+                            <React.Fragment>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        required
+                                        fullWidth
+                                        label="Job Name"
+                                        value={newWatchlist.jobName}
+                                        variant="outlined"
+                                        onChange={(e) => setNewWatchList({ ...newWatchlist, jobName: e.target.value as string })}
+                                        error={newMonitorJobFormErrorState[0]}
+                                    />
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <FormControl variant="outlined" className={classes.formControl}>
+                                        <InputLabel id="jobtype-select">Job Type</InputLabel>
+                                        <Select
+                                            labelId="jobtype-select"
+                                            label="Job Type"
+                                            value={newWatchlist.jobType}
+                                            onChange={(e) => setNewWatchList({ ...newWatchlist, jobType: e.target.value as SchedulerJobType })}
+                                        >
+                                            {Object.keys(SchedulerJobType).map((value, idx) => <MenuItem key={idx} value={value}>{value}</MenuItem>)}
+                                        </Select>
+                                    </FormControl>
+                                </Grid>
+                                {newWatchlist.jobType === SchedulerJobType.MONITOR_OBJECT_CRONJOB && (
+                                    <Grid item xs={12}>
+                                        <TextField
+                                            required
+                                            fullWidth
+                                            label="Cron Expression"
+                                            helperText="Seconds Minutes Hours DayofMonth Month DayOfWeek Year"
+                                            value={newWatchlist.cronExpression}
+                                            variant="outlined"
+                                            onChange={(e) => setNewWatchList({ ...newWatchlist, cronExpression: e.target.value as string })}
+                                            error={newMonitorJobFormErrorState[1]}
+                                        />
+                                    </Grid>
+                                )}
+                                <Grid item xs={12}>
+                                    <MuiPickersUtilsProvider libInstance={moment} utils={MomentUtils} locale="sg">
+                                        <DateTimePicker
+                                            label="Start Datetime"
+                                            inputVariant="outlined"
+                                            value={newWatchlist.startTime}
+                                            onChange={(value) => setNewWatchList({ ...newWatchlist, startTime: value as Moment })}
+                                            disablePast
+                                            fullWidth
+                                        />
+                                    </MuiPickersUtilsProvider>
+                                </Grid>
+                                <Grid item xs={12}>
+                                    <TextField
+                                        fullWidth
+                                        label="Description"
+                                        value={newWatchlist.description}
+                                        variant="outlined"
+                                        onChange={(e) => setNewWatchList({ ...newWatchlist, description: e.target.value as string })}
+                                        error={newMonitorJobFormErrorState[2]}
+                                    />
+                                </Grid>
+                                {submitErrorMsg && (
+                                    <Grid item xs={12}>
+                                        <Alert severity="error">{submitErrorMsg}</Alert>
+                                    </Grid>
+                                )}
+                                <Grid item xs={12} className={classes.alignRight}>
+                                    <Button variant="contained" color="primary" onClick={handleSubmitCreateJob}>
+                                        Create
+                                    </Button>
+                                </Grid>
+                            </React.Fragment>
                         )}
-                        <Grid item xs={12}>
-                            <TextField
-                                required
-                                fullWidth
-                                label="Description"
-                                value={newWatchlist.description}
-                                variant="outlined"
-                                onChange={(e) => setNewWatchList({ ...newWatchlist, description: e.target.value as string })}
-                            />
-                        </Grid>
-                        <Grid item xs={12} className={classes.alignRight}>
-                            <Button variant="contained" color="primary">
-                                Create
-                            </Button>
-                        </Grid>
                     </Grid>
                 )}
             />

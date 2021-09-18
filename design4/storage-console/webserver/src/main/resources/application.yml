@@ -17,3 +17,11 @@ spring:
 spring.data.mongodb.uri: mongodb://storage_user:storage_pass@localhost:27017/storageDB?authSource=admin
 
 ---
+
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: DEBUG
+    org.springframework.web.HttpLogging: DEBUG
+    org.springframework.security: DEBUG

@@ -5,6 +5,7 @@ import com.tempstorage.console.service.scheduler.SchedulerJobService
 import com.tempstorage.console.service.watcher.WatchList
 import com.tempstorage.console.service.watcher.WatchListJob
 import com.tempstorage.console.service.watcher.WatcherService
+import org.slf4j.LoggerFactory
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
@@ -15,6 +16,10 @@ class WatcherController(
         private val schedulerJobService: SchedulerJobService,
         private val watcherService: WatcherService
 ) {
+    companion object {
+        private val logger = LoggerFactory.getLogger(WatcherController::class.java)
+    }
+
     @GetMapping("/list")
     fun getAllJobs(): ResponseEntity<List<SchedulerJob>> {
         val response = schedulerJobService.getAllSchedulerJobs()
@@ -46,6 +51,7 @@ class WatcherController(
 
     @PostMapping("/create/{user}")
     fun createNewSchedulerJob(@PathVariable("user") user: String, @RequestBody schedulerJob: SchedulerJob): ResponseEntity<String> {
+        logger.info(">>>> Creating New Monitor Job = $schedulerJob for $user")
         val result = schedulerJobService.createSchedulerJob(schedulerJob)
         if (result) {
             watcherService.saveUserWatchList(WatchList("", user, schedulerJob.jobName, false))

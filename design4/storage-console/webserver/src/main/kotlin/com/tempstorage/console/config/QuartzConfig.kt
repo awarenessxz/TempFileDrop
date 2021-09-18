@@ -7,7 +7,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.scheduling.quartz.SchedulerFactoryBean
 import java.util.*
 
-
 @Configuration
 class QuartzConfig(
         private val quartzProperties: QuartzProperties,

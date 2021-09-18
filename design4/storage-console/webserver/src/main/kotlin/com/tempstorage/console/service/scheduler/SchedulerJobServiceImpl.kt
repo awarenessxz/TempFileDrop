@@ -10,7 +10,6 @@ import org.springframework.scheduling.quartz.QuartzJobBean
 import org.springframework.scheduling.quartz.SchedulerFactoryBean
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.util.*
 
 @Transactional
 @Service
@@ -34,7 +33,7 @@ class SchedulerJobServiceImpl(
                     .withIdentity(job.jobName, job.jobType.name)
                     .build()
             if (!scheduler.checkExists(jobDetail!!.key)) {
-                jobDetail = scheduleCreator.createJob((Class.forName(job.jobClass) as Class<out QuartzJobBean?>), false, context, job.jobName, job.jobType.name)
+                jobDetail = scheduleCreator.createJob((Class.forName(job.jobClass) as Class<out QuartzJobBean?>), true, context, job.jobName, job.jobType.name)
                 val trigger = createTrigger(job)
                 scheduler.scheduleJob(jobDetail, trigger)
                 updateSchedulerJobStatus(job, SchedulerJobStatus.SCHEDULED)
