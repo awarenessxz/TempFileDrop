@@ -18,3 +18,7 @@ dependencies {
         archives(it)
     }
 }
+
+wrapper {
+    gradleVersion = '6.8.3'
+}
